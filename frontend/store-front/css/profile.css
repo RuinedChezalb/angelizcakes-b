@@ -761,6 +761,62 @@
   text-align: center;
 }
 
+.profile-record-list {
+  display: grid;
+  gap: 12px;
+}
+
+.profile-record-card {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid #f0dfe2;
+  border-radius: 12px;
+}
+
+.profile-record-card h4 {
+  margin: 0 0 4px;
+  color: #3b2d32;
+  font-size: 13px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.profile-record-card p {
+  margin: 0 0 4px;
+  color: #514249;
+  font-size: 12px;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+.profile-record-reply {
+  grid-column: 1 / -1;
+  padding: 10px 12px;
+  border-radius: 9px;
+  background: #fbf1f3;
+}
+
+.profile-record-reply strong {
+  display: block;
+  margin-bottom: 4px;
+  color: #8c4e60;
+  font-size: 11px;
+}
+
+.profile-record-badge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #fbf1f3;
+  color: #8c4e60;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
 .profile-saved-section + .profile-saved-section {
   margin-top: 24px;
 }

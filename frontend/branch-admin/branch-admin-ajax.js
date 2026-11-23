@@ -9,11 +9,13 @@
       fragment: "html/order-management.html",
       stylesheet: "css/order-management.css",
       script: "js/order-management.js",
+      onShow: "refreshBranchOrders",
     },
     "customer-records": {
       fragment: "html/customer-records.html",
       stylesheet: "css/customer-records.css",
       script: "js/customer-records.js",
+      onShow: "refreshCustomerRecords",
     },
     "branch-inventory": {
       fragment: "html/branch-inventory.html",

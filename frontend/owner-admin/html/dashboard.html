@@ -22,8 +22,8 @@
   <!-- KPIs -->
   <section class="section">
     <div class="grid grid-4">
-      <div class="card"><div class="kpi-label">Total Sales</div><div class="kpi-value">₱128,450</div><div class="kpi-delta up">▲ 12.4% vs last month</div></div>
-      <div class="card"><div class="kpi-label">Total Orders</div><div class="kpi-value">1,284</div><div class="kpi-delta up">▲ 8.2% vs last month</div></div>
+      <div class="card"><div class="kpi-label">Total Sales</div><div class="kpi-value" id="kpiTotalSales">₱128,450</div><div class="kpi-delta up">▲ 12.4% vs last month</div></div>
+      <div class="card"><div class="kpi-label">Total Orders</div><div class="kpi-value" id="kpiTotalOrders">1,284</div><div class="kpi-delta up">▲ 8.2% vs last month</div></div>
       <div class="card">
         <div class="kpi-label">Top Customers</div>
         <div class="kpi-value">18</div>
@@ -111,7 +111,7 @@
         <div class="table-wrap">
           <table class="table">
             <thead><tr><th>Product</th><th>Branch</th><th>Expiry</th><th>Qty</th></tr></thead>
-            <tbody>
+            <tbody id="expiringProductRows">
               <tr><td class="strong">Strawberry Shortcake</td><td>Main Branch</td><td>Today</td><td>3</td></tr>
               <tr><td class="strong">Chocolate Mousse Slice</td><td>Main Branch</td><td>Tomorrow</td><td>8</td></tr>
               <tr><td class="strong">Sakura Tiramisu</td><td>Yashano Mall</td><td>In 2 days</td><td>5</td></tr>

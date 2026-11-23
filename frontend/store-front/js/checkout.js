@@ -40,7 +40,9 @@ window.initializeCheckoutFragment = function initializeCheckoutFragment(root, pr
   const shippingTotal = root.querySelector("[data-checkout-shipping]");
   const orderTotal = root.querySelector("[data-checkout-total]");
   const priceNote = root.querySelector("[data-checkout-price-note]");
+  const submitError = root.querySelector("[data-checkout-error]");
   if (
+    !submitError ||
     !form || !productImage || !deliveryAddressField || !pickupLocationField
     || !deliveryAddress || !recipientToggle || !recipientToggleGroup || !recipientFields
     || !form.elements.recipientName || !form.elements.recipientContact || !form.elements.recipientAddress
@@ -84,17 +86,10 @@ window.initializeCheckoutFragment = function initializeCheckoutFragment(root, pr
   const timezoneOffset = localDate.getTimezoneOffset() * 60000;
   form.elements.deliveryDate.min = new Date(localDate.getTime() - timezoneOffset).toISOString().slice(0, 10);
   placeOrderButton.addEventListener("click", () => {
+    if (!form.reportValidity()) return;
     const placedAt = new Date();
     const fulfillmentMethod = form.elements.fulfillment.value === "pickup" ? "Pickup" : "Delivery";
-    receiptOrder.textContent = "AC-PREVIEW-001";
-    receiptReference.textContent = `AC-REF-${placedAt.getTime()}`;
-    receiptDate.textContent = new Intl.DateTimeFormat("en-PH", {
-      dateStyle: "medium",
-      timeStyle: "short"
-    }).format(placedAt);
-    receiptMethod.textContent = `${fulfillmentMethod} · ${paymentMethod.value}`;
-    receiptPrice.textContent = orderTotal.textContent.trim();
-    options.onPlaceOrder?.({
+    const orderDetails = {
       product,
       customerName: form.elements.customerName.value.trim(),
       customerEmail: form.elements.customerEmail.value.trim(),
@@ -114,7 +109,29 @@ window.initializeCheckoutFragment = function initializeCheckoutFragment(root, pr
       paymentMethod: paymentMethod.value,
       orderTotal: orderTotal.textContent.trim(),
       additionalInformation: form.elements.additionalInformation.value.trim()
-    });
+    };
+
+    let placement;
+    try {
+      placement = options.onPlaceOrder
+        ? options.onPlaceOrder(orderDetails)
+        : window.AngelizDB.orders.placeMenuOrder(orderDetails, { source: "storefront" });
+    } catch (error) {
+      console.error("Could not save the order.", error);
+      submitError.textContent = "Your order could not be saved. Please try again.";
+      submitError.hidden = false;
+      return;
+    }
+    submitError.hidden = true;
+
+    receiptOrder.textContent = placement?.orderNumber || "Pending";
+    receiptReference.textContent = placement?.referenceNumber || `AC-REF-${placedAt.getTime()}`;
+    receiptDate.textContent = new Intl.DateTimeFormat("en-PH", {
+      dateStyle: "medium",
+      timeStyle: "short"
+    }).format(placedAt);
+    receiptMethod.textContent = `${fulfillmentMethod} · ${paymentMethod.value}`;
+    receiptPrice.textContent = orderTotal.textContent.trim();
 
     checkoutToolbar.hidden = true;
     pageTitle.hidden = true;

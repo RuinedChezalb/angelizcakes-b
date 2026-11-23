@@ -120,7 +120,9 @@
 
   <!--
     BACKEND / DATABASE INTEGRATION CHECKLIST
-    The storefront currently uses embedded sample data and local preview flows.
+    The storefront saves orders, inquiries, and customer accounts to the shared local database
+    (shared/local-db.js) and reads owner-managed products, presets, and packages from it.
+    Static sample data remains for the rest of the homepage content.
 
     READ FROM THE BACKEND:
     - Storefront settings: hero slides and order, navigation/social links, logo, footer contact details,
@@ -159,8 +161,10 @@
     - Store uploaded reference images in file/object storage and keep their URLs and metadata in the
       database. Keep existing static image assets as local files unless replaced by managed media URLs.
     - Receipt screens should display server-issued order/reference numbers and the returned price/status.
-    - Replace the current preview-only receipts and local sample data when the API is ready.
+    - Replace the local database helpers with the API when it is ready; receipts already show the
+      order/reference numbers issued by the database.
   -->
+  <script src="../shared/local-db.js"></script>
   <script src="js/catalog-data.js"></script>
   <script src="storefront-ajax.js"></script>
 </body>

@@ -58,11 +58,26 @@
   const inventoryStore = window.BranchInventoryStore;
   let catalog = inventoryStore.getCatalog();
 
-  const requests = [];
+  const requests = window.AngelizDB.stockRequests.list().slice().reverse();
 
   let deliveryItems = [];
   let deliverySeq = 1;
-  let requestSeq = 1;
+  let requestSeq = requests.length + 1;
+
+  function renderRequests(){
+    const body = $('#requestBody');
+    const stored = window.AngelizDB.stockRequests.list().slice().reverse();
+    requests.splice(0, requests.length, ...stored);
+    requestSeq = requests.length + 1;
+    if(!requests.length){
+      body.innerHTML = '<tr><td colspan="5" class="table-empty">No stock requests yet.</td></tr>';
+      return;
+    }
+    body.innerHTML = requests.map(r =>
+      '<tr><td>' + esc(r.ref) + '</td><td>' + esc(r.productName) + '</td><td>' + esc(r.qty) +
+      '</td><td>' + esc(fmtDate(r.date)) + '</td><td>' + esc(r.status) + '</td></tr>'
+    ).join('');
+  }
 
   /* ============================================================
      stock logic
@@ -198,12 +213,17 @@
   function renderAll(){
     renderKpis();
     renderTable();
+    renderRequests();
   }
 
   function refreshBranchInventory(){
     catalog = inventoryStore.getCatalog();
     if ($('#productBody')) renderAll();
   }
+
+  window.AngelizDB.onChange(window.AngelizDB.keys.stockRequests, () => {
+    if ($('#requestBody')) renderRequests();
+  });
 
   window.refreshBranchInventory = refreshBranchInventory;
   window.addEventListener(inventoryStore.updateEvent, refreshBranchInventory);
@@ -441,18 +461,15 @@
     const product = catalog.find(p => p.id === productId);
     if(!product) return;
 
-    requests.unshift({
-      ref: 'REQ-' + String(requestSeq).padStart(4,'0'),
+    window.AngelizDB.stockRequests.add({
       productId: product.id,
       productName: product.name,
       qty: qty,
       urgency: $('#reqUrgency').value,
       date: $('#reqDate').value || isoDate(3),
-      reason: $('#reqReason').value.trim(),
-      status: 'Submitted'
+      reason: $('#reqReason').value.trim()
     });
-
-    requestSeq++;
+    renderRequests();
 
     hideOverlay('#requestModal');
     toast('Stock request sent to the owner.');

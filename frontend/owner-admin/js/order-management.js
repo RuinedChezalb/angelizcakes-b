@@ -1,8 +1,8 @@
 "use strict";
 
 (() => {
-  // The local examples cover each active storefront order flow.
-  const websiteOrders = [
+  // Sample orders cover each storefront order flow; real orders come from the shared local database.
+  const seededWebsiteOrders = [
     {
       id: "#W-1024",
       customer: "Maria Cruz",
@@ -174,6 +174,15 @@
   const assetBase = new URL("../../store-front/assets/", document.currentScript.src);
   let activeTrigger = null;
   let activeOrder = null;
+  let websiteOrders = [];
+
+  function loadWebsiteOrders() {
+    const storedOrders = window.AngelizDB.orders.list()
+      .slice()
+      .sort((left, right) => right.seq - left.seq)
+      .map(order => ({ ...order, stored: true }));
+    return [...storedOrders, ...seededWebsiteOrders];
+  }
 
   function getStatusStyle(statusValue) {
     const status = productionStatuses.find(item => item.value === statusValue);
@@ -259,23 +268,23 @@
   }
 
   function renderCustomCake(order) {
-    const previewCard = document.createElement("section");
-    previewCard.className = "storefront-order-card storefront-order-custom-preview";
-    const image = document.createElement("img");
-    image.src = new URL(order.referenceImage.asset, assetBase).href;
-    image.alt = `${order.referenceImage.name} reference image`;
-    const previewContent = document.createElement("div");
-    const heading = document.createElement("h3");
-    heading.textContent = "Reference Image";
-    const reference = document.createElement("p");
-    reference.textContent = `Use as reference: ${order.previewUsedAsReference ? "Yes" : "No"}`;
-    previewContent.append(heading, reference);
-    previewCard.append(image, previewContent);
-    details.append(
-      createOrderCard("Cake Customization", order.selections),
-      previewCard,
-      createOrderCard("Personalize & Schedule", order.contact)
-    );
+    details.append(createOrderCard("Cake Customization", order.selections));
+    if (order.referenceImage) {
+      const previewCard = document.createElement("section");
+      previewCard.className = "storefront-order-card storefront-order-custom-preview";
+      const image = document.createElement("img");
+      image.src = new URL(order.referenceImage.asset, assetBase).href;
+      image.alt = `${order.referenceImage.name} reference image`;
+      const previewContent = document.createElement("div");
+      const heading = document.createElement("h3");
+      heading.textContent = "Reference Image";
+      const reference = document.createElement("p");
+      reference.textContent = `Use as reference: ${order.previewUsedAsReference ? "Yes" : "No"}`;
+      previewContent.append(heading, reference);
+      previewCard.append(image, previewContent);
+      details.append(previewCard);
+    }
+    details.append(createOrderCard("Personalize & Schedule", order.contact));
     appendRecipientCard(order);
     details.append(createOrderCard("Order Schedule", order.schedule));
     details.append(createOrderCard("Pricing", [
@@ -332,35 +341,38 @@
     activeOrder = null;
   }
 
-  rows.replaceChildren(...websiteOrders.map(order => {
-    const row = document.createElement("tr");
-    row.dataset.websiteOrderId = order.id;
-    [order.id, order.customer, order.type, order.amount].forEach((value, index) => {
-      const cell = document.createElement("td");
-      cell.textContent = value;
-      if (index === 0) cell.className = "strong";
-      row.append(cell);
-    });
+  function renderRows() {
+    websiteOrders = loadWebsiteOrders();
+    rows.replaceChildren(...websiteOrders.map(order => {
+      const row = document.createElement("tr");
+      row.dataset.websiteOrderId = order.id;
+      [order.id, order.customer, order.type, order.amount].forEach((value, index) => {
+        const cell = document.createElement("td");
+        cell.textContent = value;
+        if (index === 0) cell.className = "strong";
+        row.append(cell);
+      });
 
-    const statusCell = document.createElement("td");
-    const statusBadge = document.createElement("span");
-    statusBadge.className = `badge ${getStatusStyle(order.productionStatus)}`;
-    statusBadge.textContent = order.productionStatus;
-    statusBadge.dataset.productionStatus = "";
-    statusCell.append(statusBadge);
-    row.append(statusCell);
+      const statusCell = document.createElement("td");
+      const statusBadge = document.createElement("span");
+      statusBadge.className = `badge ${getStatusStyle(order.productionStatus)}`;
+      statusBadge.textContent = order.productionStatus;
+      statusBadge.dataset.productionStatus = "";
+      statusCell.append(statusBadge);
+      row.append(statusCell);
 
-    const actionCell = document.createElement("td");
-    const viewButton = document.createElement("button");
-    viewButton.className = "btn btn-outline btn-sm";
-    viewButton.type = "button";
-    viewButton.textContent = "View";
-    viewButton.setAttribute("aria-label", `View order ${order.id}`);
-    viewButton.dataset.viewWebsiteOrder = order.id;
-    actionCell.append(viewButton);
-    row.append(actionCell);
-    return row;
-  }));
+      const actionCell = document.createElement("td");
+      const viewButton = document.createElement("button");
+      viewButton.className = "btn btn-outline btn-sm";
+      viewButton.type = "button";
+      viewButton.textContent = "View";
+      viewButton.setAttribute("aria-label", `View order ${order.id}`);
+      viewButton.dataset.viewWebsiteOrder = order.id;
+      actionCell.append(viewButton);
+      row.append(actionCell);
+      return row;
+    }));
+  }
 
   rows.addEventListener("click", event => {
     if (!(event.target instanceof Element)) return;
@@ -385,6 +397,7 @@
     if (!statusBadge) throw new Error(`The production status cell for ${activeOrder.id} is missing.`);
 
     activeOrder.productionStatus = status.value;
+    if (activeOrder.stored) window.AngelizDB.orders.update(activeOrder.id, { productionStatus: status.value });
     statusBadge.className = `badge ${status.badgeClass}`;
     statusBadge.textContent = status.value;
     statusFeedback.textContent = `Production status updated to ${status.value}.`;
@@ -416,4 +429,39 @@
       first.focus();
     }
   });
+
+  const posRows = document.getElementById("posOrderRows");
+  if (!posRows) throw new TypeError("The walk-in order table is missing.");
+
+  function renderPosRows() {
+    posRows.querySelectorAll("[data-pos-transaction]").forEach(row => row.remove());
+    const transactionRows = window.AngelizDB.pos.transactions().map(transaction => {
+      const row = document.createElement("tr");
+      row.dataset.posTransaction = transaction.id;
+      const reference = document.createElement("td");
+      reference.className = "strong";
+      reference.textContent = `#${transaction.id}`;
+      const customer = document.createElement("td");
+      customer.textContent = transaction.customer || "Walk-in Customer";
+      const branch = document.createElement("td");
+      branch.textContent = window.AngelizDB.branchNames.yashano;
+      const amount = document.createElement("td");
+      amount.textContent = window.AngelizDB.format.formatPeso(transaction.total);
+      const statusCell = document.createElement("td");
+      const badge = document.createElement("span");
+      badge.className = "badge badge-teal";
+      badge.textContent = "Paid / Completed";
+      statusCell.append(badge);
+      row.append(reference, customer, branch, amount, statusCell);
+      return row;
+    });
+    posRows.prepend(...transactionRows);
+  }
+
+  renderRows();
+  renderPosRows();
+  window.AngelizDB.onChange(window.AngelizDB.keys.orders, () => {
+    if (!modal.classList.contains("show")) renderRows();
+  });
+  window.AngelizDB.onChange(window.AngelizDB.keys.posTransactions, renderPosRows);
 })();

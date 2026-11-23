@@ -50,6 +50,15 @@ const storefront = {
   }
 };
 
+/* Owner-managed products can introduce menu categories beyond the static "Cakes" tab. */
+storefront.products
+  .filter(product => product.managed)
+  .forEach(product => {
+    if (!storefront.categories.some(category => category.productCategories.includes(product.category))) {
+      storefront.categories.push({ label: product.category, productCategories: [product.category] });
+    }
+  });
+
 /* Render the page's static menu, services, gallery, and business details. */
 function escapeHTML(value) {
   return String(value).replace(/[&<>"']/g, character => ({
@@ -59,6 +68,10 @@ function escapeHTML(value) {
     '"': "&quot;",
     "'": "&#39;"
   })[character]);
+}
+
+function imageSource(image) {
+  return /^(data:|https?:)/.test(image) ? image : `assets/${image}`;
 }
 
 function renderHomepage() {
@@ -101,7 +114,7 @@ function renderHomepage() {
       .map(product => `
         <article class="menu-card home-product-card">
           <div class="home-product-image">
-            <img src="assets/${escapeHTML(product.image)}" alt="${escapeHTML(product.name)}" loading="lazy">
+            <img src="${escapeHTML(imageSource(product.image))}" alt="${escapeHTML(product.name)}" loading="lazy">
           </div>
           <div class="home-product-copy">
             <h3 class="card-title">${escapeHTML(product.name)}</h3>
@@ -168,7 +181,7 @@ function renderHomepage() {
     serviceRail.innerHTML = categoryServices.map(service => `
       <article class="home-service-card">
         <div class="home-package-image">
-          <img src="assets/${escapeHTML(service.image)}" alt="${escapeHTML(service.title)}" loading="lazy">
+          <img src="${escapeHTML(imageSource(service.image))}" alt="${escapeHTML(service.title)}" loading="lazy">
         </div>
         <div class="home-package-copy">
           <span class="home-package-label">${escapeHTML(category.label)}</span>
@@ -702,7 +715,7 @@ function renderFavorites() {
     if (!product) return "";
     return `
       <article class="favorite-row">
-        <span class="favorite-mark"><img src="assets/${escapeHTML(product.image)}" alt=""></span>
+        <span class="favorite-mark"><img src="${escapeHTML(imageSource(product.image))}" alt=""></span>
         <div class="favorite-info"><strong>${escapeHTML(product.name)}</strong><span>${escapeHTML(product.price)}</span></div>
         <div class="favorite-actions">
           <a class="favorite-view" href="#menu">View</a>

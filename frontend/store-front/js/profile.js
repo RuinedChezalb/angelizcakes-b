@@ -76,9 +76,10 @@ window.initializeProfileFragment = function initializeProfileFragment(root) {
     try {
       localStorage.setItem(profileKey, JSON.stringify(profile));
       localStorage.setItem(sessionKey, JSON.stringify(session));
+      window.AngelizDB.customers.recordLogin({ name: defaultProfile.fullName, email: defaultProfile.email });
     } catch (error) {
       console.error("Could not initialize the static customer account.", error);
-      status.textContent = "Your preview account could not be saved in this browser.";
+      status.textContent = "Your account could not be saved in this browser.";
     }
   }
 
@@ -195,7 +196,7 @@ window.initializeProfileFragment = function initializeProfileFragment(root) {
       card.className = "profile-favorite-card";
       if (product.image) {
         const image = document.createElement("img");
-        image.src = `assets/${product.image}`;
+        image.src = window.AngelizDB.format.assetUrl(product.image);
         image.alt = "";
         image.loading = "lazy";
         card.append(image);
@@ -244,11 +245,121 @@ window.initializeProfileFragment = function initializeProfileFragment(root) {
     selectProfileTab(activeProfileTab || "account");
   }
 
+  function syncCustomerRecord() {
+    const email = fields.email.value.trim();
+    if (!email) return;
+    window.AngelizDB.customers.upsert({
+      name: fields.fullName.value.trim(),
+      email,
+      phone: fields.phone.value.trim(),
+      address: fields.address.value.trim()
+    });
+  }
+
+  function formatOrderDate(order) {
+    return order.summary?.date && order.summary.date !== "To be confirmed"
+      ? `Requested for ${order.summary.date}${order.summary.time ? ` · ${order.summary.time}` : ""}`
+      : "Schedule to be confirmed";
+  }
+
+  function createRecordCard(title, lines, badge, reply) {
+    const card = document.createElement("article");
+    card.className = "profile-record-card";
+    const body = document.createElement("div");
+    const heading = document.createElement("h4");
+    heading.textContent = title;
+    body.append(heading);
+    lines.filter(Boolean).forEach(line => {
+      const paragraph = document.createElement("p");
+      paragraph.textContent = line;
+      body.append(paragraph);
+    });
+    card.append(body);
+    if (badge) {
+      const status = document.createElement("span");
+      status.className = "profile-record-badge";
+      status.textContent = badge;
+      card.append(status);
+    }
+    if (reply) {
+      const replyBox = document.createElement("div");
+      replyBox.className = "profile-record-reply";
+      const replyLabel = document.createElement("strong");
+      replyLabel.textContent = "Reply from Angeliz Cakes";
+      const replyText = document.createElement("p");
+      replyText.textContent = reply;
+      replyBox.append(replyLabel, replyText);
+      card.append(replyBox);
+    }
+    return card;
+  }
+
+  function fillRecordList(list, cards, emptyMessage) {
+    list.replaceChildren();
+    if (cards.length === 0) {
+      const empty = document.createElement("p");
+      empty.className = "profile-empty-state";
+      empty.textContent = emptyMessage;
+      list.append(empty);
+      return;
+    }
+    list.append(...cards);
+  }
+
+  function renderOrders() {
+    const orders = window.AngelizDB.orders.forCustomer(fields.email.value);
+    const isActive = order => order.productionStatus !== "Completed";
+    const toCard = order => createRecordCard(
+      `${order.id} · ${order.type}`,
+      [order.summary?.item, formatOrderDate(order), order.amount],
+      order.productionStatus
+    );
+    fillRecordList(
+      root.querySelector("[data-profile-active-orders]"),
+      orders.filter(isActive).map(toCard),
+      "Orders submitted to your customer account will appear here. Requests placed by email may not be linked to your account."
+    );
+    fillRecordList(
+      root.querySelector("[data-profile-order-history]"),
+      orders.filter(order => !isActive(order)).map(toCard),
+      "Completed orders linked to your customer account will appear here."
+    );
+    root.querySelectorAll("[data-profile-order-count]").forEach(count => {
+      count.textContent = String(orders.filter(isActive).length);
+    });
+  }
+
+  function renderMessages() {
+    const messages = window.AngelizDB.inquiries.forEmail(fields.email.value)
+      .sort((left, right) => right.submittedAt.localeCompare(left.submittedAt));
+    fillRecordList(
+      root.querySelector("[data-profile-messages]"),
+      messages.map(message => createRecordCard(
+        message.subject,
+        [message.details],
+        message.reply ? "Replied" : "Awaiting reply",
+        message.reply
+      )),
+      "Messages you send from the contact form and the bakery's replies will appear here."
+    );
+    root.querySelector("[data-profile-message-count]").textContent = String(messages.length);
+  }
+
+  function renderLinkedRecords() {
+    renderOrders();
+    renderMessages();
+  }
+
+  syncCustomerRecord();
   updateCustomerSummary();
   renderFavorites();
-  root.querySelectorAll("[data-profile-order-count]").forEach(count => {
-    count.textContent = "0";
-  });
+  renderLinkedRecords();
+  window.AngelizDB.onChange(
+    [window.AngelizDB.keys.orders, window.AngelizDB.keys.inquiries],
+    () => {
+      if (root.isConnected) renderLinkedRecords();
+    }
+  );
   root.querySelector("[data-profile-review-count]").textContent = "0";
   syncProfileLayout();
   mobileLayout.addEventListener("change", syncProfileLayout);
@@ -333,7 +444,8 @@ window.initializeProfileFragment = function initializeProfileFragment(root) {
       fields.phone.disabled = Boolean(formValues.phone);
       saveButton.hidden = true;
       updateCustomerSummary();
-      status.textContent = "Your profile has been saved in this browser.";
+      syncCustomerRecord();
+      status.textContent = "Your profile has been saved.";
       document.dispatchEvent(new CustomEvent("customer:session-changed"));
     } catch (error) {
       console.error("Could not save the customer profile.", error);

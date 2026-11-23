@@ -1,6 +1,6 @@
 "use strict";
 
-// Cake choices use static samples; final-step details end with a local preview receipt.
+// Cake choices use static samples; the final step saves the request to the shared local database (AngelizDB).
 const customizationSamples = [
   {
     field: "Occasion",
@@ -200,7 +200,7 @@ window.initializeCustomizationWizard = function initializeCustomizationWizard(ro
     paymentMethod: "Cash on delivery / pickup",
     notes: ""
   };
-  // Keep checkout contact rules while generating a preview receipt without submitting the request.
+  // Keep the same contact rules as checkout before the request is saved.
   const isValidEmail = value => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(value);
   const isValidPhone = value => /^09[0-9]{9}$/.test(value);
   let isForSomeoneElse = false;
@@ -922,7 +922,7 @@ window.initializeCustomizationWizard = function initializeCustomizationWizard(ro
       }
       return [{ label: step.field, value: selections[index] || step.sample }];
     });
-    options.onPlaceOrder?.({
+    const orderDetails = {
       title: "Fully Custom Cake",
       selections: cakeSelections,
       customerName: finalDetails.customerName,
@@ -940,7 +940,24 @@ window.initializeCustomizationWizard = function initializeCustomizationWizard(ro
       paymentMethod: finalDetails.paymentMethod,
       notes: finalDetails.notes,
       referenceImages: selectedReferenceImages.map(({ file }) => file.name)
-    });
+    };
+
+    let placement;
+    try {
+      placement = options.onPlaceOrder
+        ? options.onPlaceOrder(orderDetails)
+        : window.AngelizDB.orders.placeCustomCakeOrder(orderDetails, { source: "storefront" });
+    } catch (error) {
+      console.error("Could not save the custom cake order.", error);
+      const saveError = document.createElement("p");
+      saveError.className = "customization-wizard-form-status is-error";
+      saveError.setAttribute("role", "alert");
+      saveError.textContent = "Your order could not be saved. Please try again.";
+      summary.querySelector(".customization-wizard-save-error")?.remove();
+      saveError.classList.add("customization-wizard-save-error");
+      summary.append(saveError);
+      return;
+    }
 
     summary.replaceChildren();
     toolbar.hidden = true;
@@ -981,8 +998,8 @@ window.initializeCustomizationWizard = function initializeCustomizationWizard(ro
       details.append(row);
     }
 
-    appendReceiptRow("Order No.", "AC-PREVIEW-001");
-    appendReceiptRow("Reference No.", `AC-REF-${placedAt.getTime()}`);
+    appendReceiptRow("Order No.", placement?.orderNumber || "Pending");
+    appendReceiptRow("Reference No.", placement?.referenceNumber || `AC-REF-${placedAt.getTime()}`);
     appendReceiptRow(
       "Date / Time",
       new Intl.DateTimeFormat("en-PH", { dateStyle: "medium", timeStyle: "short" }).format(placedAt)
@@ -991,11 +1008,7 @@ window.initializeCustomizationWizard = function initializeCustomizationWizard(ro
     appendReceiptRow("Requested for", requestedFor);
     appendReceiptRow("Method", `${fulfillment} · ${finalDetails.paymentMethod}`);
 
-    const note = document.createElement("p");
-    note.className = "customization-wizard-receipt-note";
-    note.textContent =
-      "Preview only — this request has not been sent to the bakery and no payment was processed.";
-
+    // The request is saved to the shared local database; payment is not processed online.
     const homeLink = document.createElement("a");
     homeLink.className = "customization-wizard-receipt-home";
     homeLink.href = "#home";
@@ -1006,7 +1019,7 @@ window.initializeCustomizationWizard = function initializeCustomizationWizard(ro
     homeLabel.textContent = "Return to Homepage";
     homeLink.append(homeIcon, homeLabel);
 
-    card.append(heading, details, homeLink, note);
+    card.append(heading, details, homeLink);
     summary.append(card);
     title.focus({ preventScroll: true });
     title.scrollIntoView({ behavior: "instant", block: "center" });

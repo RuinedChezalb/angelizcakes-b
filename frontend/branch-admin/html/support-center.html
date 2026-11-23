@@ -87,7 +87,7 @@
           <ol>
             <li>Choose <strong>Request Stock</strong> in Quick Actions or Branch Inventory.</li>
             <li>Select a product, enter the quantity, urgency, preferred delivery date, and reason.</li>
-            <li>Submit the request. In this prototype, requests are not sent to an owner service.</li>
+            <li>Submit the request. It is sent to the owner, and its status appears under Stock Requests in Branch Inventory.</li>
           </ol>
         </details>
       </section>
@@ -108,9 +108,7 @@
             <li>The receipt appears after a successful checkout. Inventory is deducted using FEFO.</li>
           </ol>
         </details>
-        <div class="support-note">
-          <strong>Receipt email:</strong> The optional email field is currently display-only. Receipts are not emailed.
-        </div>
+        <!-- Receipt email: the optional email field is display-only; receipts are not emailed. -->
       </section>
 
       <section class="support-manual-card" id="manual-reports" aria-labelledby="manualReportsTitle">
@@ -165,16 +163,11 @@
         </details>
       </section>
 
-      <aside class="support-manual-card support-prototype-note" aria-label="Prototype information">
-        <div class="support-card-heading">
-          <span class="support-card-icon" aria-hidden="true">!</span>
-          <div>
-            <h2>Prototype information</h2>
-            <p>Data and feature availability</p>
-          </div>
-        </div>
-        <p>Some screens use sample data. Daily reports, stock requests, and shift handovers are not saved to a backend. POS transactions and inventory batches are stored in this browser only.</p>
-      </aside>
+      <!--
+        Data availability: Sales reports, daily reports, and shift handovers use sample data and are not saved.
+        Orders, customers, stock requests, POS transactions, inventory batches, and inquiries are stored in the
+        shared local database (browser localStorage) used by the storefront and owner admin.
+      -->
     </div>
   </main>
 </body>
