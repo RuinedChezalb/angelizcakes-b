@@ -65,3 +65,8 @@ window.angelizStorefrontServices = [
     ]
   }
 ];
+
+/* Owner Admin products, cake presets, and packages replace or extend these samples when saved. */
+if (window.AngelizDB) {
+  window.AngelizDB.catalog.apply(window.angelizStorefrontProducts, window.angelizStorefrontServices);
+}

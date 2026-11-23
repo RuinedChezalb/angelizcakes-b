@@ -168,6 +168,15 @@ let cakes = [
   }
 ];
 
+/* Presets, packages, and products are saved to the shared local database that the storefront reads. */
+cakes = window.AngelizDB.catalog.readPresets(cakes);
+
+function persistPresets() {
+  if (!window.AngelizDB.catalog.savePresets(cakes)) {
+    alert('The cake presets could not be saved. Browser storage may be full; try a smaller image.');
+  }
+}
+
 let editingCakeId = null;
 let pendingImageData = null;
 
@@ -194,6 +203,7 @@ function renderCakeTable() {
 function deleteCake(id) {
   if (!confirm('Are you sure you want to delete this cake preset selection?')) return;
   cakes = cakes.filter(c => c.id !== id);
+  persistPresets();
   renderCakeTable();
 }
 
@@ -281,6 +291,7 @@ function saveCake() {
     const newId = cakes.length ? Math.max(...cakes.map(c => c.id)) + 1 : 1;
     cakes.push({ id: newId, name, price: Number(price), classification, details, ingredients, allergens, status, image });
   }
+  persistPresets();
   renderCakeTable();
   closeModal('cakeModal');
 }
@@ -304,6 +315,14 @@ let offerings = {
     { id: 8, name: 'Food Bumble C', pax: '20-30', price: 20000, desc: 'Premium bundle.', inclusions: [] }
   ]
 };
+
+offerings = window.AngelizDB.catalog.readPackages(offerings);
+
+function persistPackages() {
+  if (!window.AngelizDB.catalog.savePackages(offerings)) {
+    alert('The packages could not be saved. Browser storage may be full; try a smaller image.');
+  }
+}
 
 const offeringTitles = {
   grazing: 'Grazing Table',
@@ -335,6 +354,7 @@ function renderOfferings() {
 function deleteOffering(type, id) {
   if (!confirm('Are you sure you want to delete this package?')) return;
   offerings[type] = offerings[type].filter(p => p.id !== id);
+  persistPackages();
   renderOfferings();
 }
 
@@ -463,6 +483,7 @@ function savePackage() {
     offerings[type].push({ id: newId, name, pax, price: Number(price), desc, inclusions: currentInclusions, image: pendingPackageImage });
   }
 
+  persistPackages();
   renderOfferings();
   closeModal('packageModal');
 }
@@ -607,6 +628,8 @@ function savePromo() {
 
 /* ---------- Init ---------- */
 renderSteps();
+persistPresets();
+persistPackages();
 renderCakeTable();
 renderOfferings();
 renderPromotions();
@@ -622,6 +645,7 @@ renderPromotions();
     showPOS: true,
     image: '../store-front/assets/chocolate-cake.jpg'
   }];
+  products.splice(0, products.length, ...window.AngelizDB.catalog.readProducts(products));
   const rows = document.getElementById('productRows');
   const modal = document.getElementById('productModal');
   const formStatus = document.getElementById('productFormStatus');
@@ -853,10 +877,15 @@ renderPromotions();
       products.push({ id: nextProductId(), ...updatedProduct });
     }
 
+    if (!window.AngelizDB.catalog.saveProducts(products)) {
+      setFormStatus('The product could not be saved. Browser storage may be full; try a smaller image.', true);
+      return;
+    }
     renderProducts();
     hideProductModal();
   }
 
+  window.AngelizDB.catalog.saveProducts(products);
   renderProducts();
   resetProductForm();
 

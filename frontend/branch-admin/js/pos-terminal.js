@@ -411,8 +411,8 @@ function showReceiptModal(txn) {
         <p>Please come again.</p>
       </div>
     </div>
-    <p style="text-align:center;font-size:12px;color:var(--muted);margin-top:12px">Email delivery is not enabled yet.</p>
   `;
+  // Receipt email delivery is not enabled yet.
 
   const footer = `
     <button class="btn" onclick="closeModal()">Close</button>

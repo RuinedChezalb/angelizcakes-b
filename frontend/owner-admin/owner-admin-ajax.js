@@ -4,6 +4,7 @@
       fragment: "html/dashboard.html",
       stylesheet: "css/dashboard.css",
       script: "js/dashboard.js",
+      onShow: "refreshOwnerDashboard",
     },
     "branch-management": {
       fragment: "html/branch-management.html",
@@ -317,6 +318,9 @@
       }
       restoreViewFunctions(cachedView.functions);
       viewMount.dataset.activeView = viewName;
+      if (view.onShow && typeof window[view.onShow] === "function") {
+        window[view.onShow]();
+      }
       setActiveNavigation(viewName);
       window.scrollTo(0, 0);
     } catch (error) {

@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  const customers = [
+  const seededCustomers = [
     { name: 'Maria Santos', email: 'maria.santos@email.com', phone: '0917 234 5678', registered: -45 },
     { name: 'Paolo Garcia', email: 'paolo.garcia@email.com', phone: '0920 331 8842', registered: -1 },
     { name: 'Mark Aquino', email: 'mark.aquino@email.com', phone: '0915 447 6620', registered: -6 },
@@ -16,6 +16,7 @@
   const accountRows = document.getElementById('registeredAccountRows');
   const emptyRow = document.getElementById('accountSearchEmpty');
   const currentDate = new Date();
+  let rows = [];
 
   function registrationDate(offsetDays) {
     const date = new Date();
@@ -40,27 +41,29 @@
     return cell;
   }
 
-  const rows = customers.map(customer => {
-    const date = registrationDate(customer.registered);
-    const row = document.createElement('tr');
-    row.dataset.accountRow = '';
-    row.append(
-      makeCell(customer.name, 'strong'),
-      makeCell(customer.email),
-      makeCell(formatDate(date)),
-      makeCell(customer.phone),
-      makeCell('Not provided')
-    );
-    accountRows.insertBefore(row, emptyRow);
-    return row;
-  });
+  /* Storefront accounts and order contacts come from the shared local database. */
+  function loadCustomers() {
+    const seeded = seededCustomers.map(customer => ({
+      name: customer.name,
+      email: customer.email,
+      phone: customer.phone,
+      address: '',
+      registeredAt: registrationDate(customer.registered)
+    }));
+    const knownEmails = new Set(seeded.map(customer => customer.email.toLowerCase()));
+    const stored = window.AngelizDB.customers.list()
+      .filter(customer => !knownEmails.has(customer.email))
+      .map(customer => ({
+        name: customer.name,
+        email: customer.email,
+        phone: customer.phone,
+        address: customer.address,
+        registeredAt: new Date(customer.registeredAt)
+      }));
+    return [...stored.reverse(), ...seeded];
+  }
 
-  document.getElementById('kpiTotal').textContent = String(customers.length);
-  document.getElementById('kpiNew').textContent = String(
-    customers.filter(customer => isRegisteredThisMonth(registrationDate(customer.registered))).length
-  );
-
-  accountSearch.addEventListener('input', () => {
+  function applySearch() {
     const query = accountSearch.value.trim().toLowerCase();
     let visibleRows = 0;
 
@@ -74,5 +77,36 @@
     });
 
     emptyRow.hidden = visibleRows > 0;
+  }
+
+  function renderCustomers() {
+    const customers = loadCustomers();
+    rows.forEach(row => row.remove());
+    rows = customers.map(customer => {
+      const row = document.createElement('tr');
+      row.dataset.accountRow = '';
+      row.append(
+        makeCell(customer.name, 'strong'),
+        makeCell(customer.email),
+        makeCell(formatDate(customer.registeredAt)),
+        makeCell(customer.phone || 'Not provided'),
+        makeCell(customer.address || 'Not provided')
+      );
+      accountRows.insertBefore(row, emptyRow);
+      return row;
+    });
+
+    document.getElementById('kpiTotal').textContent = String(customers.length);
+    document.getElementById('kpiNew').textContent = String(
+      customers.filter(customer => isRegisteredThisMonth(customer.registeredAt)).length
+    );
+    applySearch();
+  }
+
+  accountSearch.addEventListener('input', applySearch);
+  window.refreshCustomerRecords = renderCustomers;
+  window.AngelizDB.onChange(window.AngelizDB.keys.customers, () => {
+    if (accountRows.isConnected) renderCustomers();
   });
+  renderCustomers();
 })();
