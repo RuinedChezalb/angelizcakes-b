@@ -1,0 +1,190 @@
+﻿<main id="storefrontProfile" class="customer-profile-page">
+<div class="profile-dashboard profile-fragment">
+  <header class="profile-page-heading">
+    <div>
+      <h1 tabindex="-1">My Account</h1>
+      <p>Manage your details, saved favorites, and customer activity.</p>
+    </div>
+    <a class="profile-back-button" href="../index.html#home" data-storefront-back aria-label="Go back to the previous view">
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+      <span>Back</span>
+    </a>
+  </header>
+
+  <div class="profile-dashboard-layout">
+    <aside class="profile-dashboard-sidebar" aria-label="Customer account">
+      <div class="profile-sidebar-card">
+        <div class="profile-user-summary">
+          <span class="profile-user-avatar" data-profile-avatar aria-hidden="true">AC</span>
+          <h2 data-profile-name>Customer</h2>
+          <p data-profile-email></p>
+        </div>
+        <nav class="profile-navigation" aria-label="Profile sections">
+          <div class="profile-nav-item" data-profile-item="account">
+            <button class="profile-nav-button is-active" type="button" data-profile-tab="account" aria-current="page" aria-controls="profilePanelAccount" aria-expanded="true">
+              <span><i class="fa-solid fa-user-gear" aria-hidden="true"></i>Account Details</span>
+              <span class="profile-nav-end"><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></span>
+            </button>
+            <div class="profile-accordion-slot" data-profile-slot="account"></div>
+          </div>
+          <div class="profile-nav-item" data-profile-item="saved">
+            <button class="profile-nav-button" type="button" data-profile-tab="saved" aria-controls="profilePanelSaved" aria-expanded="false">
+              <span><i class="fa-solid fa-heart" aria-hidden="true"></i>Saved &amp; Favorites</span>
+              <span class="profile-nav-end"><span class="profile-nav-count" data-profile-favorite-count>0</span><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></span>
+            </button>
+            <div class="profile-accordion-slot" data-profile-slot="saved"></div>
+          </div>
+          <div class="profile-nav-item" data-profile-item="active-orders">
+            <button class="profile-nav-button" type="button" data-profile-tab="active-orders" aria-controls="profilePanelActiveOrders" aria-expanded="false">
+              <span><i class="fa-solid fa-bag-shopping" aria-hidden="true"></i>Active Orders</span>
+              <span class="profile-nav-end"><span class="profile-nav-count" data-profile-order-count>0</span><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></span>
+            </button>
+            <div class="profile-accordion-slot" data-profile-slot="active-orders"></div>
+          </div>
+          <div class="profile-nav-item" data-profile-item="history">
+            <button class="profile-nav-button" type="button" data-profile-tab="history" aria-controls="profilePanelHistory" aria-expanded="false">
+              <span><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i>Order History</span>
+              <span class="profile-nav-end"><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></span>
+            </button>
+            <div class="profile-accordion-slot" data-profile-slot="history"></div>
+          </div>
+          <div class="profile-nav-item" data-profile-item="reviews">
+            <button class="profile-nav-button" type="button" data-profile-tab="reviews" aria-controls="profilePanelReviews" aria-expanded="false">
+              <span><i class="fa-solid fa-star" aria-hidden="true"></i>My Reviews</span>
+              <span class="profile-nav-end"><span class="profile-nav-count" data-profile-review-count>0</span><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></span>
+            </button>
+            <div class="profile-accordion-slot" data-profile-slot="reviews"></div>
+          </div>
+        </nav>
+
+        <button class="profile-signout-button" type="button" data-open-signout>
+          <i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i>
+          Sign Out
+        </button>
+      </div>
+    </aside>
+
+    <div class="profile-dashboard-content">
+      <section class="profile-content-card" id="profilePanelAccount" data-profile-panel="account" aria-labelledby="profileDetailsTitle">
+        <div class="profile-card-heading">
+          <div>
+            <h2 id="profileDetailsTitle">Account Details</h2>
+          </div>
+        </div>
+        <form id="profileFragmentForm">
+          <div class="profile-fields">
+            <div class="profile-field">
+              <label for="profileName">Full Name <span aria-hidden="true">*</span></label>
+              <input id="profileName" name="fullName" type="text" autocomplete="name" required>
+            </div>
+            <div class="profile-field">
+              <label for="profileBirthday">Birthday <span class="optional">(Optional)</span></label>
+              <input id="profileBirthday" name="birthday" type="date" autocomplete="bday">
+            </div>
+            <div class="profile-field">
+              <label for="customerProfileEmail">Email Address <span aria-hidden="true">*</span></label>
+              <input id="customerProfileEmail" name="email" type="email" autocomplete="email" aria-describedby="customerProfileEmailHelp" required readonly>
+              <div class="profile-verification-controls">
+                <input class="profile-verification-code" id="emailVerificationCode" type="text" inputmode="numeric" autocomplete="one-time-code" placeholder="Code" aria-label="Email verification code" data-verification-code="email" hidden>
+                <button class="profile-verify-button" type="button" data-profile-verify="email" hidden>Verify</button>
+              </div>
+              <small class="profile-field-help" id="customerProfileEmailHelp">Email address cannot be changed once set.</small>
+            </div>
+            <div class="profile-field">
+              <label for="profilePhone">Mobile Number</label>
+              <input id="profilePhone" name="phone" type="tel" inputmode="numeric" autocomplete="tel" pattern="09[0-9]{9}" minlength="11" maxlength="11" title="Enter an 11-digit Philippine mobile number starting with 09." aria-describedby="profilePhoneHelp">
+              <div class="profile-verification-controls">
+                <input class="profile-verification-code" id="phoneVerificationCode" type="text" inputmode="numeric" autocomplete="one-time-code" placeholder="Code" aria-label="Mobile verification code" data-verification-code="phone" hidden>
+                <button class="profile-verify-button" type="button" data-profile-verify="phone" hidden>Verify</button>
+              </div>
+              <small class="profile-field-help" id="profilePhoneHelp">Use 11 digits starting with 09. Once set, it cannot be changed.</small>
+            </div>
+            <div class="profile-field profile-field-full">
+              <label for="profileAddress">Default Delivery / Event Address <span class="optional">(Optional)</span></label>
+              <textarea id="profileAddress" name="address" rows="3" autocomplete="street-address" placeholder="House/building number, street, barangay, city"></textarea>
+            </div>
+            <div class="profile-field profile-field-full">
+              <label for="profileNotes">Preferences or Delivery Notes <span class="optional">(Optional)</span></label>
+              <textarea id="profileNotes" name="notes" rows="3" placeholder="Preferences to remember for future orders"></textarea>
+            </div>
+
+          </div>
+          <p class="profile-status" id="profileStatus" role="status" aria-live="polite"></p>
+          <div class="profile-form-actions">
+            <button class="profile-save-button" type="submit" hidden>Save Changes</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="profile-content-card" id="profilePanelSaved" data-profile-panel="saved" aria-labelledby="profileSavedTitle" hidden>
+        <div class="profile-card-heading">
+          <div>
+            <p class="profile-eyebrow">KEEP YOUR PICKS CLOSE</p>
+            <h2 id="profileSavedTitle"><i class="fa-solid fa-heart" aria-hidden="true"></i> Saved &amp; Favorites</h2>
+          </div>
+        </div>
+        <section class="profile-saved-section" aria-labelledby="profileFavoritesTitle">
+          <h3 id="profileFavoritesTitle">Favorite Menu Items</h3>
+          <div class="profile-favorites-list" data-profile-favorites aria-live="polite"></div>
+        </section>
+        <section class="profile-saved-section" aria-labelledby="profileDesignsTitle">
+          <h3 id="profileDesignsTitle">Saved Cake Designs</h3>
+          <p class="profile-empty-state">You have no saved cake designs yet.</p>
+        </section>
+      </section>
+
+      <section class="profile-content-card" id="profilePanelActiveOrders" data-profile-panel="active-orders" aria-labelledby="profileActiveOrdersTitle" hidden>
+        <div class="profile-card-heading">
+          <div>
+            <p class="profile-eyebrow">ORDER MANAGEMENT</p>
+            <h2 id="profileActiveOrdersTitle"><i class="fa-solid fa-calendar-check" aria-hidden="true"></i> Active Orders &amp; Bookings</h2>
+          </div>
+        </div>
+        <p class="profile-empty-state">Orders submitted to your customer account will appear here. Requests placed by email may not be linked to your account.</p>
+      </section>
+
+      <section class="profile-content-card" id="profilePanelHistory" data-profile-panel="history" aria-labelledby="profileHistoryTitle" hidden>
+        <div class="profile-card-heading">
+          <div>
+            <p class="profile-eyebrow">YOUR PAST ORDERS</p>
+            <h2 id="profileHistoryTitle"><i class="fa-solid fa-receipt" aria-hidden="true"></i> Order History</h2>
+          </div>
+        </div>
+        <p class="profile-empty-state">Completed orders linked to your customer account will appear here.</p>
+      </section>
+
+      <section class="profile-content-card" id="profilePanelReviews" data-profile-panel="reviews" aria-labelledby="profileReviewsTitle" hidden>
+        <div class="profile-card-heading">
+          <div>
+            <p class="profile-eyebrow">YOUR FEEDBACK</p>
+            <h2 id="profileReviewsTitle"><i class="fa-solid fa-star" aria-hidden="true"></i> My Reviews &amp; Ratings</h2>
+          </div>
+        </div>
+        <p class="profile-empty-state">Reviews associated with your customer account will appear here.</p>
+      </section>
+
+    </div>
+    <aside class="profile-delivery-banner">
+      <span class="profile-delivery-icon"><i class="fa-solid fa-basket-shopping" aria-hidden="true"></i></span>
+      <div>
+        <p class="profile-eyebrow">READY TO ENJOY TODAY</p>
+        <h2>Looking for ready-to-eat treats?</h2>
+        <p>Visit the bakery for daily display items or check GrabFood for instant delivery options.</p>
+      </div>
+      <a class="profile-grabfood-link" href="https://food.grab.com" target="_blank" rel="noopener noreferrer">
+        <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
+        Order on GrabFood
+      </a>
+    </aside>
+  </div>
+  <dialog class="profile-signout-dialog" data-signout-dialog aria-labelledby="profileSignoutTitle">
+    <h2 id="profileSignoutTitle">Sign out?</h2>
+    <p>Are you sure you want to sign out of your customer account?</p>
+    <p class="profile-signout-status" data-signout-status role="status" aria-live="polite"></p>
+    <div class="profile-signout-dialog-actions">
+      <button type="button" data-close-signout>Cancel</button>
+      <button type="button" data-customer-logout>Yes, Sign Out</button>
+    </div>
+  </dialog>
+</div>
+</main>

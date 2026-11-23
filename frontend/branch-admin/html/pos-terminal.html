@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Point of Sale Terminal · Angeliz Cakes</title>
+
+
+
+  <link rel="stylesheet" href="../css/pos-terminal.css">
+
+</head>
+<body>
+<!-- ==================== MAIN ==================== -->
+<div class="main">
+  <main class="page">
+
+    <!-- Page head -->
+    <div class="page-head">
+      <div>
+        <h1 class="page-title">Point of Sale Terminal</h1>
+        <p class="page-sub">Build walk-in orders, review totals, and complete counter sales.</p>
+      </div>
+    </div>
+
+    <!-- ============ KPI ROW (simple & important) ============ -->
+    <section class="kpi-grid">
+      <article class="kpi-card kpi-info">
+        <div class="kpi-head">
+          <span class="kpi-label">Sales Today</span>
+          <div class="kpi-icon">
+            <svg class="ico" viewBox="0 0 24 24"><path d="M12 1v22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          </div>
+        </div>
+        <div class="kpi-value"><span class="currency">₱</span><span id="kpiSales">0</span></div>
+        <div class="kpi-foot">Recorded today</div>
+      </article>
+
+      <article class="kpi-card">
+        <div class="kpi-head">
+          <span class="kpi-label">Orders Today</span>
+          <div class="kpi-icon">
+            <svg class="ico" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/></svg>
+          </div>
+        </div>
+        <div class="kpi-value"><span id="kpiTxn">0</span></div>
+        <div class="kpi-foot">Paid orders</div>
+      </article>
+
+      <article class="kpi-card kpi-green">
+        <div class="kpi-head">
+          <span class="kpi-label">Items Sold</span>
+          <div class="kpi-icon">
+            <svg class="ico" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+          </div>
+        </div>
+        <div class="kpi-value"><span id="kpiItems">0</span></div>
+        <div class="kpi-foot">Pieces sold</div>
+      </article>
+    </section>
+
+    <!-- ============ SPLIT LAYOUT ============ -->
+    <section class="pos-layout">
+
+      <!-- LEFT: PRODUCT GRID -->
+      <div class="product-side">
+        <div class="product-side-head">
+          <div class="search-pos">
+            <svg class="ico" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            <input id="posSearch" type="search" placeholder="Scan barcode or search product…" aria-label="Search products">
+          </div>
+        </div>
+        <div class="product-grid" id="productGrid"></div>
+      </div>
+
+      <!-- RIGHT: CART -->
+      <div class="cart-side">
+        <div class="cart-head">
+          <div class="cart-title">
+            <div class="cart-title-left">
+              <svg class="ico" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+              Current Order
+            </div>
+            <span class="cart-count" id="cartCount">0 items</span>
+          </div>
+        </div>
+
+        <div class="cart-list" id="cartList">
+          <div class="cart-empty">
+            <svg class="ico" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+            <h4>Cart is empty</h4>
+            <p>Tap products on the left to add them to this order.</p>
+          </div>
+        </div>
+
+        <div class="cart-totals">
+          <div class="totals-total">
+            <span class="label">Total</span>
+            <span class="value" id="totalAmount">₱0.00</span>
+          </div>
+
+          <button class="charge-btn" id="chargeBtn" disabled>
+            Checkout
+          </button>
+
+          <div class="receipt-email">
+            <label for="receiptEmail">Receipt email (optional)</label>
+            <input id="receiptEmail" name="receiptEmail" type="email" autocomplete="email" placeholder="name@example.com">
+          </div>
+
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <span>© 2024 Angeliz Cakes · Yashano Mall Branch</span>
+    <div class="footer-links">
+      <a data-footer="Privacy Policy">Privacy Policy</a>
+      <a data-footer="Terms of Service">Terms of Service</a>
+      <a data-footer="Support">Support</a>
+    </div>
+  </footer>
+</div>
+
+<!-- ==================== MODAL ==================== -->
+<div class="modal-backdrop" id="modalBackdrop"></div>
+<div class="modal" id="genericModal">
+  <div class="modal-header">
+    <h3 class="modal-title" id="modalTitle">Title</h3>
+    <button class="modal-close" onclick="closeModal()">×</button>
+  </div>
+  <div class="modal-body" id="modalBody"></div>
+  <div class="modal-footer" id="modalFooter"></div>
+</div>
+
+<!-- ==================== TOASTS ==================== -->
+<div class="toast-container" id="toastContainer"></div>
+<script src="../js/pos-terminal.js"></script>
+</body>
+</html>

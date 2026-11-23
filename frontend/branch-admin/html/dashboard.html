@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard · Angeliz Cakes</title>
+
+
+
+  <link rel="stylesheet" href="../css/dashboard.css">
+
+</head>
+<body>
+<main class="page page-main">
+
+  <!-- ================= HEAD ================= -->
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">Dashboard</h1>
+      <p class="page-sub">A quick view of branch sales, orders, bookings, and inventory health.</p>
+    </div>
+  </div>
+
+  <!-- ================= KPI ROW ================= -->
+  <div class="kpi-row">
+
+    <div class="kpi-card teal">
+      <div class="kpi-head">
+        <span class="kpi-label">Custom Cake Orders</span>
+        <div class="kpi-icon"><svg class="ico" viewBox="0 0 24 24"><path d="M4 20h16M5 20v-6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v6"/><path d="M12 12V9.5"/><circle cx="12" cy="7.5" r="1.6"/></svg></div>
+      </div>
+      <div class="kpi-value">32 <span class="unit">orders</span></div>
+      <div class="kpi-foot">6 for pickup today</div>
+    </div>
+
+    <div class="kpi-card plum">
+      <div class="kpi-head">
+        <span class="kpi-label">Packages &amp; Bundles</span>
+        <div class="kpi-icon"><svg class="ico" viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="13" rx="2"/><path d="M3 13h18M12 8v13"/><path d="M12 8S9.5 3 7.5 4.5 9.8 8 12 8zM12 8s2.5-5 4.5-3.5S14.2 8 12 8z"/></svg></div>
+      </div>
+      <div class="kpi-value">35 <span class="unit">combined</span></div>
+      <div class="kpi-foot">14 grazing bookings · 3 this weekend · 9 party packages · 12 food bundles</div>
+    </div>
+
+  </div>
+
+  <!-- ================= SALES COMPARISON + STOCK ALERTS ================= -->
+  <div class="grid-2">
+
+    <!-- SALES COMPARISON -->
+    <div class="card">
+      <div class="card-head sales-comparison-head">
+        <div class="sales-comparison-title-row">
+          <div class="card-title">Sales Comparison</div>
+          <div class="seg" role="group" aria-label="Sales period">
+            <button class="seg-btn active" data-range="weekly" type="button">Weekly</button>
+            <button class="seg-btn" data-range="monthly" type="button">Monthly</button>
+            <button class="seg-btn" data-range="yearly" type="button">Yearly</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Today is always visible here, and it is NOT one of the filter choices -->
+      <div class="today-strip">
+        <div class="today-top">
+          <span class="today-label">Today</span>
+          <span class="today-value">₱8,450</span>
+          <span class="today-note">+12.4% vs yesterday</span>
+        </div>
+        <div class="mini-row">
+          <span class="mini-label">Today</span>
+          <div class="mini-track"><div class="mini-fill" style="width:100%;background:var(--grad-pink)"></div></div>
+          <span class="mini-amt">₱8,450</span>
+        </div>
+        <div class="mini-row">
+          <span class="mini-label">Yesterday</span>
+          <div class="mini-track"><div class="mini-fill" style="width:89%;background:var(--grad-blue)"></div></div>
+          <span class="mini-amt">₱7,520</span>
+        </div>
+      </div>
+
+      <div class="legend">
+        <span class="legend-item"><span class="legend-swatch" style="background:var(--grad-pink)"></span> <span id="salesCurrentLegend">This week</span></span>
+        <span class="legend-item"><span class="legend-swatch" style="background:var(--grad-blue)"></span> <span id="salesPreviousLegend">Last week</span></span>
+      </div>
+
+      <div id="salesCompare" aria-live="polite"></div>
+    </div>
+
+    <!-- STOCK ALERTS -->
+    <div class="card stock-alerts-card">
+      <div class="card-title">Stock Alerts</div>
+
+      <div class="alerts-cols">
+        <div>
+          <div class="sub-head">
+            <span>Expiring soon · ready-made</span>
+            <span class="badge low">4 items</span>
+          </div>
+          <div class="alert-list">
+            <div class="alert-item warn"><span><strong>8" Fudge Cake</strong> · 3 pcs left</span><span class="meta">Expires Nov 24</span></div>
+            <div class="alert-item warn"><span><strong>Strawberry Shortcake</strong> · 2 pcs left</span><span class="meta">Expires Nov 24</span></div>
+            <div class="alert-item warn"><span><strong>Butter Croissant</strong> · 2 pcs left</span><span class="meta">Expires Nov 25</span></div>
+            <div class="alert-item warn"><span><strong>Egg Pie</strong> · 5 pcs left</span><span class="meta">Expires Nov 26</span></div>
+          </div>
+        </div>
+
+        <div>
+          <div class="sub-head">
+            <span>Out of stock</span>
+            <span class="badge out">2 items</span>
+          </div>
+          <div class="alert-list">
+            <div class="alert-item danger"><span><strong>Hot Choco Mix</strong> · 0 left</span><span class="meta">Restock</span></div>
+            <div class="alert-item danger"><span><strong>Ube Halaya Spread</strong> · 0 left</span><span class="meta">Restock</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ================= TOP CUSTOMER + TOP PRODUCT ================= -->
+  <div class="grid-2">
+
+    <!-- TOP CUSTOMER -->
+    <div class="card">
+      <div class="card-title">Top Customer</div>
+
+      <div class="hl-block">
+        <div class="avatar">AR</div>
+        <div>
+          <div class="hl-name">Ava Reyes</div>
+          <div class="hl-sub">7 orders · last order Nov 22</div>
+        </div>
+        <div class="hl-amt">
+          <div class="big">₱18,400</div>
+          <div class="hl-sub">total spent</div>
+        </div>
+      </div>
+
+      <div class="rank">
+        <div class="pos">2</div>
+        <div>
+          <div class="rname">Liam Tan</div>
+          <div class="rsub">5 orders</div>
+        </div>
+        <div class="rval">₱15,900</div>
+      </div>
+      <div class="rank">
+        <div class="pos">3</div>
+        <div>
+          <div class="rname">Sofia Cruz</div>
+          <div class="rsub">6 orders</div>
+        </div>
+        <div class="rval">₱12,300</div>
+      </div>
+    </div>
+
+    <!-- TOP SELLING PRODUCT -->
+    <div class="card">
+      <div class="card-title">Top Selling Product</div>
+
+      <div class="hl-block tealish">
+        <div class="prod-ico"><svg class="ico" viewBox="0 0 24 24"><path d="M4 20h16M5 20v-6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v6"/><path d="M12 12V9.5"/><circle cx="12" cy="7.5" r="1.6"/></svg></div>
+        <div>
+          <div class="hl-name">8" Fudge Cake</div>
+          <div class="hl-sub">128 sold this month</div>
+        </div>
+        <div class="hl-amt">
+          <div class="big">₱67,200</div>
+          <div class="hl-sub">27% of sales</div>
+        </div>
+      </div>
+
+      <div class="rank">
+        <div class="pos">2</div>
+        <div>
+          <div class="rname">Butter Croissant</div>
+          <div class="rsub">96 sold</div>
+        </div>
+        <div class="rval">₱52,800</div>
+      </div>
+      <div class="rank">
+        <div class="pos">3</div>
+        <div>
+          <div class="rname">Red Velvet Cake</div>
+          <div class="rsub">80 sold</div>
+        </div>
+        <div class="rval">₱45,600</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ================= CUSTOMER FEEDBACK ================= -->
+  <div class="card stack">
+    <div class="card-head customer-feedback-head">
+      <div class="card-title">Customer Feedback</div>
+      <div class="fb-top">
+        <div class="fb-score">4.5</div>
+        <div>
+          <div class="fb-stars" id="fbStars"></div>
+          <div class="fb-sub">Average of 214 ratings</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="fbRows"></div>
+  </div>
+
+</main>
+<script src="../js/dashboard.js"></script>
+</body>
+</html>

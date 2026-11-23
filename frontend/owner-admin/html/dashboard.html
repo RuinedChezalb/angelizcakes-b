@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard · Angeliz Cakes</title>
+<link rel="stylesheet" href="../css/dashboard.css">
+</head>
+<body>
+<main class="page">
+  <header class="page-header">
+    <div>
+      <h1 class="page-title">Dashboard</h1>
+      <p class="page-subtitle">A clear overview of your business — sales, branches, customers, and alerts.</p>
+    </div>
+    <div class="flex gap-8">
+      <button class="btn btn-outline btn-sm">Last 30 Days ▾</button>
+      <button class="btn btn-teal btn-sm" onclick="alert('Report exported!')">Export Report</button>
+    </div>
+  </header>
+
+  <!-- KPIs -->
+  <section class="section">
+    <div class="grid grid-4">
+      <div class="card"><div class="kpi-label">Total Sales</div><div class="kpi-value">₱128,450</div><div class="kpi-delta up">▲ 12.4% vs last month</div></div>
+      <div class="card"><div class="kpi-label">Total Orders</div><div class="kpi-value">1,284</div><div class="kpi-delta up">▲ 8.2% vs last month</div></div>
+      <div class="card">
+        <div class="kpi-label">Top Customers</div>
+        <div class="kpi-value">18</div>
+        <!-- Updated subtitle to reflect the criteria -->
+        <div class="kpi-delta up">Based on product quantity purchased</div>
+      </div>
+      <div class="card"><div class="kpi-label">Active Promotions</div><div class="kpi-value">6</div><div class="kpi-delta up">▲ 2 this week</div></div>
+    </div>
+  </section>
+
+  <!-- Total Sales by Branch + Channel -->
+  <section class="section">
+    <div class="card">
+      <div class="card-title">
+        Total Sales by Branch &amp; Channel
+        <div class="chart-tabs">
+          <button class="chart-tab active" onclick="switchSales('weekly',this)">Weekly</button>
+          <button class="chart-tab" onclick="switchSales('monthly',this)">Monthly</button>
+          <button class="chart-tab" onclick="switchSales('yearly',this)">Yearly</button>
+        </div>
+      </div>
+
+      <!-- Per-branch summary tiles, each breaking down the 3 channels -->
+      <div class="chart-summary" id="salesSummary"></div>
+
+      <!-- Line chart -->
+      <div class="dashboard-chart-box">
+        <svg id="salesLineChart" viewBox="0 0 900 280" preserveAspectRatio="none" role="img" aria-label="Sales by branch and channel line chart"></svg>
+        <div class="chart-tooltip" id="salesChartTooltip" role="tooltip" hidden></div>
+      </div>
+
+      <div class="chart-legend">
+        <div class="legend-item"><span class="legend-line" style="background:#2DD4BF;"></span>Website</div>
+        <div class="legend-item"><span class="legend-line" style="background:#D47A97;"></span>POS / Walk-in</div>
+        <div class="legend-item"><span class="legend-line" style="background:#A8C8E8;"></span>GrabFood</div>
+        <div class="legend-item" style="margin-left:auto;color:#9A4560;">
+          <span style="font-size:11px;">Click a branch to filter its channels</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Feedback and expiring products -->
+  <section class="section">
+    <div class="grid grid-2">
+      <div class="card">
+        <div class="card-title">Customer Feedback <span class="sub">Based on 320 reviews overall</span></div>
+        <div class="feedback-chart">
+          <div class="fb-col">
+            <button class="fb-bar" type="button" data-feedback-rating="5" data-review-count="230"
+                    aria-label="View feedback for 5-star rating, 230 reviews"
+                    style="height:100%;background:linear-gradient(180deg,#2DD4BF,#0F766E);">230</button>
+            <div class="fb-label">5 ★</div>
+          </div>
+          <div class="fb-col">
+            <button class="fb-bar" type="button" data-feedback-rating="4" data-review-count="58"
+                    aria-label="View feedback for 4-star rating, 58 reviews"
+                    style="height:26%;background:linear-gradient(180deg,#A8C8E8,#7FA8C9);">58</button>
+            <div class="fb-label">4 ★</div>
+          </div>
+          <div class="fb-col">
+            <button class="fb-bar" type="button" data-feedback-rating="3" data-review-count="20"
+                    aria-label="View feedback for 3-star rating, 20 reviews"
+                    style="height:10%;background:linear-gradient(180deg,#FCD34D,#F59E0B);">20</button>
+            <div class="fb-label">3 ★</div>
+          </div>
+          <div class="fb-col">
+            <button class="fb-bar" type="button" data-feedback-rating="2" data-review-count="8"
+                    aria-label="View feedback for 2-star rating, 8 reviews"
+                    style="height:5%;background:linear-gradient(180deg,#E8A0B5,#D47A97);">8</button>
+            <div class="fb-label">2 ★</div>
+          </div>
+          <div class="fb-col">
+            <button class="fb-bar" type="button" data-feedback-rating="1" data-review-count="4"
+                    aria-label="View feedback for 1-star rating, 4 reviews"
+                    style="height:3%;background:linear-gradient(180deg,#F87171,#B91C1C);">4</button>
+            <div class="fb-label">1 ★</div>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="flex justify-between"><span class="muted">Average Rating</span><span style="font-weight:800;color:#0F766E;font-size:18px;">4.8 / 5.0</span></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Ready-Made Products — Expiring Soon <span class="sub">Displayed at branch</span></div>
+        <div class="table-wrap">
+          <table class="table">
+            <thead><tr><th>Product</th><th>Branch</th><th>Expiry</th><th>Qty</th></tr></thead>
+            <tbody>
+              <tr><td class="strong">Strawberry Shortcake</td><td>Main Branch</td><td>Today</td><td>3</td></tr>
+              <tr><td class="strong">Chocolate Mousse Slice</td><td>Main Branch</td><td>Tomorrow</td><td>8</td></tr>
+              <tr><td class="strong">Sakura Tiramisu</td><td>Yashano Mall</td><td>In 2 days</td><td>5</td></tr>
+              <tr><td class="strong">Blueberry Cheesecake</td><td>Yashano Mall</td><td>In 3 days</td><td>2</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <dialog class="feedback-dialog" id="feedbackDialog"
+            aria-labelledby="feedbackDialogTitle" aria-describedby="feedbackDialogSummary">
+      <header class="feedback-dialog-header">
+        <div>
+          <h2 id="feedbackDialogTitle">Customer feedback</h2>
+          <p id="feedbackDialogSummary"></p>
+        </div>
+        <button class="btn btn-outline btn-sm" type="button" id="feedbackDialogClose">Close</button>
+      </header>
+      <div class="feedback-dialog-list" id="feedbackDialogList"></div>
+    </dialog>
+  </section>
+
+  <!-- Landing Page Gallery -->
+  <section class="section">
+    <div class="card">
+      <div class="card-title">
+        <span>Landing Page Gallery</span>
+        <span class="sub">Photos shown to customers on the website</span>
+        <button class="btn btn-teal btn-sm" id="addGalleryPhoto" type="button">+ Add Photo</button>
+      </div>
+      <div class="gallery-grid" id="galleryGrid">
+        <div class="gallery-card">
+          <div class="gallery-thumb" style="background:linear-gradient(135deg,#FCE4EA,#E8A0B5);">🎂</div>
+          <div class="gallery-caption"><div class="strong">Sakura Birthday Cake</div><div class="muted">Featured · Birthday</div></div>
+        </div>
+        <div class="gallery-card">
+          <div class="gallery-thumb" style="background:linear-gradient(135deg,#E3EEF8,#A8C8E8);">🧁</div>
+          <div class="gallery-caption"><div class="strong">Pastry Buffet Display</div><div class="muted">Featured · Event</div></div>
+        </div>
+        <div class="gallery-card">
+          <div class="gallery-thumb" style="background:linear-gradient(135deg,#E8F5F3,#5EEAD4);">🍰</div>
+          <div class="gallery-caption"><div class="strong">Wedding Elegance Cake</div><div class="muted">Featured · Wedding</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<dialog class="gallery-dialog" id="galleryDialog" aria-labelledby="galleryDialogTitle">
+  <div class="gallery-dialog-header">
+    <h2 id="galleryDialogTitle">Add Gallery Photo</h2>
+    <button class="btn btn-outline btn-sm" id="galleryDialogClose" type="button" aria-label="Close">Close</button>
+  </div>
+  <div class="gallery-dialog-body">
+    <label class="gallery-field" for="galleryTitle">Photo Title *
+      <input id="galleryTitle" type="text" placeholder="e.g. Sakura Birthday Cake" required>
+    </label>
+    <label class="gallery-field" for="galleryFile">Photo Upload *
+      <input id="galleryFile" type="file" accept="image/*" required>
+    </label>
+    <p class="gallery-form-status" id="galleryFormStatus" role="status" aria-live="polite"></p>
+  </div>
+  <div class="gallery-dialog-footer">
+    <button class="btn btn-outline" id="galleryDialogCancel" type="button">Cancel</button>
+    <button class="btn btn-teal" id="galleryDialogSave" type="button">Save Photo</button>
+  </div>
+</dialog>
+
+<script src="../js/dashboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Customer Management · Angeliz Cakes</title>
+<link rel="stylesheet" href="../css/customer-management.css">
+</head>
+<body>
+<main class="page">
+  <header class="page-header">
+    <div>
+      <h1 class="page-title">Customer Management</h1>
+      <p class="page-subtitle">Registered customer accounts and recent login attempts.</p>
+    </div>
+  </header>
+
+  <section class="section customer-kpi-grid" aria-label="Customer account summary">
+    <article class="customer-kpi">
+      <div class="customer-kpi-label">Total Registered Accounts</div>
+      <div class="customer-kpi-value"><span id="customerTotalAccounts">0</span><span>accounts</span></div>
+      <div class="customer-kpi-foot">All registered customer accounts</div>
+    </article>
+    <article class="customer-kpi customer-kpi-new">
+      <div class="customer-kpi-label">New Within the Month</div>
+      <div class="customer-kpi-value"><span id="customerNewThisMonth">0</span><span>accounts</span></div>
+      <div class="customer-kpi-foot">Registered in the current calendar month</div>
+    </article>
+  </section>
+
+  <section class="section">
+    <div class="card">
+      <div class="card-title">
+        <span>Registered Accounts</span>
+        <input class="account-search" id="accountSearch" type="search" placeholder="Search date, email, or phone" aria-label="Search registered accounts by date, email, or phone">
+      </div>
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr><th>Name</th><th>Email</th><th>Registration Date</th><th>Phone</th><th>Address</th></tr>
+          </thead>
+          <tbody id="registeredAccountRows">
+            <tr data-account-row><td class="strong">Maria Cruz</td><td>maria@email.com</td><td>Jan 12, 2026</td><td>0917 555 0142</td><td>Legazpi City, Albay</td></tr>
+            <tr data-account-row><td class="strong">Jose Santos</td><td>jose@email.com</td><td>Feb 03, 2026</td><td>0918 555 0177</td><td>Daraga, Albay</td></tr>
+            <tr data-account-row><td class="strong">Ana Lim</td><td>ana@email.com</td><td>Mar 14, 2026</td><td>0916 555 0231</td><td>Tabaco City, Albay</td></tr>
+            <tr data-account-row><td class="strong">Rico Dela Cruz</td><td>rico@email.com</td><td>Apr 06, 2026</td><td>0919 555 0410</td><td>Legazpi City, Albay</td></tr>
+            <tr id="accountSearchEmpty" hidden><td colspan="5">No registered accounts match your search.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="card">
+      <div class="card-title">
+        <span>Login Attempts</span>
+        <span class="sub">Sample audit entries</span>
+      </div>
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr><th>Account</th><th>Email</th><th>Date &amp; Time</th><th>Device</th><th>Result</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="strong">Maria Cruz</td><td>maria@email.com</td><td>Nov 23, 2026 · 12:02 AM</td><td>Desktop browser</td><td><span class="badge badge-success">Successful</span></td></tr>
+            <tr><td class="strong">Jose Santos</td><td>jose@email.com</td><td>Nov 22, 2026 · 11:48 PM</td><td>Mobile browser</td><td><span class="badge badge-failed">Failed</span></td></tr>
+            <tr><td class="strong">Ana Lim</td><td>ana@email.com</td><td>Nov 22, 2026 · 10:17 PM</td><td>Mobile browser</td><td><span class="badge badge-success">Successful</span></td></tr>
+            <tr><td class="strong">Rico Dela Cruz</td><td>rico@email.com</td><td>Nov 22, 2026 · 9:56 PM</td><td>Desktop browser</td><td><span class="badge badge-failed">Failed</span></td></tr>
+            <tr><td class="strong">Maria Cruz</td><td>maria@email.com</td><td>Nov 22, 2026 · 9:44 PM</td><td>Desktop browser</td><td><span class="badge badge-success">Successful</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</main>
+</body>
+</html>

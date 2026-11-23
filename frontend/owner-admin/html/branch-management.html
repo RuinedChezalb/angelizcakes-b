@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Branch Management · Angeliz Cakes</title>
+<link rel="stylesheet" href="../css/branch-management.css">
+</head>
+<body>
+<main class="page">
+  <header class="page-header">
+    <div>
+      <h1 class="page-title">Branch Management</h1>
+      <p class="page-subtitle">See how each branch is doing and manage branch managers.</p>
+    </div>
+    <div class="flex gap-8">
+      <button class="btn btn-outline" onclick="openAdminModal()">Create Admin Account</button>
+      <button class="btn btn-teal" onclick="openBranchModal()">+ Add Branch</button>
+    </div>
+  </header>
+
+  <!-- SEPARATE KPI CARDS -->
+  <section class="section">
+    <div class="kpi-grid">
+      <div class="card">
+        <div class="kpi-label">Total Branches</div>
+        <div class="kpi-value" id="branchCount">2</div>
+        <div class="kpi-delta up" id="branchStatusSummary">All branches open today</div>
+      </div>
+      <div class="card">
+        <div class="kpi-label">Combined Sales</div>
+        <div class="kpi-value">₱128,450</div>
+        <div class="kpi-delta up">▲ 12.4% vs last month</div>
+      </div>
+      <div class="card">
+        <div class="kpi-label">Branch Managers</div>
+        <div class="kpi-value">2</div>
+        <div class="kpi-delta up">All active</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-title">Branch List</div>
+    <div class="branch-grid" id="branchList" data-branch-count="2">
+      <article class="card branch-card" data-branch-id="main" data-branch-code="BR-001">
+        <div class="branch-card-header">
+          <div class="branch-main-details">
+            <div class="strong branch-name">Angeliz Cakes Main Branch</div>
+            <div class="branch-code">BR-001</div>
+            <div class="muted branch-address">Brgy.18 Cabangan West Casa Erin Building Ground Flr. Brgy, 570 Rizal St, Old Albay District, Legazpi City, 4500 Albay</div>
+          </div>
+          <div class="branch-card-actions">
+            <span class="badge badge-teal branch-status">● Open</span>
+            <button class="btn btn-outline btn-sm" type="button" data-branch-action="edit"
+                    aria-label="Edit Angeliz Cakes Main Branch">Edit</button>
+            <button class="btn btn-outline btn-sm" type="button" data-branch-action="remove"
+                    aria-label="Remove Angeliz Cakes Main Branch">Remove</button>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="branch-card-stats">
+          <div><div class="kpi-label">Sales</div><div class="strong" style="font-size:16px;">₱74,200</div></div>
+          <div><div class="kpi-label">Orders</div><div class="strong" style="font-size:16px;">712</div></div>
+          <div>
+            <div class="kpi-label">Manager</div>
+            <div class="strong" style="font-size:16px;">L. Reyes</div>
+          </div>
+        </div>
+      </article>
+      <article class="card branch-card" data-branch-id="yashano" data-branch-code="BR-002">
+        <div class="branch-card-header">
+          <div class="branch-main-details">
+            <div class="strong branch-name">Angeliz Cakes Yashano Mall Branch (booth)</div>
+            <div class="branch-code">BR-002</div>
+            <div class="muted branch-address">Terminal Road 1 Corner, F. Imperial St, Legazpi Port District, Legazpi City, Albay</div>
+          </div>
+          <div class="branch-card-actions">
+            <span class="badge badge-teal branch-status">● Open</span>
+            <button class="btn btn-outline btn-sm" type="button" data-branch-action="edit"
+                    aria-label="Edit Angeliz Cakes Yashano Mall Branch">Edit</button>
+            <button class="btn btn-outline btn-sm" type="button" data-branch-action="remove"
+                    aria-label="Remove Angeliz Cakes Yashano Mall Branch">Remove</button>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="branch-card-stats">
+          <div><div class="kpi-label">Sales</div><div class="strong" style="font-size:16px;">₱54,250</div></div>
+          <div><div class="kpi-label">Orders</div><div class="strong" style="font-size:16px;">572</div></div>
+          <div><div class="kpi-label">Manager</div><div class="strong" style="font-size:16px;">K. Bautista</div></div>
+        </div>
+      </article>
+      <p class="branch-empty" id="branchEmptyState" role="status" hidden>No branches are currently listed.</p>
+    </div>
+  </section>
+
+  <!-- REPORTS SECTION -->
+  <section class="section">
+    <div class="section-title">Daily Branch Operation Summary</div>
+    <div class="card">
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Branch</th>
+              <th>Total Sales</th>
+              <th>Walk-in & Payment Transactions</th>
+              <th>Deliveries</th>
+              <th>Special Orders</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>2026-11-21</td>
+              <td class="strong">Main Branch</td>
+              <td>₱12,450</td>
+              <td>84</td>
+              <td>2 Deliveries</td>
+              <td>3 Custom / 1 Grazing</td>
+              <td><button class="btn btn-outline btn-sm" onclick="openReportView('Main Branch', '2026-11-21')">View</button></td>
+            </tr>
+            <tr>
+              <td>2026-11-21</td>
+              <td class="strong">Yashano Mall Branch</td>
+              <td>₱8,200</td>
+              <td>56</td>
+              <td>1 Delivery</td>
+              <td>2 Custom</td>
+              <td><button class="btn btn-outline btn-sm" onclick="openReportView('Yashano Mall Branch', '2026-11-21')">View</button></td>
+            </tr>
+            <tr>
+              <td>2026-11-20</td>
+              <td class="strong">Main Branch</td>
+              <td>₱15,300</td>
+              <td>102</td>
+              <td>1 Delivery</td>
+              <td>5 Custom / 2 Pastry Buffet</td>
+              <td><button class="btn btn-outline btn-sm" onclick="openReportView('Main Branch', '2026-11-20')">View</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="card">
+      <div class="card-title">Branch User Accounts</div>
+      <div class="table-wrap">
+        <table class="table">
+          <thead><tr><th>Name</th><th>Branch</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="managerRows">
+            <tr>
+              <td class="flex items-center gap-8"><div class="avatar">LR</div><span class="strong">Liza Reyes</span></td>
+              <td>Angeliz Cakes Main Branch</td>
+              <td>Admin</td>
+              <td><span class="badge badge-teal">Active</span></td>
+              <td><button class="btn btn-outline btn-sm" onclick="editAdmin('Liza Reyes','Branch A','liza@angelizcakes.com')">Edit</button></td>
+            </tr>
+            <tr>
+              <td class="flex items-center gap-8"><div class="avatar">KB</div><span class="strong">Kim Bautista</span></td>
+              <td>Yashano Mall Branch</td>
+              <td>Branch Manager</td>
+              <td><span class="badge badge-teal">Active</span></td>
+              <td><button class="btn btn-outline btn-sm" onclick="editAdmin('Kim Bautista','Branch B','kim@angelizcakes.com')">Edit</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- Add Branch Modal -->
+<div class="modal-overlay" id="branchModal">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Add New Branch</div><button class="modal-close" onclick="closeModal('branchModal')">×</button></div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Branch Name *</label><input class="form-input" id="branchName" placeholder="e.g. Branch C — Uptown"></div>
+        <div class="form-group">
+          <label class="form-label" for="branchCode">Branch Code · fixed</label>
+          <input class="form-input" id="branchCode" readonly aria-describedby="branchCodeHint">
+          <small class="field-hint" id="branchCodeHint">Generated automatically and cannot be changed.</small>
+        </div>
+      </div>
+      <div class="form-group"><label class="form-label">Full Address *</label><input class="form-input" id="branchAddress" placeholder="Street, Barangay, City"></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Contact Number *</label><input class="form-input" id="branchPhone" placeholder="09XX XXX XXXX"></div>
+        <div class="form-group"><label class="form-label">Email Address</label><input class="form-input" id="branchEmail" type="email" placeholder="branch@angelizcakes.com"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Operating Hours *</label><input class="form-input" id="branchHours" placeholder="e.g. 8:00 AM – 9:00 PM"></div>
+        <div class="form-group"><label class="form-label">Opened Date *</label><input class="form-input" id="branchDate" type="date"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Initial Status</label><select class="form-select" id="branchStatus"><option>Open</option><option>Closed</option><option>Under Construction</option></select></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('branchModal')">Cancel</button>
+      <button class="btn btn-teal" onclick="saveBranch()">Save Branch</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="editBranchModal">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="editBranchTitle">
+    <div class="modal-header">
+      <div class="modal-title" id="editBranchTitle">Edit Branch</div>
+      <button class="modal-close" type="button" onclick="closeModal('editBranchModal')" aria-label="Close">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="editBranchName">Branch Name *</label>
+          <input class="form-input" id="editBranchName" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="editBranchCode">Branch Code · fixed</label>
+          <input class="form-input" id="editBranchCode" readonly>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="editBranchAddress">Full Address *</label>
+        <input class="form-input" id="editBranchAddress" required>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="editBranchPhone">Contact Number</label>
+          <input class="form-input" id="editBranchPhone">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="editBranchEmail">Email Address</label>
+          <input class="form-input" id="editBranchEmail" type="email">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="editBranchHours">Operating Hours</label>
+          <input class="form-input" id="editBranchHours">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="editBranchDate">Opened Date</label>
+          <input class="form-input" id="editBranchDate" type="date">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="editBranchStatus">Status</label>
+        <select class="form-select" id="editBranchStatus">
+          <option>Open</option>
+          <option>Closed</option>
+          <option>Under Construction</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" type="button" onclick="closeModal('editBranchModal')">Cancel</button>
+      <button class="btn btn-teal" type="button" onclick="saveBranchEdits()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- Create Admin Account Modal -->
+<div class="modal-overlay" id="adminModal">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Create Admin Account</div><button class="modal-close" onclick="closeModal('adminModal')">×</button></div>
+    <div class="modal-body">
+      <div class="note-box">Note: The Main Branch is managed directly. Use this form to create a new admin or manager account.</div>
+      
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">First Name *</label><input class="form-input" id="adminFName" placeholder="First name"></div>
+        <div class="form-group"><label class="form-label">Last Name *</label><input class="form-input" id="adminLName" placeholder="Last name"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Email Address *</label><input class="form-input" id="adminEmail" type="email" placeholder="name@angelizcakes.com"></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Contact Number *</label><input class="form-input" id="adminPhone" placeholder="09XX XXX XXXX"></div>
+        <div class="form-group"><label class="form-label">Role *</label><select class="form-select" id="adminRole"><option>Branch Manager</option><option>Super Admin</option></select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Assigned Branch *</label><select class="form-select" id="adminBranch"><option>Angeliz Cakes Main Branch</option><option>Yashano Mall Branch</option></select></div>
+        <div class="form-group"><label class="form-label">Account Status *</label><select class="form-select" id="adminStatus"><option>Active</option><option>Inactive</option></select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Temporary Password *</label><input class="form-input" id="adminPassword" type="password" placeholder="Min. 8 characters"></div>
+        <div class="form-group"><label class="form-label">Confirm Password *</label><input class="form-input" id="adminConfirmPassword" type="password" placeholder="Re-enter password"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('adminModal')">Cancel</button>
+      <button class="btn btn-teal" onclick="saveAdmin()">Create Account</button>
+    </div>
+  </div>
+</div>
+
+<!-- Comprehensive Report View Modal -->
+<div class="modal-overlay" id="reportViewModal">
+  <div class="modal" style="max-width:750px;">
+    <div class="modal-header">
+      <div class="modal-title" id="reportViewTitle">Daily Branch Operation Summary</div>
+      <button class="modal-close" onclick="closeModal('reportViewModal')">×</button>
+    </div>
+    <div class="modal-body" id="reportViewContent">
+      <!-- Content will be dynamically injected here based on branch and date -->
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('reportViewModal')">Close</button>
+      <button class="btn btn-teal" onclick="alert('Report marked as reviewed and archived.')">Mark as Reviewed</button>
+    </div>
+  </div>
+</div>
+
+<script src="../js/branch-management.js"></script>
+</body>
+</html>

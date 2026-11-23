@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>System Management · Angeliz Cakes</title>
+<link rel="stylesheet" href="../css/system-management.css">
+</head>
+<body>
+<main class="page">
+  <header class="page-header">
+    <h1 class="page-title">System Management</h1>
+    <p class="page-subtitle">Security, system settings, and activity logs.</p>
+  </header>
+
+  <!-- SYSTEM SETTINGS AND SECURITY -->
+  <section class="section">
+    <div class="grid grid-2">
+      <div class="card">
+        <div class="card-title">System Settings <button class="btn btn-outline btn-sm" id="editSettings">Edit</button></div>
+        <div class="card-body">
+          <div class="row"><span class="muted">Business Name</span><span class="strong" id="set-business">Angeliz Cakes</span></div>
+          <div class="row"><span class="muted">Currency</span><span class="strong" id="set-currency">PHP (₱)</span></div>
+          <div class="row"><span class="muted">Timezone</span><span class="strong" id="set-timezone">Asia/Manila</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Security &amp; Access <button class="btn btn-outline btn-sm" id="manageSecurity">Manage</button></div>
+        <div class="card-body">
+          <div class="row"><span class="muted">Two-Factor Authentication</span><span class="badge badge-teal" id="sec-twofa">Required for Admins</span></div>
+          <div class="row"><span class="muted">Password Policy</span><span class="strong" id="sec-password">Min 8 chars · 90-day renewal</span></div>
+          <div class="row"><span class="muted">Session Timeout</span><span class="strong" id="sec-session">30 min idle</span></div>
+          <div class="row"><span class="muted">Failed Login Lockout</span><span class="strong" id="sec-lockout">After 6 failed attempts</span></div>
+          <div class="row"><span class="muted">Active Sessions</span><span class="strong" id="sec-sessions">1 device</span></div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- BRANCH ADMIN ACCOUNTS -->
+  <section class="section">
+    <div class="card">
+      <div class="card-title">Admin Accounts</div>
+      <div class="account-table-wrap">
+        <table class="account-table">
+          <thead>
+            <tr><th>Name</th><th>Email</th><th>Branch</th><th>Status</th><th>Actions</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="strong">Angeliz Owner</td><td>owner@angelizcakes.com</td><td>All branches</td><td><span class="badge badge-teal">Active</span></td><td><button class="btn btn-outline btn-sm" id="manageDevices" type="button">Manage Device</button></td></tr>
+            <tr><td class="strong">Liza Reyes</td><td>liza@angelizcakes.com</td><td>Angeliz Cakes Main Branch</td><td><span class="badge badge-teal">Active</span></td><td><button class="btn btn-outline btn-sm" type="button">Set Location</button></td></tr>
+            <tr><td class="strong">Kim Bautista</td><td>kim@angelizcakes.com</td><td>Yashano Mall Branch</td><td><span class="badge badge-teal">Active</span></td><td><button class="btn btn-outline btn-sm" type="button">Set Location</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ACTIVITY LOGS -->
+  <section class="section">
+    <div class="card">
+      <div class="card-title">Activity Logs</div>
+      <div class="card-body">
+        <div class="log-row"><span class="muted">Super Admin updated production status of #CC-303</span><span class="tag">10:51 AM</span></div>
+        <div class="log-row"><span class="muted">Super Admin added promotion "Sweet 16 Deal"</span><span class="tag">10:32 AM</span></div>
+        <div class="log-row"><span class="muted">Branch Manager (Branch A) recorded a POS sale</span><span class="tag">10:05 AM</span></div>
+        <div class="log-row"><span class="muted">Super Admin edited cake customization Step 2</span><span class="tag">09:48 AM</span></div>
+        <div class="log-row"><span class="muted">Branch Manager (Branch A) logged product delivery with expiry dates</span><span class="tag">09:20 AM</span></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- MODAL -->
+<div class="modal" id="modal">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h2 id="modalTitle">Title</h2>
+      <button class="icon-btn" id="modalClose" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" id="modalCancel">Cancel</button>
+      <button class="btn btn-teal" id="modalSave">Save changes</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="../js/system-management.js"></script>
+</body>
+</html>

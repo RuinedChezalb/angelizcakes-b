@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Order Management · Angeliz Cakes</title>
+<link rel="stylesheet" href="../css/order-management.css">
+</head>
+<body>
+<main class="page">
+  <header class="page-header">
+    <div>
+      <h1 class="page-title">Order Management</h1>
+      <p class="page-subtitle">Monitor all orders, walk-in transactions, and customized cakes across branches.</p>
+    </div>
+  </header>
+
+  <!-- SEPARATE KPI CARDS INLINE -->
+  <section class="section">
+    <div class="kpi-grid">
+      <div class="card">
+        <div class="kpi-label">Orders In Progress</div>
+        <div class="kpi-value">94</div>
+        <div class="kpi-delta up">Currently in production</div>
+      </div>
+      <div class="card">
+        <div class="kpi-label">Ready for Pickup / Delivery</div>
+        <div class="kpi-value">61</div>
+        <div class="kpi-delta up">Awaiting handover</div>
+      </div>
+      <div class="card">
+        <div class="kpi-label">Completed Today</div>
+        <div class="kpi-value">38</div>
+        <div class="kpi-delta up">▲ 5 vs yesterday</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="card">
+      <div class="card-title">Website Orders</div>
+      <div class="table-wrap">
+        <table class="table">
+          <thead><tr><th>Order #</th><th>Customer</th><th>Type</th><th>Amount</th><th>Production Status</th><th>Action</th></tr></thead>
+          <tbody id="websiteOrderRows"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <!-- WALK-IN ORDERS (POS) -->
+    <div class="card">
+      <div class="card-title">Walk-in Orders (POS) <span class="sub">From branch POS transactions</span></div>
+      <div class="table-wrap">
+        <table class="table">
+          <thead><tr><th>Order / Ref</th><th>Customer</th><th>Branch</th><th>Amount</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td class="strong">#POS-8821</td><td>Liza Mercado</td><td>Main Branch</td><td>₱1,850</td><td><span class="badge badge-teal">Paid / Completed</span></td></tr>
+            <tr><td class="strong">#POS-8822</td><td>Paolo Reyes</td><td>Yashano Mall</td><td>₱3,200</td><td><span class="badge badge-teal">Paid / Completed</span></td></tr>
+            <tr><td class="strong">#POS-8823</td><td>Grace Tan</td><td>Main Branch</td><td>₱950</td><td><span class="badge badge-teal">Paid / Completed</span></td></tr>
+            <tr><td class="strong">#POS-8824</td><td>Walk-in Guest</td><td>Yashano Mall</td><td>₱420</td><td><span class="badge badge-teal">Paid / Completed</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div class="modal-overlay" id="websiteOrderModal">
+  <section class="modal order-details-modal" role="dialog" aria-modal="true" aria-labelledby="websiteOrderTitle" aria-describedby="websiteOrderSubtitle">
+    <div class="modal-header">
+      <div>
+        <h2 class="modal-title" id="websiteOrderTitle">Website Order</h2>
+        <div class="order-modal-subtitle" id="websiteOrderSubtitle"></div>
+      </div>
+      <div class="production-status-updater">
+        <label for="websiteOrderProductionStatus">Production status</label>
+        <div class="production-status-controls">
+          <select id="websiteOrderProductionStatus">
+          </select>
+          <button class="btn btn-status-update btn-sm" id="updateWebsiteOrderStatus" type="button">Update</button>
+        </div>
+        <p class="production-status-feedback" id="websiteOrderStatusFeedback" role="status" aria-live="polite"></p>
+      </div>
+    </div>
+    <div class="modal-body">
+      <div class="storefront-order-sections" id="websiteOrderDetails"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" type="button" data-close-website-order>Close</button>
+    </div>
+  </section>
+</div>
+
+<script src="../js/order-management.js"></script>
+</body>
+</html>

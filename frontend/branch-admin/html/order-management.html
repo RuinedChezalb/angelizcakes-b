@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Order Management · Angeliz Cakes</title>
+
+
+
+  <link rel="stylesheet" href="../css/order-management.css">
+
+</head>
+<body>
+<main class="page page-main">
+
+  <!-- ================= HEAD ================= -->
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">Order Management</h1>
+      <p class="page-sub">Track incoming orders, follow production progress, and create cake or package orders.</p>
+    </div>
+
+    <div class="top-actions">
+      <button class="btn-primary" id="newOrderBtn">
+        <svg class="ico" viewBox="0 0 24 24" style="width:14px;height:14px;"><path d="M12 5v14M5 12h14"/></svg>
+        New Cake Order
+      </button>
+      <button class="btn-primary" id="newPackageOrderBtn" type="button">
+        <svg class="ico" viewBox="0 0 24 24" style="width:14px;height:14px;"><rect x="3" y="8" width="18" height="13" rx="2"/><path d="M3 13h18M12 8v13"/></svg>
+        New Package Order
+      </button>
+    </div>
+  </div>
+
+  <!-- ================= KPI ================= -->
+  <div class="kpi-row">
+    <div class="kpi-card">
+      <div class="kpi-head">
+        <span class="kpi-label">Pending Orders</span>
+        <div class="kpi-icon"><svg class="ico" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg></div>
+      </div>
+      <div class="kpi-value"><span id="kpiPending">7</span> <span class="unit">orders</span></div>
+      <div class="kpi-foot">Awaiting production or pickup</div>
+    </div>
+
+    <div class="kpi-card blue">
+      <div class="kpi-head">
+        <span class="kpi-label">Ready for Pickup</span>
+        <div class="kpi-icon"><svg class="ico" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></div>
+      </div>
+      <div class="kpi-value">2 <span class="unit">cakes</span></div>
+      <div class="kpi-foot">Notify customers</div>
+    </div>
+  </div>
+
+  <!-- ================= FILTERS ================= -->
+  <div class="toolbar">
+    <div class="search-wrap">
+      <svg class="ico" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input type="search" id="ordSearch" placeholder="Search by order ID, customer name, or cake...">
+    </div>
+    <select class="filter-select" id="ordStatus">
+      <option value="">All statuses</option>
+      <option value="Pending">Pending</option>
+      <option value="Processing">Processing</option>
+      <option value="Ready">Ready</option>
+      <option value="Completed">Completed</option>
+    </select>
+    <select class="filter-select" id="ordType">
+      <option value="">All types</option>
+      <option value="Website">Website</option>
+      <option value="Custom">Custom Cake</option>
+      <option value="Package">Package</option>
+    </select>
+  </div>
+
+  <!-- ================= TABLE ================= -->
+  <section class="orders-list-card">
+    <h2 class="orders-list-title">Website Orders</h2>
+    <div class="table-container">
+      <table class="data-table" id="ordTable">
+        <thead>
+          <tr>
+            <th>Order #</th>
+            <th>Customer</th>
+            <th>Type</th>
+            <th>Amount</th>
+            <th>Production Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr data-type="Website" data-status="Pending" data-item="Custom Cake ×1" data-date="Nov 15, 2026" data-payment="Paid" data-amount="To be confirmed" data-search="ORD-0455 Liam Tan Custom Cake ×1 Nov 15, 2026 Website Pending Paid">
+            <td class="order-id-cell">ORD-0455</td><td>Liam Tan</td><td>Website</td><td>To be confirmed</td><td><span class="status-badge badge-amber">Pending</span></td><td><button class="order-view-button" type="button" data-view-order aria-label="View order ORD-0455">View</button></td>
+          </tr>
+          <tr data-type="Custom" data-status="Processing" data-item="8&quot; Chocolate Fudge Cake" data-date="Nov 14, 2026" data-payment="Paid" data-amount="To be confirmed" data-search="ORD-0451 Ava Reyes 8 inch Chocolate Fudge Cake Nov 14, 2026 Custom Processing Paid">
+            <td class="order-id-cell">ORD-0451</td><td>Ava Reyes</td><td>Custom</td><td>To be confirmed</td><td><span class="status-badge badge-blue">Processing</span></td><td><button class="order-view-button" type="button" data-view-order aria-label="View order ORD-0451">View</button></td>
+          </tr>
+          <tr data-type="Website" data-status="Ready" data-item="Bento Cake Set ×4" data-date="Nov 13, 2026" data-payment="Paid" data-amount="To be confirmed" data-search="ORD-0448 Noah Lim Bento Cake Set Nov 13, 2026 Website Ready Paid">
+            <td class="order-id-cell">ORD-0448</td><td>Noah Lim</td><td>Website</td><td>To be confirmed</td><td><span class="status-badge badge-green">Ready</span></td><td><button class="order-view-button" type="button" data-view-order aria-label="View order ORD-0448">View</button></td>
+          </tr>
+          <tr data-type="Custom" data-status="Ready" data-item="Grazing Table Cake" data-date="Nov 13, 2026" data-payment="Paid" data-amount="To be confirmed" data-search="ORD-0442 Mia Cruz Grazing Table Cake Nov 13, 2026 Custom Ready Paid">
+            <td class="order-id-cell">ORD-0442</td><td>Mia Cruz</td><td>Custom</td><td>To be confirmed</td><td><span class="status-badge badge-green">Ready</span></td><td><button class="order-view-button" type="button" data-view-order aria-label="View order ORD-0442">View</button></td>
+          </tr>
+          <tr data-type="Website" data-status="Completed" data-item="Butter Croissant ×6" data-date="Nov 12, 2026" data-payment="Paid" data-amount="To be confirmed" data-search="ORD-0436 Ella Santos Butter Croissant Nov 12, 2026 Website Completed Paid">
+            <td class="order-id-cell">ORD-0436</td><td>Ella Santos</td><td>Website</td><td>To be confirmed</td><td><span class="status-badge badge-green">Completed</span></td><td><button class="order-view-button" type="button" data-view-order aria-label="View order ORD-0436">View</button></td>
+          </tr>
+          <tr data-type="Custom" data-status="Pending" data-item="Custom Tier Cake" data-date="Nov 16, 2026" data-payment="Pending" data-amount="To be confirmed" data-search="ORD-0430 Sofia Reyes Custom Tier Cake Nov 16, 2026 Custom Pending">
+            <td class="order-id-cell">ORD-0430</td><td>Sofia Reyes</td><td>Custom</td><td>To be confirmed</td><td><span class="status-badge badge-amber">Pending</span></td><td><button class="order-view-button" type="button" data-view-order aria-label="View order ORD-0430">View</button></td>
+          </tr>
+          <tr data-type="Website" data-status="Processing" data-item="Red Velvet Cake ×1" data-date="Nov 15, 2026" data-payment="Paid" data-amount="To be confirmed" data-search="ORD-0421 Rina Gomez Red Velvet Cake Nov 15, 2026 Website Processing Paid">
+            <td class="order-id-cell">ORD-0421</td><td>Rina Gomez</td><td>Website</td><td>To be confirmed</td><td><span class="status-badge badge-blue">Processing</span></td><td><button class="order-view-button" type="button" data-view-order aria-label="View order ORD-0421">View</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="empty-state" id="ordEmpty">
+    <svg class="ico" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <strong>No orders match your search</strong>
+    <div style="margin-top:6px;">Try a different keyword or filter.</div>
+  </div>
+
+</main>
+
+<div class="modal-overlay" id="orderDetailsModal" role="dialog" aria-modal="true" aria-labelledby="orderDetailsTitle">
+  <section class="modal order-details-modal">
+    <div class="modal-head">
+      <div>
+        <h2 class="modal-title" id="orderDetailsTitle">Order Details</h2>
+        <div class="modal-sub" id="orderDetailsSubtitle"></div>
+      </div>
+      <button class="modal-close" id="closeOrderDetailsBtn" type="button" aria-label="Close order details">✕</button>
+    </div>
+    <dl class="order-details-grid" id="orderDetailsFields"></dl>
+  </section>
+</div>
+
+<!-- ============================================================
+     NEW CUSTOM CAKE ORDER — WIZARD
+     ============================================================ -->
+<div class="modal-overlay" id="cakeModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title">New Cake Order</div>
+        <div class="modal-sub">Choose a storefront preset or build a fully custom cake.</div>
+      </div>
+      <button class="modal-close" data-close aria-label="Close">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-foot">
+      <button class="btn-ghost" id="btnBack">Back</button>
+      <button class="btn-primary" id="btnNext" hidden>Next</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay package-order-overlay" id="packageOrderModal"
+     role="dialog" aria-modal="true" aria-label="New package order">
+  <div class="package-order-modal">
+    <button class="modal-close package-order-modal-close" id="closePackageOrderBtn" type="button"
+            aria-label="Close package order">✕</button>
+    <div class="package-selection" id="packageSelection">
+      <div class="package-selection-head">
+        <p>Available Packages</p>
+        <h2>Choose a package</h2>
+      </div>
+      <div class="package-selection-grid" id="packageSelectionGrid"></div>
+    </div>
+    <div id="packageWizardMount" hidden></div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toasts"></div>
+<script src="../js/order-management.js"></script>
+</body>
+</html>

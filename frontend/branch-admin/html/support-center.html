@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customer Support · Angeliz Cakes</title>
+</head>
+<body>
+  <main class="page support-center" aria-label="Customer Support and Branch Manuals">
+    <header class="page-head">
+      <div>
+        <h1 class="page-title">Customer Support</h1>
+        <p class="page-sub">Branch operations information, quick references, and step-by-step manuals.</p>
+      </div>
+    </header>
+
+    <section class="support-welcome" aria-labelledby="supportWelcomeTitle">
+      <div class="support-welcome-icon" aria-hidden="true">?</div>
+      <div>
+        <h2 id="supportWelcomeTitle">Branch Help Center</h2>
+        <p>Choose a topic below for instructions on common branch tasks. Use the sidebar shortcuts for quick access to custom cake orders, stock requests, and daily reports.</p>
+      </div>
+    </section>
+
+    <nav class="support-topic-nav" aria-label="Manual topics">
+      <a href="#manual-orders">Orders</a>
+      <a href="#manual-inventory">Inventory</a>
+      <a href="#manual-pos">Point of sale</a>
+      <a href="#manual-reports">Reports and shifts</a>
+      <a href="#manual-customers">Customers and messages</a>
+    </nav>
+
+    <div class="support-manual-grid">
+      <section class="support-manual-card" id="manual-orders" aria-labelledby="manualOrdersTitle">
+        <div class="support-card-heading">
+          <span class="support-card-icon" aria-hidden="true">01</span>
+          <div>
+            <h2 id="manualOrdersTitle">Orders</h2>
+            <p>Create and review branch orders.</p>
+          </div>
+        </div>
+        <details class="support-manual-step">
+          <summary>Create a custom cake order</summary>
+          <ol>
+            <li>Choose <strong>Create Cake Order</strong> in Quick Actions or open Order Management and select <strong>New Cake Order</strong>.</li>
+            <li>Choose a preset cake to follow its storefront product and checkout flow, or select the fully custom storefront wizard.</li>
+            <li>Complete the customer and cake details, then place the order to add it to the current page session.</li>
+          </ol>
+        </details>
+        <details class="support-manual-step">
+          <summary>Create a package order</summary>
+          <ol>
+            <li>Open Order Management and select <strong>New Package Order</strong>.</li>
+            <li>Choose an available package and follow the package wizard to enter the order details.</li>
+            <li>Review the order before submitting it.</li>
+          </ol>
+        </details>
+      </section>
+
+      <section class="support-manual-card" id="manual-inventory" aria-labelledby="manualInventoryTitle">
+        <div class="support-card-heading">
+          <span class="support-card-icon" aria-hidden="true">02</span>
+          <div>
+            <h2 id="manualInventoryTitle">Inventory and stock</h2>
+            <p>Log deliveries, monitor expiry, and request replenishment.</p>
+          </div>
+        </div>
+        <details class="support-manual-step">
+          <summary>Log a delivery</summary>
+          <ol>
+            <li>Open Branch Inventory and select <strong>Log Delivery</strong>.</li>
+            <li>Enter the delivery date, choose each product, and add its received quantity and expiry date.</li>
+            <li>Select <strong>Confirm Receipt</strong> to add the delivery as a batch.</li>
+          </ol>
+        </details>
+        <details class="support-manual-step">
+          <summary>Understand stock and expiry</summary>
+          <ul>
+            <li>Stock totals include quantities from batches that have not expired.</li>
+            <li>Expired quantities are excluded from available stock and checkout.</li>
+            <li>Products at zero are Out of Stock; quantities at or below the reorder level are Low Stock. Expiring Soon covers eligible batches expiring within 7 days.</li>
+            <li>Checkout uses FEFO (first-expiring, first-out): it deducts from the eligible batch with the earliest expiry first.</li>
+          </ul>
+        </details>
+        <details class="support-manual-step">
+          <summary>Request stock</summary>
+          <ol>
+            <li>Choose <strong>Request Stock</strong> in Quick Actions or Branch Inventory.</li>
+            <li>Select a product, enter the quantity, urgency, preferred delivery date, and reason.</li>
+            <li>Submit the request. In this prototype, requests are not sent to an owner service.</li>
+          </ol>
+        </details>
+      </section>
+
+      <section class="support-manual-card" id="manual-pos" aria-labelledby="manualPosTitle">
+        <div class="support-card-heading">
+          <span class="support-card-icon" aria-hidden="true">03</span>
+          <div>
+            <h2 id="manualPosTitle">Point of sale</h2>
+            <p>Build a counter sale and complete checkout.</p>
+          </div>
+        </div>
+        <details class="support-manual-step">
+          <summary>Complete a checkout</summary>
+          <ol>
+            <li>Search the catalog and add the requested products to the cart.</li>
+            <li>Review the items and total, then select <strong>Checkout</strong>.</li>
+            <li>The receipt appears after a successful checkout. Inventory is deducted using FEFO.</li>
+          </ol>
+        </details>
+        <div class="support-note">
+          <strong>Receipt email:</strong> The optional email field is currently display-only. Receipts are not emailed.
+        </div>
+      </section>
+
+      <section class="support-manual-card" id="manual-reports" aria-labelledby="manualReportsTitle">
+        <div class="support-card-heading">
+          <span class="support-card-icon" aria-hidden="true">04</span>
+          <div>
+            <h2 id="manualReportsTitle">Reports and shift handovers</h2>
+            <p>Review branch activity and pass on operational details.</p>
+          </div>
+        </div>
+        <details class="support-manual-step">
+          <summary>Review sales and export a report</summary>
+          <ol>
+            <li>Open Sales &amp; Financial Reports and choose Weekly, Monthly, or Yearly.</li>
+            <li>Review the sales summary and product breakdown.</li>
+            <li>Select <strong>Export CSV</strong> to download the displayed period's product totals.</li>
+          </ol>
+        </details>
+        <details class="support-manual-step">
+          <summary>Submit the daily branch report</summary>
+          <ol>
+            <li>Choose <strong>Submit Report</strong> in Quick Actions.</li>
+            <li>Enter completed order counts, total sales, and the actual cash count. Review the delivery log and add any notes.</li>
+            <li>Confirm the figures, check the verification box, and select <strong>Submit Report</strong>.</li>
+          </ol>
+        </details>
+        <details class="support-manual-step">
+          <summary>Submit or acknowledge a shift handover</summary>
+          <ol>
+            <li>Open Staff Shift Management and choose <strong>New Shift Handover</strong>.</li>
+            <li>Review the transaction, sales, pending work, inventory issues, and remarks before submitting.</li>
+            <li>The incoming staff member can review the handover and select <strong>Acknowledge Handover</strong>.</li>
+          </ol>
+        </details>
+      </section>
+
+      <section class="support-manual-card" id="manual-customers" aria-labelledby="manualCustomersTitle">
+        <div class="support-card-heading">
+          <span class="support-card-icon" aria-hidden="true">05</span>
+          <div>
+            <h2 id="manualCustomersTitle">Customers and messages</h2>
+            <p>Find customer records and manage storefront inquiries.</p>
+          </div>
+        </div>
+        <details class="support-manual-step">
+          <summary>Find a customer or handle a message</summary>
+          <ol>
+            <li>In Customer Records, search the available records by registration date, email, or phone.</li>
+            <li>Open Communications from the header to view storefront messages in Inbox or Archived.</li>
+            <li>Select an inquiry to read it. Use <strong>Save Reply &amp; Archive</strong> to save the reply and archive that message.</li>
+          </ol>
+        </details>
+      </section>
+
+      <aside class="support-manual-card support-prototype-note" aria-label="Prototype information">
+        <div class="support-card-heading">
+          <span class="support-card-icon" aria-hidden="true">!</span>
+          <div>
+            <h2>Prototype information</h2>
+            <p>Data and feature availability</p>
+          </div>
+        </div>
+        <p>Some screens use sample data. Daily reports, stock requests, and shift handovers are not saved to a backend. POS transactions and inventory batches are stored in this browser only.</p>
+      </aside>
+    </div>
+  </main>
+</body>
+</html>

@@ -1,0 +1,69 @@
+<main id="storefrontProductDetail" class="product-detail-page" aria-labelledby="productViewName">
+  <article class="product-detail-view">
+    <div class="product-detail-toolbar">
+      <a class="product-detail-return" href="../index.html#menu" data-storefront-back aria-label="Go back to the previous view">
+        <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+        <span>Back</span>
+      </a>
+    </div>
+    <div class="product-detail-summary">
+      <div class="product-detail-image-wrap">
+        <img class="product-view-image" data-product-image alt="">
+      </div>
+      <div class="product-view-copy">
+        <p class="product-view-category" data-product-category></p>
+        <h1 id="productViewName" data-product-name tabindex="-1"></h1>
+        <p class="product-view-price" data-product-price></p>
+        <div class="product-view-actions">
+          <button class="product-view-favorite" type="button" data-product-favorite aria-pressed="false" aria-label="Add product to favorites">
+            <i class="fa-regular fa-heart" aria-hidden="true"></i>
+          </button>
+          <button class="product-view-checkout" type="button" data-product-checkout>Checkout</button>
+        </div>
+      </div>
+    </div>
+    <div class="product-detail-body">
+      <div class="product-detail-tabs" role="tablist" aria-label="Product information">
+        <button class="product-detail-tab is-active" id="product-tab-description" type="button" role="tab"
+                aria-controls="product-panel-description" aria-selected="true" tabindex="0" data-product-tab="description">
+          Description
+        </button>
+        <button class="product-detail-tab" id="product-tab-ingredients" type="button" role="tab"
+                aria-controls="product-panel-ingredients" aria-selected="false" tabindex="-1" data-product-tab="ingredients">
+          Ingredients &amp; Allergens
+        </button>
+        <button class="product-detail-tab" id="product-tab-classification" type="button" role="tab"
+                aria-controls="product-panel-classification" aria-selected="false" tabindex="-1" data-product-tab="classification">
+          Classification
+        </button>
+        <button class="product-detail-tab" id="product-tab-reviews" type="button" role="tab"
+                aria-controls="product-panel-reviews" aria-selected="false" tabindex="-1" data-product-tab="reviews">
+          Reviews
+        </button>
+      </div>
+      <section class="product-detail-panel is-active" id="product-panel-description" role="tabpanel"
+               aria-labelledby="product-tab-description" data-product-panel="description" tabindex="0">
+        <p class="product-detail-description" data-product-description></p>
+        <dl class="product-detail-options" data-product-options></dl>
+        <p class="product-detail-note" data-product-options-note hidden>Contact the bakery to ask about available options for this item.</p>
+      </section>
+      <section class="product-detail-panel" id="product-panel-ingredients" role="tabpanel"
+               aria-labelledby="product-tab-ingredients" data-product-panel="ingredients" tabindex="0" hidden>
+        <div class="product-detail-paragraphs">
+          <p><strong>Ingredients:</strong> <span data-product-ingredients></span></p>
+          <p><strong>Allergens:</strong> <span data-product-allergens></span></p>
+        </div>
+      </section>
+      <section class="product-detail-panel" id="product-panel-classification" role="tabpanel"
+               aria-labelledby="product-tab-classification" data-product-panel="classification" tabindex="0" hidden>
+        <div class="product-detail-classification">
+          <p data-product-classification></p>
+        </div>
+      </section>
+      <section class="product-detail-panel" id="product-panel-reviews" role="tabpanel"
+               aria-labelledby="product-tab-reviews" data-product-panel="reviews" tabindex="0" hidden>
+        <div class="product-detail-reviews" data-product-reviews></div>
+      </section>
+    </div>
+  </article>
+</main>

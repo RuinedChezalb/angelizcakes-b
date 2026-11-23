@@ -1,0 +1,123 @@
+<main class="page daily-report-page">
+<div class="report-shell">
+  <!-- Header -->
+  <div class="report-header">
+    <h1 class="report-title-main">
+      <svg class="ico" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>
+      Daily Branch Report
+    </h1>
+    <p class="report-sub">Submit end-of-day sales and reconciliation.</p>
+    
+    <div class="meta-strip">
+      <div class="meta-item">
+        <span class="meta-label">Branch</span>
+        <span class="meta-value" id="headerBranch">Loading...</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Manager</span>
+        <span class="meta-value" id="headerManager">Loading...</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Date</span>
+        <span class="meta-value" id="headerDate"></span>
+      </div>
+    </div>
+  </div>
+
+  <form class="report-body" id="dailyReportForm">
+    
+    <!-- 1. Successful Orders -->
+    <div class="report-section">
+      <div class="section-head">Successful Orders</div>
+      <div class="section-body">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Custom Cakes</label>
+            <input type="number" id="successCake" min="0" value="0">
+          </div>
+          <div class="form-group">
+            <label>Grazing Tables</label>
+            <input type="number" id="successGrazing" min="0" value="0">
+          </div>
+          <div class="form-group">
+            <label>Pastry Buffets</label>
+            <input type="number" id="successBuffet" min="0" value="0">
+          </div>
+          <div class="form-group">
+            <label>Food Bundles</label>
+            <input type="number" id="successBundles" min="0" value="0">
+          </div>
+          <div class="form-group full">
+            <label>Party Packages</label>
+            <input type="number" id="successPackages" min="0" value="0">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Sales & Cash -->
+    <div class="report-section">
+      <div class="section-head">Sales & Cash Checking</div>
+      <div class="section-body">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Total Sales Collected</label>
+            <div class="input-wrap">
+              <span class="prefix">₱</span>
+              <input type="number" id="totalSales" min="0" step="0.01" value="0.00">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Actual Cash Counted</label>
+            <div class="input-wrap">
+              <span class="prefix">₱</span>
+              <input type="number" id="actualCash" min="0" step="0.01" value="0.00">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Delivery Log (Auto) -->
+    <div class="report-section">
+      <div class="section-head">
+        Delivery Log
+        <span class="section-badge">Auto-filled</span>
+      </div>
+      <div class="section-body">
+        <div class="form-grid">
+          <div class="form-group full">
+            <label>Supplier: Main Branch</label>
+            <div class="auto-summary" id="deliveryLogBox">
+              <!-- JS Populated -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. Notes -->
+    <div class="report-section">
+      <div class="section-head">Notes & Remarks</div>
+      <div class="section-body">
+        <div class="form-group full">
+          <textarea id="closingNotes" placeholder="Any pending orders or important remarks for tomorrow..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. Confirm & Submit -->
+    <label class="confirm-box" for="confirmCheck">
+      <input type="checkbox" id="confirmCheck" required>
+      <span class="confirm-text">I have verified today's orders and cash.</span>
+    </label>
+
+    <div class="report-footer">
+      <button type="button" class="btn" id="cancelBtn">Cancel</button>
+      <button type="submit" class="btn btn-primary" id="submitBtn">Submit Report</button>
+    </div>
+
+  </form>
+</div>
+</main>
+<div class="toast-container" id="toastContainer"></div>

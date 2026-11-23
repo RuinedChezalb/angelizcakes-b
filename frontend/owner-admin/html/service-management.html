@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Service Management · Angeliz Cakes</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="../css/service-management.css">
+</head>
+<body>
+<main class="page">
+  <header class="page-header">
+    <div>
+      <h1 class="page-title">Service Management</h1>
+      <p class="page-subtitle">Manage cake presets, customization steps, event packages, and promotions.</p>
+    </div>
+  </header>
+
+  <section class="section kpi-section">
+    <div class="kpi-row">
+      <div class="card">
+        <div class="kpi-label">Custom Cake Selections</div>
+        <div class="kpi-value" id="kpiCakes">4</div>
+        <div class="kpi-delta up">3 active · 1 draft</div>
+      </div>
+      <div class="card">
+        <div class="kpi-label">Active Promotions</div>
+        <div class="kpi-value" id="kpiPromos">3</div>
+        <div class="kpi-delta up">▲ 2 this week</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="grid cake-admin-grid">
+    <!-- Custom Cake Selections -->
+    <section class="section">
+      <div class="card">
+        <div class="card-title">
+          <span>Custom Cake Selections</span>
+          <button class="btn btn-teal btn-sm" onclick="openCakeModal()">+ Add Custom Cake Preset Selection</button>
+        </div>
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr><th>Image</th><th>Selection</th><th>Price</th><th>Status</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="cakeSelectionRows"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Customization Steps -->
+    <section class="section">
+      <div class="card">
+        <div class="card-title"><span>Cake Customization Steps</span><button class="btn btn-teal btn-sm" onclick="openManageStepsModal()">Manage Options &amp; Prices</button></div>
+        <div id="stepRows" class="steps-grid"></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Product Catalog -->
+  <section class="section">
+    <div class="card">
+      <div class="card-title">
+        <span>Product Catalog</span>
+        <button class="btn btn-teal btn-sm" id="openProductDialog" type="button">+ Add Product</button>
+      </div>
+      <div class="table-wrap">
+        <table class="table product-table">
+          <thead>
+            <tr><th>Image</th><th>Product</th><th>Category</th><th>Price</th><th>Action</th></tr>
+          </thead>
+          <tbody id="productRows">
+            <tr id="productEmptyRow"><td class="muted" colspan="5">No products added yet.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Package Services -->
+  <section class="section">
+    <div class="package-services-card">
+      <div class="package-services-heading">
+        <div class="package-services-title">Packages</div>
+        <button class="btn btn-teal btn-sm" id="openPackageDialog" type="button">+ Add Package</button>
+      </div>
+      <div class="grid grid-2">
+        <div class="card">
+          <div class="card-title">Grazing Tables</div>
+          <div class="table-wrap"><table class="table fit"><thead><tr><th>Package</th><th>Pax</th><th>Price</th><th>Actions</th></tr></thead>
+            <tbody id="grazingRows"></tbody>
+          </table></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Pastry Buffets</div>
+          <div class="table-wrap"><table class="table fit"><thead><tr><th>Package</th><th>Pax</th><th>Price</th><th>Actions</th></tr></thead>
+            <tbody id="pastryRows"></tbody>
+          </table></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Party Packages</div>
+          <div class="table-wrap"><table class="table fit"><thead><tr><th>Package</th><th>Guests</th><th>Price</th><th>Actions</th></tr></thead>
+            <tbody id="partyRows"></tbody>
+          </table></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Food Bundles</div>
+          <div class="table-wrap"><table class="table fit"><thead><tr><th>Bundle</th><th>Pax</th><th>Price</th><th>Actions</th></tr></thead>
+            <tbody id="bundleRows"></tbody>
+          </table></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Promotions -->
+  <section class="section">
+    <div class="card">
+      <div class="card-title">Promotions <span class="sub">Applied to customized cakes and offerings</span><button class="btn btn-teal btn-sm" onclick="openPromoModal()">+ Add Promotion</button></div>
+      <div class="table-wrap"><table class="table"><thead><tr><th>Promotion</th><th>Applies To</th><th>Discount</th><th>Validity</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody id="promoRows"></tbody>
+      </table></div>
+    </div>
+  </section>
+
+</main>
+
+<!-- Cake Modal -->
+<div class="modal-overlay" id="cakeModal">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title" id="cakeModalTitle">Add Custom Cake Preset Selection</div><button class="modal-close" onclick="closeModal('cakeModal')">×</button></div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Cake Image *</label>
+        <div class="img-preview" id="cakeImgPreview">No image selected</div>
+        <input type="file" class="form-input" id="cakeImage" accept="image/*" onchange="previewCakeImage(event)">
+      </div>
+
+      <div class="form-group"><label class="form-label">Cake Name *</label><input class="form-input" id="cakeName" placeholder="e.g. Sakura Tier Cake"></div>
+
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Price (₱) *</label><input class="form-input" id="cakePrice" type="number" placeholder="2800"></div>
+        <div class="form-group">
+          <label class="form-label">Classification *</label>
+          <select class="form-select" id="cakeClassification">
+            <option>Buttercream Cake</option>
+            <option>Fondant Cake</option>
+            <option>Fresh Cream Cake</option>
+            <option>Cheesecake</option>
+            <option>Drip Cake</option>
+            <option>Naked Cake</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Description — Customization Steps</label>
+        <div class="muted" style="font-size:11px;margin-bottom:8px;">Customers will see these steps along with your details.</div>
+        <div class="detail-list">
+          <div class="detail-row"><span class="detail-key">Occasion</span><input class="form-input" id="d-occasion" placeholder="e.g. Birthday"></div>
+          <div class="detail-row"><span class="detail-key">Canvas</span><input class="form-input" id="d-canvas" placeholder="e.g. 8&quot; round, two tiers"></div>
+          <div class="detail-row"><span class="detail-key">Layers</span><input class="form-input" id="d-layers" placeholder="e.g. 3 layers vanilla sponge"></div>
+          <div class="detail-row"><span class="detail-key">Flavor</span><input class="form-input" id="d-flavor" placeholder="e.g. Vanilla + strawberry cream"></div>
+          <div class="detail-row"><span class="detail-key">Frosting</span><input class="form-input" id="d-frosting" placeholder="e.g. Pastel buttercream"></div>
+          <div class="detail-row"><span class="detail-key">Theme</span><input class="form-input" id="d-theme" placeholder="e.g. Spring garden, gold accents"></div>
+          <div class="detail-row"><span class="detail-key">Personalize</span><input class="form-input" id="d-personalize" placeholder="e.g. “Happy 16th, Mia!”"></div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Ingredients &amp; Allergens *</label>
+        <div class="pair-box">
+          <div class="pair-field"><span class="pair-label">Ingredients</span><input class="form-input" id="cakeIngredients" placeholder="e.g. Flour, sugar, eggs, butter, milk"></div>
+          <div class="pair-field"><span class="pair-label">Allergens</span><input class="form-input" id="cakeAllergens" placeholder="e.g. Milk, Eggs, Wheat, Soy"></div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Status *</label>
+        <select class="form-select" id="cakeStatus"><option>Active</option><option>Draft</option></select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('cakeModal')">Cancel</button>
+      <button class="btn btn-teal" onclick="saveCake()">Save Cake Preset</button>
+    </div>
+  </div>
+</div>
+
+<!-- Manage Steps Modal -->
+<div class="modal-overlay" id="manageStepsModal">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Manage Customization Options &amp; Sample Prices</div><button class="modal-close" onclick="closeModal('manageStepsModal')">×</button></div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Select Step</label>
+        <select class="form-select" id="stepSelect" onchange="loadStepOptions()"></select>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">Add an option and sample price</label>
+        <div class="flex gap-8">
+          <input class="form-input" id="newOptionInput" placeholder="e.g. New option" style="flex:1;">
+          <input class="form-input" id="newOptionPrice" type="number" min="0" step="0.01" placeholder="₱ price" aria-label="Sample option price in PHP" style="width:140px;">
+          <button class="btn btn-teal" onclick="addOption()" title="Add option"><i class="fa-solid fa-plus"></i></button>
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-bottom:0;">
+        <label class="form-label">Current options and prices</label>
+        <div id="optionList" class="option-list"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('manageStepsModal')">Close</button>
+      <button class="btn btn-teal" onclick="saveStepOptions()">Save Options</button>
+    </div>
+  </div>
+</div>
+
+<!-- Package Modal (grazing, pastry, party, bundle) -->
+<div class="modal-overlay" id="packageModal">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title" id="packageModalTitle">Add Package</div><button class="modal-close" onclick="closeModal('packageModal')">×</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="editingPkgId">
+
+      <div class="form-group">
+        <label class="form-label" for="packageType">Package Category *</label>
+        <select class="form-select" id="packageType" onchange="updatePackageType(this.value)">
+          <option value="">Select a package</option>
+          <option value="grazing">Grazing Tables</option>
+          <option value="pastry">Pastry Buffets</option>
+          <option value="party">Party Packages</option>
+          <option value="bundle">Food Bundles</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Package Photo *</label>
+        <div class="img-preview" id="packageImgPreview">No image selected</div>
+        <input type="file" class="form-input" id="packageImage" accept="image/*" onchange="previewPackageImage(event)">
+      </div>
+      
+      <div class="form-group"><label class="form-label">Package Name *</label><input class="form-input" id="pkgName" placeholder="e.g. Sakura Grazing Table"></div>
+      
+      <div class="form-row">
+        <div class="form-group"><label class="form-label" id="pkgPaxLabel">Number of Pax *</label><input class="form-input" id="pkgPax" placeholder="e.g. 20–30"></div>
+        <div class="form-group"><label class="form-label">Price (₱) *</label><input class="form-input" id="pkgPrice" type="number" placeholder="8500"></div>
+      </div>
+      
+      <div class="form-group"><label class="form-label">Description</label><textarea class="form-textarea" id="pkgDesc" placeholder="Brief description of the package..."></textarea></div>
+
+      <div class="form-group" style="margin-bottom:0;">
+        <label class="form-label">Inclusions</label>
+        <div class="inclusion-builder">
+          <input class="form-input" id="incQty" placeholder="Qty (e.g. 10 pcs)">
+          <input class="form-input" id="incName" placeholder="Item Name (e.g. Lumpia Shanghai)">
+          <button class="btn btn-teal" onclick="addInclusion()" title="Add inclusion"><i class="fa-solid fa-plus"></i></button>
+        </div>
+        <div class="inclusion-list" id="inclusionsList"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('packageModal')">Cancel</button>
+      <button class="btn btn-teal" onclick="savePackage()">Save Package</button>
+    </div>
+  </div>
+</div>
+
+<!-- Promo Modal -->
+<div class="modal-overlay" id="promoModal">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title" id="promoModalTitle">Add Promotion</div><button class="modal-close" onclick="closeModal('promoModal')">×</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="editingPromoId">
+      <div class="form-group"><label class="form-label">Promotion Name *</label><input class="form-input" id="promoName" placeholder="e.g. Sweet 16 Deal"></div>
+      
+      <div class="form-group">
+        <label class="form-label">Applies To *</label>
+        <div style="border:1px solid var(--card-border); border-radius:10px; padding:12px; background:var(--sakura-50);">
+          <label class="check-item" style="font-weight:700; color:#9A4560;">
+            <input type="checkbox" id="promo-all" onchange="toggleAllPromos(this)"> All Offerings
+          </label>
+          
+          <div class="check-group" id="promoTargets" style="padding-left:12px; margin-top:4px;">
+            <div class="check-category">Custom Cakes</div>
+            <label class="check-item"><input type="checkbox" class="promo-target" value="Birthday Cake"> Birthday</label>
+            <label class="check-item"><input type="checkbox" class="promo-target" value="Wedding Cake"> Wedding</label>
+            <label class="check-item"><input type="checkbox" class="promo-target" value="Debut Cake"> Debut</label>
+            <label class="check-item"><input type="checkbox" class="promo-target" value="Anniversary Cake"> Anniversary</label>
+            
+            <div class="check-category">Packages</div>
+            <label class="check-item"><input type="checkbox" class="promo-target" value="Grazing Tables"> Grazing Tables</label>
+            <label class="check-item"><input type="checkbox" class="promo-target" value="Pastry Buffets"> Pastry Buffets</label>
+            <label class="check-item"><input type="checkbox" class="promo-target" value="Party Packages"> Party Packages</label>
+            <label class="check-item"><input type="checkbox" class="promo-target" value="Food Bundles"> Food Bundles</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="promoDiscount">Discount (%) *</label>
+        <input class="form-input" id="promoDiscount" type="number" min="0" max="100" step="0.01" placeholder="10">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="promoStartDate">Start Date *</label>
+          <input class="form-input" id="promoStartDate" type="date">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="promoEndDate">End Date *</label>
+          <input class="form-input" id="promoEndDate" type="date">
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:0;">
+        <label class="form-label">Status *</label>
+        <select class="form-select" id="promoStatus"><option>Active</option><option>Inactive</option></select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('promoModal')">Cancel</button>
+      <button class="btn btn-teal" onclick="savePromo()">Save Promotion</button>
+    </div>
+  </div>
+</div>
+
+<!-- Product Modal -->
+<div class="modal-overlay" id="productModal">
+  <div class="modal product-modal" role="dialog" aria-modal="true" aria-labelledby="productModalTitle">
+    <div class="modal-header">
+      <div class="modal-title" id="productModalTitle">Add New Product</div>
+      <button class="modal-close" id="closeProductDialog" type="button" aria-label="Close">×</button>
+    </div>
+    <form class="modal-body product-modal-body" id="productForm">
+      <p class="product-admin-note">Static preview only: product changes last for this page session.</p>
+      <div class="product-form-layout">
+        <section class="product-form-image">
+          <h3>Product Image</h3>
+          <div class="product-image-preview" id="productImagePreview">No image selected</div>
+          <div class="product-image-controls">
+            <button class="btn btn-outline btn-sm" id="chooseProductImage" type="button">Choose Image</button>
+            <button class="btn btn-danger btn-sm" id="removeProductImage" type="button" hidden>Remove</button>
+            <input type="file" id="productImageFile" accept="image/*" hidden>
+          </div>
+        </section>
+
+        <section class="product-form-information">
+          <h3>Basic Information</h3>
+          <div class="product-form-grid">
+            <div class="form-group">
+              <label class="form-label" for="productId">Product ID</label>
+              <input class="form-input" id="productId" readonly>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="productName">Product Name *</label>
+              <input class="form-input" id="productName" placeholder="e.g. 8&quot; Chocolate Fudge Cake" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="productCategory">Menu Category *</label>
+              <select class="form-select" id="productCategory">
+                <option>Whole Cakes</option><option>Slices</option><option>Pastries</option><option>Breads</option><option>Beverages</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="productPrice">Price (₱) *</label>
+              <input class="form-input" id="productPrice" type="number" min="0" step="0.01" value="500" required>
+            </div>
+            <div class="form-group product-full">
+              <label class="form-label" for="productDescription">Description</label>
+              <textarea class="form-textarea" id="productDescription" placeholder="Describe the product..."></textarea>
+            </div>
+            <div class="form-group product-full">
+              <div class="product-pos-row">
+                <span><strong>POS Availability</strong><small>Allow this product to be sold through the POS.</small></span>
+                <label class="product-pos-switch">
+                  <input id="productShowPOS" type="checkbox" checked aria-label="POS availability">
+                  <span aria-hidden="true"></span>
+                </label>
+                <span class="product-pos-state" id="productPosState">On</span>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+      <p class="product-form-status" id="productFormStatus" role="status" aria-live="polite"></p>
+    </form>
+    <div class="modal-footer">
+      <button class="btn btn-outline" id="cancelProduct" type="button">Cancel</button>
+      <button class="btn btn-teal" id="publishProduct" type="button">Add to Catalog</button>
+    </div>
+  </div>
+</div>
+
+<!-- Product Details Modal -->
+<div class="modal-overlay" id="productViewModal">
+  <div class="modal product-view-modal" role="dialog" aria-modal="true" aria-labelledby="productViewTitle">
+    <div class="modal-header">
+      <div class="modal-title" id="productViewTitle">Product Details</div>
+      <button class="modal-close" id="closeProductView" type="button" aria-label="Close">×</button>
+    </div>
+    <div class="modal-body" id="productViewBody"></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" id="dismissProductView" type="button">Close</button>
+    </div>
+  </div>
+</div>
+
+<script src="../js/service-management.js"></script>
+</body>
+</html>

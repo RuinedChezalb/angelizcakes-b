@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Explore handcrafted celebration cakes, pastries, cafe favorites, and catering from Angeliz Cakes.">
+  <title>Angeliz Cakes | Handcrafted Celebration Cakes</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Cinzel:wght@600;700;800&family=Great+Vibes&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+  <link rel="stylesheet" href="index.css">
+</head>
+<body class="storefront-page">
+  <header class="navbar">
+    <a class="nav-brand" href="#home" aria-label="Angeliz Cakes home">
+      <img src="assets/brand-logo.jpg" alt="Angeliz Cakes Logo" class="brand-logo-img">
+      <span class="brand-text">
+        <span class="brand-title">ANGELIZ</span>
+        <span class="brand-subtitle">CAKES</span>
+      </span>
+    </a>
+
+    <nav class="nav-menu" id="navMenu" aria-label="Primary navigation">
+      <a href="#home" class="nav-link active">Home</a>
+      <a href="#menu" class="nav-link">Menu</a>
+      <a href="#customize" class="nav-link">Customize</a>
+      <a href="#services" class="nav-link">Services</a>
+      <a href="#gallery" class="nav-link">Gallery</a>
+      <a href="#locations" class="nav-link">Locations</a>
+      <a href="#about" class="nav-link">About</a>
+      <a href="#contact" class="nav-link">Contact</a>
+    </nav>
+
+    <div class="nav-actions">
+      <div class="nav-search-box" id="navSearchBox">
+        <button class="nav-search-toggle" id="navSearchToggle" type="button" aria-label="Open search" aria-controls="headerSearch" aria-expanded="false">
+          <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+        </button>
+        <input id="headerSearch" type="search" placeholder="Search treats..." aria-label="Search treats">
+        <div class="search-results" id="searchResults" role="list" aria-label="Matching treats" hidden></div>
+      </div>
+      <button class="nav-icon-btn" id="navFavIcon" type="button" aria-label="Open Favorites" aria-controls="favOverlay" aria-expanded="false">
+        <i class="fa-regular fa-heart" aria-hidden="true"></i>
+        <span class="badge" id="favCount">0</span>
+      </button>
+      <button class="nav-icon-btn profile-nav-btn" id="profileIcon" type="button" aria-label="Open customer profile" aria-controls="storefrontBodyMount" aria-expanded="false">
+        <i class="fa-regular fa-user" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <button class="nav-toggle" id="navToggle" type="button" aria-label="Open navigation menu" aria-controls="navMenu" aria-expanded="false">
+      <i class="fa-solid fa-bars" aria-hidden="true"></i>
+    </button>
+  </header>
+
+  <div id="storefrontBodyMount" aria-busy="true"></div>
+
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-col brand-col">
+        <div class="nav-brand white">
+          <img src="assets/brand-logo.jpg" alt="Angeliz Cakes Logo" class="brand-logo-img">
+          <div class="brand-text">
+            <span class="brand-title">ANGELIZ</span>
+            <span class="brand-subtitle">CAKES</span>
+          </div>
+        </div>
+        <p class="footer-tagline">Handcrafted cakes and sweets for every celebration in Albay.</p>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-heading">EXPLORE</h4>
+        <ul class="footer-links">
+          <li><a href="#home">Home</a></li>
+          <li><a href="#menu">Menu</a></li>
+          <li><a href="#customize">Customize Cake</a></li>
+          <li><a href="#contact">Contact Us</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-heading">VISIT &amp; CONTACT</h4>
+        <ul class="contact-list">
+          <li>Rizal Street, Legazpi City, Albay</li>
+          <li>Daily, 8:00 AM – 8:00 PM</li>
+          <li>09171878820</li>
+          <li>mae_guiriba@yahoo.com</li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-heading">WE ACCEPT</h4>
+        <div class="payment-badges-grid" aria-label="Available payment methods">
+          <span class="payment-badge"><img src="assets/payment-gcash.svg" alt=""><span>GCash</span></span>
+          <span class="payment-badge"><img src="assets/payment-maya.svg" alt=""><span>Maya</span></span>
+          <span class="payment-badge"><img src="assets/payment-qrph.svg" alt=""><span>QRPh</span></span>
+          <span class="payment-badge"><img src="assets/payment-tonik.png" alt=""><span>Tonik</span></span>
+          <span class="payment-badge"><img src="assets/payment-bpi.svg" alt=""><span>BPI</span></span>
+          <span class="payment-badge"><img src="assets/payment-gotyme.svg" alt=""><span>GoTyme</span></span>
+          <span class="payment-badge"><img src="assets/payment-maribank.png" alt=""><span>MariBank</span></span>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 Angeliz Cakes. All Rights Reserved | Sweetness made simple.</p>
+    </div>
+  </footer>
+
+  <div class="panel-overlay" id="favOverlay" aria-hidden="true">
+    <aside class="side-panel" role="dialog" aria-modal="true" aria-labelledby="favoritesTitle">
+      <div class="panel-heading">
+        <div>
+          <p class="panel-eyebrow">Saved for later</p>
+          <h2 id="favoritesTitle">Your Favorites</h2>
+        </div>
+        <button class="panel-close" type="button" data-close-panel aria-label="Close favorites">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </div>
+      <div class="favorites-list" id="favItemsList" aria-live="polite"></div>
+      <a class="panel-action" href="#menu">Browse the menu</a>
+    </aside>
+  </div>
+
+  <!--
+    BACKEND / DATABASE INTEGRATION CHECKLIST
+    The storefront currently uses embedded sample data and local preview flows.
+
+    READ FROM THE BACKEND:
+    - Storefront settings: hero slides and order, navigation/social links, logo, footer contact details,
+      opening hours, service availability, and branch locations.
+    - Catalog: categories and products with IDs, names, descriptions, category, price, image URLs,
+      ingredients, allergens, classifications, availability, and product-specific customization choices.
+    - Service packages: package descriptions, images, prices, included product IDs, quantities, and
+      allowed replacement choices.
+    - Homepage content: gallery items and categories, customer reviews/ratings, About content, and
+      contact/inquiry details.
+    - Payment methods: enabled provider names, display order, and logo URLs/assets.
+    - Custom-cake builder options: occasions, themes/colors, layers, tiers, permitted dimensions,
+      flavors, frostings, and whether the bakery or customer specifies each tier size.
+    - Admin-managed pricing rules for every custom-cake step/option, plus package/product prices,
+      delivery or pickup fees, and any approved discounts or surcharges.
+    - Customer account/profile and order history for the authenticated customer.
+    - branch contacts and locations, including address, phone, email, and opening hours.
+
+    SAVE THROUGH THE BACKEND:
+    - Customer profile: full name, email/verification state, phone/verification state, birthday,
+      address, and saved preferences/notes.
+    - Favorites and package selections, replacing browser-only localStorage persistence.
+    - Contact inquiries: customer name, email, subject/event type, message, and submission time.
+    - Product checkout orders: product/options, retouches/specifications, customer and optional
+      recipient details, fulfillment/address, requested date/time, payment method, and price breakdown.
+    - Package orders: package ID, selected/replaced items, customer/recipient details, fulfillment,
+      requested date/time, payment method, additional information, and price breakdown.
+    - Custom-cake requests: all builder choices and tier sizes/decision, dedication, customer/optional
+      recipient details, reference-image metadata, baker notes, fulfillment/address, requested date/time,
+      payment method, and server-calculated price breakdown.
+    - Order/reference numbers, creation time, status, payment status, and later status/history updates.
+
+    PRICING AND MEDIA:
+    - Have the backend calculate and return authoritative totals from admin-managed step/option prices
+      and applicable fees; do not treat a frontend calculation as the final price.
+    - Store uploaded reference images in file/object storage and keep their URLs and metadata in the
+      database. Keep existing static image assets as local files unless replaced by managed media URLs.
+    - Receipt screens should display server-issued order/reference numbers and the returned price/status.
+    - Replace the current preview-only receipts and local sample data when the API is ready.
+  -->
+  <script src="js/catalog-data.js"></script>
+  <script src="storefront-ajax.js"></script>
+</body>
+</html>

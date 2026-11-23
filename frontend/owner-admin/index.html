@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#fdf0f3">
+  <title>Owner Admin · Angeliz Cakes</title>
+  <link rel="stylesheet" href="index.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <!--
+    DATABASE INTEGRATION INVENTORY
+    Current state: Owner Admin data is mostly hard-coded/sample data. The fetch() in
+    owner-admin-ajax.js loads HTML fragments only; it is not a database API. The storefront
+    currently uses localStorage for inquiries, favorites, profile/session, and package drafts.
+    Replace those browser-only records with shared server APIs when the database is connected.
+
+    READ FROM THE DATABASE (GET)
+    • Header: unread notifications and storefront-message counts.
+    • Dashboard: sales/order/promotion KPIs; sales by branch, channel, and period; reviews;
+      expiring inventory; landing-page gallery entries.
+    • Branch Management: branch details/status and sales/orders/manager summaries; daily
+      operation and delivery reports; branch-admin accounts.
+    • Order Management: website and POS orders, customer/order details, and production status.
+    • Service Management: product catalog; cake presets and customization steps/options/prices;
+      packages and inclusions; promotions.
+    • Customer Management: registered customer profiles and login-attempt audit entries.
+    • Sales & Financial Reports: sales aggregates/comparisons and top-selling products/services,
+      filtered by period and by branch/channel where the view supports it.
+    • System Management: business settings, security policies, admin accounts, trusted devices,
+      and activity logs.
+    • Communications: storefront inquiries, reply history, and inbox/archive state.
+    • Support Center manuals are static reference content and need no database request.
+
+    CREATE (POST)
+    • Add branch, branch-admin account, cake preset, package/food bundle, promotion, product,
+      or landing-page gallery photo.
+    • Store one reply against a storefront inquiry; ensure the reply action is one-time.
+    • Orders are created by storefront/POS flows; customer accounts belong to storefront/auth
+      flows, not these Owner Admin list views. Keep both front ends on the same records/API.
+
+    UPDATE (PATCH/PUT)
+    • Edit branch details/status and admin-account details; update cake presets, customization
+      option prices, packages/inclusions, promotions, products, system/security settings.
+    • The branch-admin Edit control currently shares the create/save path; persist edits by
+      account ID (PATCH) rather than creating a duplicate account.
+    • Update website-order production status.
+    • Save a message reply and update its archived/replied state; update a branch report's
+      reviewed/archive state.
+    • Dashboard/report filters and CSV export are read-only operations, not database updates.
+
+    DELETE (DELETE)
+    • Remove branches, cake presets, packages/offerings, promotions, customization options,
+      and trusted-device entries where the UI exposes a delete/remove action.
+    • No delete action is currently exposed for customer accounts, orders, login/activity logs,
+      gallery photos, or catalog products; add one only if that behavior is approved in the UI.
+    • Record successful privileged creates, updates, and deletes in the activity log.
+  -->
+  <div id="ownerAdminApp" class="sidebar-expanded">
+    <header id="ownerAdminHeader" class="owner-admin-header">
+      <div class="owner-admin-header-left">
+        <button class="ac-toggle" id="acToggle" type="button"
+                aria-controls="ac-sidebar" aria-label="Collapse sidebar" title="Collapse sidebar" aria-expanded="true">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+        <time id="ownerAdminCurrentDate" class="owner-admin-date"></time>
+      </div>
+      <div class="owner-admin-header-right">
+        <button class="owner-admin-icon-button" type="button" aria-label="Notifications"
+                aria-describedby="notificationTooltip" data-header-tooltip>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg>
+          <span class="owner-admin-tooltip" id="notificationTooltip" role="tooltip" hidden>No new notifications</span>
+        </button>
+        <button class="owner-admin-icon-button" id="ownerAdminCommunicationButton" type="button"
+                aria-label="Open customer communications" aria-controls="ownerAdminViewMount"
+                aria-describedby="communicationTooltip" data-header-tooltip>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8z"/></svg>
+          <span class="owner-admin-tooltip" id="communicationTooltip" role="tooltip" hidden>No new messages</span>
+        </button>
+        <div class="owner-admin-profile" aria-label="Administrator profile">
+          <span class="owner-admin-profile-name" title="Angeliz Guinba">Angeliz Guinba</span>
+          <span class="owner-admin-profile-role">Super Admin</span>
+        </div>
+      </div>
+    </header>
+    <button id="acSidebarBackdrop" class="ac-sidebar-backdrop" type="button"
+            aria-label="Close navigation menu" hidden></button>
+    <div id="ownerAdminSidebarMount" aria-label="Owner navigation">
+      <aside id="ac-sidebar" class="ac-sidebar pinned">
+        <div class="ac-profile-header">
+          <div class="ac-avatar-wrap">
+            <div class="ac-avatar-inner">
+              <div class="ac-avatar-initials">AG</div>
+            </div>
+          </div>
+          <div class="ac-profile-text">
+            <h2 class="ac-name">Angeliz Guinba</h2>
+            <span class="ac-role">Super Admin</span>
+          </div>
+        </div>
+
+        <nav class="ac-nav">
+          <div class="ac-nav-label">Overview</div>
+          <a href="#dashboard" class="ac-link" data-admin-view="dashboard">
+            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+            <span class="ac-label">Dashboard</span>
+          </a>
+
+          <div class="ac-nav-label">Operations</div>
+          <a href="#branch-management" class="ac-link" data-admin-view="branch-management">
+            <svg viewBox="0 0 24 24"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 9h.01M9 13h.01M9 17h.01M15 9h.01M15 13h.01M15 17h.01"/></svg>
+            <span class="ac-label">Branch Management</span>
+          </a>
+          <a href="#order-management" class="ac-link" data-admin-view="order-management">
+            <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h6"/></svg>
+            <span class="ac-label">Order Management</span>
+          </a>
+          <a href="#service-management" class="ac-link" data-admin-view="service-management">
+            <svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h7"/><circle cx="18" cy="12" r="2"/><circle cx="14" cy="18" r="2"/></svg>
+            <span class="ac-label">Service Management</span>
+          </a>
+
+          <div class="ac-nav-label">Insights</div>
+          <a href="#sales-financial-reports" class="ac-link" data-admin-view="sales-financial-reports">
+            <svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
+            <span class="ac-label">Sales &amp; Financial Reports</span>
+          </a>
+          <a href="#customer-management" class="ac-link" data-admin-view="customer-management">
+            <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13A4 4 0 0 1 16 11"/></svg>
+            <span class="ac-label">Customer Management</span>
+          </a>
+
+          <div class="ac-nav-label">Administration</div>
+          <a href="#system-management" class="ac-link" data-admin-view="system-management">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            <span class="ac-label">System Management</span>
+          </a>
+          <a href="#support-center" class="ac-link" data-admin-view="support-center">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5"/><path d="M5.6 5.6l3.9 3.9M14.5 14.5l3.9 3.9M18.4 5.6l-3.9 3.9M9.5 14.5l-3.9 3.9"/></svg>
+            <span class="ac-label">Support Center</span>
+          </a>
+        </nav>
+
+        <div class="ac-quick">
+          <button class="ac-quick-btn" type="button" data-action="custom-cake-presets">
+            <svg viewBox="0 0 24 24"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg>
+            <span class="ac-label">Add Custom Cake Presets</span>
+          </button>
+          <button class="ac-quick-btn" type="button" data-action="package">
+            <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.27 6.96L12 12.01l8.73-5.05M12 22.08V12"/></svg>
+            <span class="ac-label">Add Package</span>
+          </button>
+          <button class="ac-quick-btn" type="button" data-action="add-product">
+            <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/><rect x="3" y="3" width="18" height="18" rx="4"/></svg>
+            <span class="ac-label">Add Product</span>
+          </button>
+        </div>
+      </aside>
+      <div class="ac-toast" id="acToast"></div>
+    </div>
+    <div id="ownerAdminViewMount" aria-live="polite" aria-busy="true"></div>
+    <p id="ownerAdminStatus" role="status" aria-live="polite"></p>
+  </div>
+  <script src="owner-admin-ajax.js"></script>
+</body>
+</html>

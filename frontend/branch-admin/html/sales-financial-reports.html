@@ -1,0 +1,126 @@
+<main class="page page-main">
+
+  <!-- ================= HEAD ================= -->
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">Sales &amp; Financial Report</h1>
+      <p class="page-sub">Branch-specific sales, product performance, and transaction records — everything you need to monitor daily operations and submit accurate reports to the owner.</p>
+    </div>
+    <div class="top-actions">
+      <button class="btn-ghost" id="exportBtn">
+        <svg class="ico" viewBox="0 0 24 24" style="width:15px;height:15px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+        Export CSV
+      </button>
+    </div>
+  </div>
+
+  <!-- ================= 2 KPI CARDS (ONE ROW) ================= -->
+  <div class="kpi-row">
+    <div class="kpi-card">
+      <div class="kpi-head">
+        <span class="kpi-label">Total Branch Sales</span>
+        <div class="kpi-icon"><svg class="ico" viewBox="0 0 24 24"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+      </div>
+      <div class="kpi-value" id="kpiSales">₱0</div>
+      <div class="kpi-foot"><span id="kpiSalesTrend" class="kpi-trend">—</span><span>vs. previous period</span></div>
+    </div>
+
+    <div class="kpi-card blue">
+      <div class="kpi-head">
+        <span class="kpi-label">Top Product (Units Sold)</span>
+        <div class="kpi-icon"><svg class="ico" viewBox="0 0 24 24"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg></div>
+      </div>
+      <div class="kpi-value" id="kpiTopProduct">—</div>
+      <div class="kpi-foot"><span id="kpiTopProductVal">—</span><span>units sold</span></div>
+    </div>
+  </div>
+
+  <!-- ================= MINI STRIP ================= -->
+  <div class="strip">
+    <div class="strip-card">
+      <div class="strip-label">POS / Walk-in Sales</div>
+      <div class="strip-value" id="stripPos">₱0</div>
+      <div class="strip-foot">Completed counter transactions</div>
+    </div>
+    <div class="strip-card">
+      <div class="strip-label">Website Orders</div>
+      <div class="strip-value" id="stripWeb">₱0</div>
+      <div class="strip-foot">Paid &amp; completed</div>
+    </div>
+    <div class="strip-card">
+      <div class="strip-label">Service Bookings</div>
+      <div class="strip-value" id="stripSvc">₱0</div>
+      <div class="strip-foot">Grazing table, buffet, packages</div>
+    </div>
+    <div class="strip-card">
+      <div class="strip-label">Avg. Daily Sales</div>
+      <div class="strip-value" id="stripAvgDay">₱0</div>
+      <div class="strip-foot">Across selected period</div>
+    </div>
+  </div>
+
+  <!-- ================= SALES TREND GRAPH (WITH FILTERS) ================= -->
+  <div class="section-card">
+    <div class="section-head">
+      <div>
+        <div class="section-title">
+          <svg class="ico" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+          Sales Trend
+        </div>
+        <div class="section-sub">Sales split by channel over time</div>
+      </div>
+      <div class="chart-period-pills" id="periodPills">
+        <button class="chart-period-pill active" data-period="week">Weekly</button>
+        <button class="chart-period-pill" data-period="month">Monthly</button>
+        <button class="chart-period-pill" data-period="year">Yearly</button>
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="chart-wrap">
+        <canvas id="salesChart"></canvas>
+      </div>
+      <div class="legend">
+        <div class="legend-item"><span class="legend-dot" style="background:#C56F91;"></span> POS / Walk-in</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#3E7C9E;"></span> Website</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#278879;"></span> Services &amp; Other</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= PRODUCT SALES TABLE (5 SAMPLE ITEMS) ================= -->
+  <div class="section-card">
+    <div class="section-head">
+      <div>
+        <div class="section-title">
+          <svg class="ico" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+          Sales by Product &amp; Service
+        </div>
+        <div class="section-sub">Sample of top 5 sellers for the selected period</div>
+      </div>
+      <span class="status-badge badge-blue" id="tableCount">0 items</span>
+    </div>
+    <div class="section-body" style="padding:0;">
+      <div class="table-wrap">
+        <table class="data-table" id="productTable">
+          <thead>
+            <tr>
+              <th style="width:36%">Product / Service</th>
+              <th style="width:20%">Category</th>
+              <th style="width:14%" class="num">Units Sold</th>
+              <th style="width:16%" class="num">Total Sales</th>
+              <th style="width:14%">Contribution</th>
+            </tr>
+          </thead>
+          <tbody id="productBody"></tbody>
+        </table>
+      </div>
+      <div class="empty-state" id="productEmpty">
+        <svg class="ico" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <strong>No matching sales records</strong>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<div class="toast-wrap" id="toasts"></div>

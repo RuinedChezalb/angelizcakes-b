@@ -1,0 +1,198 @@
+<main id="storefrontServicePackage" class="service-package-page" aria-labelledby="servicePackageTitle">
+  <div class="service-package-toolbar">
+    <a class="service-package-return" href="#services" data-storefront-back aria-label="Go back to offers">
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+      <span>Back to Offers</span>
+    </a>
+  </div>
+
+  <div class="service-package-content">
+    <section class="service-package-summary">
+      <div class="service-package-image">
+        <img data-package-image alt="">
+      </div>
+      <div class="service-package-copy">
+        <p class="home-package-label">WHAT WE OFFER</p>
+        <h1 id="servicePackageTitle" data-package-title tabindex="-1"></h1>
+        <p data-package-description></p>
+        <div class="service-package-price"><span>Price</span><strong data-package-price></strong></div>
+        <p class="service-package-price-note">Final package pricing is confirmed by the bakery.</p>
+      </div>
+    </section>
+
+    <section class="service-package-panel" data-package-included-panel aria-labelledby="packageItemsTitle">
+      <div class="service-package-panel-heading">
+        <div>
+          <p class="home-package-label">YOUR PACKAGE</p>
+          <h2 id="packageItemsTitle">Included Items</h2>
+        </div>
+        <span class="service-package-count" data-package-count></span>
+      </div>
+      <div class="service-package-items" data-package-items></div>
+      <div class="service-package-actions">
+        <button class="service-package-secondary" type="button" data-package-customize>Customize</button>
+        <button class="service-package-primary" type="button" data-package-avail>Avail</button>
+      </div>
+    </section>
+
+    <section class="service-package-panel" data-package-customizer hidden aria-labelledby="packageCustomizeTitle">
+      <div class="service-package-panel-heading">
+        <div>
+          <p class="home-package-label">MAKE IT YOURS</p>
+          <h2 id="packageCustomizeTitle">Customize Package</h2>
+        </div>
+        <span class="service-package-count" data-package-count></span>
+      </div>
+      <div class="service-package-edit-items" data-package-edit-items></div>
+      <div class="service-package-actions">
+        <button class="service-package-secondary" type="button" data-package-discard>Discard</button>
+        <button class="service-package-primary" type="button" data-package-save>Save</button>
+      </div>
+    </section>
+
+    <section class="service-package-panel" data-package-picker hidden aria-labelledby="packagePickerTitle">
+      <div class="service-package-panel-heading">
+        <h2 id="packagePickerTitle">Choose a Replacement</h2>
+        <button class="service-package-back-inline" type="button" data-package-picker-back>Back to Package</button>
+      </div>
+      <div class="service-package-options" data-package-options></div>
+    </section>
+
+    <section class="service-package-panel service-package-order-info" data-package-order-info hidden aria-labelledby="packageOrderTitle">
+      <div class="service-package-panel-heading">
+        <div class="service-package-order-heading">
+          <span class="service-package-step" aria-hidden="true">03</span>
+          <div>
+            <p class="service-package-order-eyebrow">THE IMPORTANT DETAILS</p>
+            <h2 id="packageOrderTitle" tabindex="-1">Order Information</h2>
+          </div>
+        </div>
+      </div>
+      <form class="service-package-form" data-package-order-form novalidate>
+        <div class="service-package-form-grid">
+          <div class="service-package-field">
+            <label for="packageCustomerName">Full name <span aria-hidden="true">*</span></label>
+            <input id="packageCustomerName" name="customerName" type="text" autocomplete="name" required>
+          </div>
+          <div class="service-package-contact-row">
+            <div class="service-package-field">
+              <label for="packageCustomerEmail">Email <span aria-hidden="true">*</span></label>
+              <input id="packageCustomerEmail" name="customerEmail" type="email" autocomplete="email" required>
+            </div>
+            <div class="service-package-field">
+              <label for="packageCustomerPhone">Phone <span aria-hidden="true">*</span></label>
+              <input id="packageCustomerPhone" name="customerPhone" type="tel" autocomplete="tel"
+                     inputmode="numeric" pattern="09[0-9]{9}"
+                     title="Enter an 11-digit Philippine mobile number starting with 09."
+                     placeholder="09XXXXXXXXX" maxlength="11" required>
+            </div>
+          </div>
+
+          <div class="service-package-recipient-toggle">
+            <span>Ordering for someone else?</span>
+            <div class="service-package-toggle-control">
+              <span>No</span>
+              <label class="service-package-switch">
+                <input type="checkbox" name="forSomeoneElse" data-recipient-toggle role="switch"
+                       aria-label="Order for someone else" aria-controls="packageRecipientFields">
+                <span aria-hidden="true"></span>
+              </label>
+              <span>Yes</span>
+            </div>
+          </div>
+
+          <div class="service-package-recipient-fields" id="packageRecipientFields" data-recipient-fields hidden>
+            <div class="service-package-field">
+              <label for="packageRecipientName">Recipient name <span aria-hidden="true">*</span></label>
+              <input id="packageRecipientName" name="recipientName" type="text" autocomplete="name">
+            </div>
+            <div class="service-package-field">
+              <label for="packageRecipientContact">Recipient email or phone <span aria-hidden="true">*</span></label>
+              <input id="packageRecipientContact" name="recipientContact" type="text" autocomplete="off"
+                     placeholder="Email or 09XXXXXXXXX" maxlength="254">
+            </div>
+            <div class="service-package-field service-package-field-wide">
+              <label for="packageRecipientAddress">Recipient address <span aria-hidden="true">*</span></label>
+              <input id="packageRecipientAddress" name="recipientAddress" type="text" autocomplete="street-address">
+            </div>
+            <div class="service-package-field service-package-field-wide">
+              <label for="packageGiftMessage">Gift message <span class="service-package-optional">(Optional)</span></label>
+              <textarea id="packageGiftMessage" name="giftMessage" rows="3"></textarea>
+            </div>
+          </div>
+
+          <fieldset class="service-package-field service-package-fulfillment">
+            <legend>Delivery or pickup <span aria-hidden="true">*</span></legend>
+            <label class="service-package-choice">
+              <input type="radio" name="fulfillment" value="delivery" checked required>
+              <span><i class="fa-solid fa-truck" aria-hidden="true"></i> Delivery</span>
+            </label>
+            <label class="service-package-choice">
+              <input type="radio" name="fulfillment" value="pickup">
+              <span><i class="fa-solid fa-store" aria-hidden="true"></i> Pick up</span>
+            </label>
+          </fieldset>
+          <div class="service-package-field" data-delivery-address-field>
+            <label for="packageDeliveryAddress">Delivery address <span aria-hidden="true">*</span></label>
+            <input id="packageDeliveryAddress" name="deliveryAddress" type="text" autocomplete="street-address" placeholder="House/building, street, barangay, city">
+          </div>
+          <div class="service-package-field" data-pickup-location-field hidden>
+            <span class="service-package-field-label">Pickup location</span>
+            <address class="service-package-location"><strong>Cabangan Branch</strong><span>Main Hub &amp; Production Studio, Cabangan, Legazpi City</span></address>
+          </div>
+          <div class="service-package-field service-package-field-row">
+            <div>
+              <label for="packageDeliveryDate">Preferred date <span aria-hidden="true">*</span></label>
+              <input id="packageDeliveryDate" name="deliveryDate" type="date" required>
+            </div>
+            <div>
+              <label for="packageDeliveryTime">Preferred time <span aria-hidden="true">*</span></label>
+              <input id="packageDeliveryTime" name="deliveryTime" type="time" required>
+            </div>
+          </div>
+          <div class="service-package-field">
+            <label for="packagePaymentMethod">Payment method <span aria-hidden="true">*</span></label>
+            <select id="packagePaymentMethod" name="paymentMethod" required>
+              <option>Cash on delivery / pickup</option>
+              <option>GCash</option>
+              <option>Maya</option>
+              <option>QRPh</option>
+              <option>Tonik</option>
+              <option>BPI</option>
+              <option>GoTyme</option>
+              <option>MariBank</option>
+              <option>Credit or debit card</option>
+            </select>
+          </div>
+          <div class="service-package-field service-package-field-wide">
+            <label for="packageAdditionalInformation">Additional information <span class="service-package-optional">(Optional)</span></label>
+            <textarea id="packageAdditionalInformation" name="additionalInformation" rows="3"></textarea>
+          </div>
+        </div>
+        <div class="service-package-actions service-package-order-actions">
+          <button class="service-package-primary" type="button" data-package-place-order>Place Order</button>
+        </div>
+      </form>
+    </section>
+
+    <p class="service-package-status" data-package-status role="status" aria-live="polite"></p>
+
+    <section class="service-package-receipt" data-package-receipt hidden aria-labelledby="packageReceiptTitle">
+      <div class="service-package-receipt-card">
+        <span class="service-package-receipt-icon" aria-hidden="true"><i class="fa-solid fa-check"></i></span>
+        <h1 id="packageReceiptTitle" tabindex="-1">Receipt</h1>
+        <dl class="service-package-receipt-details">
+          <div><dt>Order No.</dt><dd data-receipt-order></dd></div>
+          <div><dt>Reference No.</dt><dd data-receipt-reference></dd></div>
+          <div><dt>Date / Time</dt><dd data-receipt-date></dd></div>
+          <div><dt>Method</dt><dd data-receipt-method></dd></div>
+          <div class="service-package-receipt-price"><dt>Price</dt><dd data-receipt-price></dd></div>
+        </dl>
+        <a class="service-package-home-link" href="#home">
+          <i class="fa-solid fa-house" aria-hidden="true"></i>
+          <span>Return to Homepage</span>
+        </a>
+      </div>
+    </section>
+  </div>
+</main>

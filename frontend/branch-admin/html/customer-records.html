@@ -1,0 +1,61 @@
+<link rel="stylesheet" href="../css/customer-records.css">
+
+<main class="page page-main">
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">Customer Records</h1>
+      <p class="page-sub">Review customer profiles, order history, and purchase activity for this branch.</p>
+    </div>
+  </div>
+
+  <section class="kpi-row" aria-label="Customer account summary">
+    <article class="kpi-card">
+      <div class="kpi-head">
+        <span class="kpi-label">Total Registered Accounts</span>
+        <div class="kpi-icon" aria-hidden="true">
+          <svg class="ico" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+      </div>
+      <div class="kpi-value"><span id="kpiTotal">0</span><span class="unit">accounts</span></div>
+      <div class="kpi-foot">All registered customer accounts</div>
+    </article>
+
+    <article class="kpi-card teal">
+      <div class="kpi-head">
+        <span class="kpi-label">New Within the Month</span>
+        <div class="kpi-icon" aria-hidden="true">
+          <svg class="ico" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v4M10 16h4"/></svg>
+        </div>
+      </div>
+      <div class="kpi-value"><span id="kpiNew">0</span><span class="unit">accounts</span></div>
+      <div class="kpi-foot">Registered in the current calendar month</div>
+    </article>
+  </section>
+
+  <section class="customer-accounts-card" aria-labelledby="registeredAccountsTitle">
+    <div class="customer-accounts-head">
+      <h2 class="panel-title" id="registeredAccountsTitle">Registered Accounts</h2>
+      <input class="account-search" id="accountSearch" type="search"
+             placeholder="Search date, email, or phone"
+             aria-label="Search registered accounts by date, email, or phone">
+    </div>
+    <div class="table-container">
+      <table class="data-table customer-accounts-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Registration Date</th>
+            <th>Phone</th>
+            <th>Address</th>
+          </tr>
+        </thead>
+        <tbody id="registeredAccountRows">
+          <tr id="accountSearchEmpty" hidden>
+            <td colspan="5">No registered accounts match your search.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main>

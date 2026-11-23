@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Communications · Angeliz Cakes</title>
+  <link rel="stylesheet" href="../css/communication.css">
+</head>
+<body>
+  <main class="page communication-page">
+    <header class="communication-header">
+      <div>
+        <h1 class="communication-title">Communications &amp; Messaging</h1>
+        <p class="communication-subtitle">Messages submitted through the storefront contact form.</p>
+      </div>
+      <p class="communication-status" id="communicationStatus" role="status" aria-live="polite"></p>
+    </header>
+
+    <div class="communication-columns">
+      <section class="communication-panel" aria-labelledby="storefrontMessagesHeading">
+        <div class="communication-panel-heading">
+          <div>
+            <h2 id="storefrontMessagesHeading">Storefront Messages</h2>
+            <p>Customer inquiries from the website.</p>
+          </div>
+        </div>
+        <div class="communication-folder-tabs" role="group" aria-label="Message folder">
+          <button class="communication-folder-tab" id="inboxTab" type="button" aria-pressed="true">Inbox</button>
+          <button class="communication-folder-tab" id="archivedTab" type="button" aria-pressed="false">Archived</button>
+        </div>
+        <div class="communication-inquiry-list" id="storefrontInquiryList" aria-live="polite"></div>
+      </section>
+
+      <section class="communication-panel communication-detail-panel" aria-labelledby="messageDetailsHeading">
+        <div class="communication-panel-heading">
+          <div>
+            <h2 id="messageDetailsHeading">Message Details</h2>
+            <p>Review customer inquiries and manage replies.</p>
+          </div>
+        </div>
+        <div class="communication-detail" id="storefrontInquiryDetail">
+          <p class="communication-empty-detail">Storefront inquiries will appear here after a customer sends a message.</p>
+        </div>
+      </section>
+    </div>
+  </main>
+</body>
+</html>

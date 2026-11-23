@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sales &amp; Financial Reports · Angeliz Cakes</title>
+<link rel="stylesheet" href="../css/sales-financial-reports.css">
+</head>
+<body>
+<main class="page">
+  <header class="page-header">
+    <div>
+      <h1 class="page-title">Sales &amp; Financial Reports</h1>
+      <p class="page-subtitle">All branches · All channels · Custom cakes, grazing tables, food bundles &amp; party packages</p>
+    </div>
+    <div class="flex gap-8" style="align-items:center; flex-wrap:wrap;">
+      <button class="btn btn-teal btn-sm" onclick="alert('Report exported to CSV.')">Export CSV</button>
+    </div>
+  </header>
+
+  <!-- KPI ROW -->
+  <section class="section">
+    <div class="grid grid-4">
+      <div class="card">
+        <div class="kpi-label">Overall Sales</div>
+        <div class="kpi-value" id="kpiOverall">₱8,450</div>
+        <div class="kpi-delta up" id="kpiOverallDelta">▲ 12.7% vs yesterday</div>
+      </div>
+      <div class="card">
+        <div class="kpi-label">Custom Cakes</div>
+        <div class="kpi-value" id="kpiCakes">₱1,550</div>
+        <div class="kpi-delta up" id="kpiCakesDelta">▲ 9.1% vs yesterday</div>
+      </div>
+      <div class="card">
+        <div class="kpi-label">Overall Packages</div>
+        <div class="kpi-value" id="kpiPackages">₱2,410</div>
+        <div class="kpi-delta up" id="kpiPackagesDelta">▲ 6.8% vs yesterday</div>
+      </div>
+      <div class="card">
+        <div class="kpi-label">POS Sales</div>
+        <div class="kpi-value" id="kpiPosSales">₱2,180</div>
+        <div class="kpi-delta up" id="kpiPosSalesDelta">▲ 8.2% vs yesterday</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- KPI SALES GRAPH -->
+  <section class="section">
+    <div class="grid" style="align-items:stretch;">
+      <div class="card">
+        <div class="card-title">
+          <span>Sales by Products and Services</span>
+          <div class="period-bar" id="periodBar">
+            <button class="btn active" data-period="today">Today</button>
+            <button class="btn" data-period="weekly">Weekly</button>
+            <button class="btn" data-period="monthly">Monthly</button>
+            <button class="btn" data-period="yearly">Yearly</button>
+          </div>
+        </div>
+
+        <div class="chart-box">
+          <svg id="lineChart" viewBox="0 0 800 300" preserveAspectRatio="none" aria-label="Sales by products and services grouped bar chart"></svg>
+        </div>
+
+        <div class="chart-legend" id="chartLegend">
+          <span class="legend-item"><span class="legend-dot" style="background:#E8A0B5;"></span>Custom Cakes</span>
+          <span class="legend-item"><span class="legend-dot" style="background:#5EEAD4;"></span>Grazing Tables</span>
+          <span class="legend-item"><span class="legend-dot" style="background:#A8C8E8;"></span>Pastry Buffets</span>
+          <span class="legend-item"><span class="legend-dot" style="background:#D47A97;"></span>Party Packages</span>
+          <span class="legend-item"><span class="legend-dot" style="background:#0F766E;"></span>Food Bundles</span>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- SALES COMPARISON -->
+  <section class="section">
+    <div class="grid" style="align-items:stretch;">
+      <div class="card">
+        <div class="card-title">Sales Comparison</div>
+        <div class="comparison-grid">
+          <div class="comparison-item">
+            <div class="comparison-label">
+              <span>Today vs Yesterday</span>
+              <span class="badge badge-teal">+12.7%</span>
+            </div>
+            <div class="comparison-row">
+              <span class="muted"><i class="comparison-key comparison-key-current"></i>Today</span>
+              <span class="comparison-value">₱8,450</span>
+            </div>
+            <div class="comparison-row">
+              <span class="muted"><i class="comparison-key comparison-key-previous"></i>Yesterday</span>
+              <span class="comparison-value">₱7,500</span>
+            </div>
+            <div class="progress" style="margin-top:6px;"><span style="width:100%"></span></div>
+            <div class="progress" style="margin-top:4px;"><span style="width:88.7%;background:linear-gradient(90deg,#D47A97,#E8A0B5);"></span></div>
+            <div class="comparison-delta up">+₱950 (+12.7%)</div>
+          </div>
+
+          <div class="comparison-item">
+            <div class="comparison-label">
+              <span>This Month vs Last Month</span>
+              <span class="badge badge-teal">+14.2%</span>
+            </div>
+            <div class="comparison-row">
+              <span class="muted"><i class="comparison-key comparison-key-current"></i>This Month</span>
+              <span class="comparison-value">₱186,320</span>
+            </div>
+            <div class="comparison-row">
+              <span class="muted"><i class="comparison-key comparison-key-previous"></i>Last Month</span>
+              <span class="comparison-value">₱163,150</span>
+            </div>
+            <div class="progress" style="margin-top:6px;"><span style="width:100%"></span></div>
+            <div class="progress" style="margin-top:4px;"><span style="width:87.6%;background:linear-gradient(90deg,#D47A97,#E8A0B5);"></span></div>
+            <div class="comparison-delta up">+₱23,170 (+14.2%)</div>
+          </div>
+
+          <div class="comparison-item">
+            <div class="comparison-label">
+              <span>This Year vs Last Year</span>
+              <span class="badge badge-teal">+22.4%</span>
+            </div>
+            <div class="comparison-row">
+              <span class="muted"><i class="comparison-key comparison-key-current"></i>This Year (YTD)</span>
+              <span class="comparison-value">₱1,845,600</span>
+            </div>
+            <div class="comparison-row">
+              <span class="muted"><i class="comparison-key comparison-key-previous"></i>Last Year (YTD)</span>
+              <span class="comparison-value">₱1,507,800</span>
+            </div>
+            <div class="progress" style="margin-top:6px;"><span style="width:100%"></span></div>
+            <div class="progress" style="margin-top:4px;"><span style="width:81.7%;background:linear-gradient(90deg,#D47A97,#E8A0B5);"></span></div>
+            <div class="comparison-delta up">+₱337,800 (+22.4%)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TOP-SELLING PRODUCTS -->
+  <section class="section">
+    <div class="card">
+      <div class="card-title">
+        <span>Top-Selling Products and Services</span>
+        <span class="badge badge-blue">Inventory &amp; Menu Planning</span>
+      </div>
+      <div class="table-wrap top-products-wrap">
+        <table class="table" style="min-width:680px;">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Product / Offering</th>
+              <th>Category</th>
+              <th>Units Sold</th>
+              <th>Sales</th>
+              <th>Trend</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td class="strong">1</td><td class="strong">Custom Celebration Cake (8")</td><td>Custom Cakes</td><td>38</td><td class="strong">₱24,700</td><td><span class="badge badge-teal">▲ 15%</span></td></tr>
+            <tr><td class="strong">2</td><td class="strong">Grazing Table Setup (Medium)</td><td>Grazing Table</td><td>12</td><td class="strong">₱17,200</td><td><span class="badge badge-teal">▲ 9%</span></td></tr>
+            <tr><td class="strong">3</td><td class="strong">Pastry Buffet Bundle (20 pax)</td><td>Pastry Buffet</td><td>22</td><td class="strong">₱14,000</td><td><span class="badge badge-teal">▲ 6%</span></td></tr>
+            <tr><td class="strong">4</td><td class="strong">Party Package — Sweet 16</td><td>Party Packages</td><td>8</td><td class="strong">₱10,800</td><td><span class="badge badge-teal">▲ 11%</span></td></tr>
+            <tr><td class="strong">5</td><td class="strong">Food Bundle — Family Treat</td><td>Food Bundles</td><td>26</td><td class="strong">₱7,800</td><td><span class="badge badge-red">▼ 3%</span></td></tr>
+            <tr><td class="strong">6</td><td class="strong">Classic Butter Cake (Whole)</td><td>Custom Cakes</td><td>41</td><td class="strong">₱6,150</td><td><span class="badge badge-teal">▲ 5%</span></td></tr>
+            <tr><td class="strong">7</td><td class="strong">Grazing Table Setup (Small)</td><td>Grazing Table</td><td>9</td><td class="strong">₱5,400</td><td><span class="badge badge-teal">▲ 7%</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="muted" style="margin-top:10px; font-size:12px;">Ranked by sales. Shows units sold and total sales per product — helps the owner decide what to promote, stock up, or retire.</p>
+    </div>
+  </section>
+</main>
+
+<script src="../js/sales-financial-reports.js"></script>
+</body>
+</html>

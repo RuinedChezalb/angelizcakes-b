@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Branch Inventory · Angeliz Cakes</title>
+
+
+
+  <link rel="stylesheet" href="../css/branch-inventory.css">
+
+</head>
+<body>
+<main class="page page-main">
+
+  <!-- ================= PAGE HEAD ================= -->
+  <div class="page-head">
+    <div class="page-head-row">
+      <div>
+        <h1 class="page-title">Branch Inventory</h1>
+        <p class="page-sub">Monitor stock levels, delivery batches, and approaching expiry dates.</p>
+      </div>
+      <div class="top-actions">
+        <button class="btn-ghost" id="requestStockBtn">
+          <svg class="ico" viewBox="0 0 24 24" style="width:15px;height:15px;"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v6h-6"/></svg>
+          Request Stock
+        </button>
+        <button class="btn-primary" id="logDeliveryBtn">
+          <svg class="ico" viewBox="0 0 24 24" style="width:15px;height:15px;"><path d="M12 5v14M5 12h14"/></svg>
+          Log Delivery
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= KPI ================= -->
+  <div class="kpi-row">
+    <div class="kpi-card">
+      <div class="kpi-head">
+        <span class="kpi-label">Stock on Hand</span>
+        <div class="kpi-icon">
+          <svg class="ico" viewBox="0 0 24 24"><path d="M3 8l9-5 9 5-9 5-9-5z"/><path d="M3 8v8l9 5 9-5V8"/></svg>
+        </div>
+      </div>
+      <div class="kpi-value"><span id="kpiUnits">0</span> <span class="unit">units</span></div>
+      <div class="kpi-foot" id="kpiUnitsFoot">Across 0 products</div>
+    </div>
+
+    <div class="kpi-card teal">
+      <div class="kpi-head">
+        <span class="kpi-label">Needs Restock</span>
+        <div class="kpi-icon">
+          <svg class="ico" viewBox="0 0 24 24"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+        </div>
+      </div>
+      <div class="kpi-value"><span id="kpiRestock">0</span> <span class="unit">products</span></div>
+      <div class="kpi-foot" id="kpiRestockFoot">0 out of stock · 0 low stock</div>
+    </div>
+
+    <div class="kpi-card blue">
+      <div class="kpi-head">
+        <span class="kpi-label">Expiring Soon</span>
+        <div class="kpi-icon">
+          <svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+        </div>
+      </div>
+      <div class="kpi-value"><span id="kpiExpiring">0</span> <span class="unit">products</span></div>
+      <div class="kpi-foot" id="kpiExpiringFoot">Within the next 7 days</div>
+    </div>
+  </div>
+
+  <!-- ================= PRODUCT TABLE ================= -->
+  <div class="panel">
+    <div class="panel-head">
+      <div>
+        <div class="panel-title">Products on Hand</div>
+        <div class="panel-sub">Expiry dates come from logged deliveries; POS checkout deducts from the earliest-expiring batch first.</div>
+      </div>
+      <div class="panel-tools">
+        <div class="search-wrap">
+          <svg class="ico" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <input type="search" id="invSearch" placeholder="Search product or category...">
+        </div>
+        <select class="filter-select" id="invFilter">
+          <option value="">All products</option>
+          <option value="In Stock">In stock</option>
+          <option value="Low Stock">Low stock</option>
+          <option value="Out of Stock">Out of stock</option>
+          <option value="Expiring">Expiring soon</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Category</th>
+            <th>Stock</th>
+            <th>Nearest Expiry</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="productBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+</main>
+
+<!-- ============================================================
+     LOG DELIVERY MODAL
+     ============================================================ -->
+<div class="modal-overlay" id="deliveryModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title">Log Delivery</div>
+        <div class="modal-sub">Record the finished products you received from the main branch.</div>
+      </div>
+      <button class="modal-close" data-close aria-label="Close">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <div class="hint-box">
+        Pick a product from the owner's list, then enter how many you received and its expiry date.
+        Products you have received before are listed first so logging the usual items is faster.
+      </div>
+
+      <div class="frow">
+        <div class="field">
+          <label>Delivery Reference</label>
+          <input class="inp" id="delRef" readonly>
+        </div>
+        <div class="field">
+          <label>Delivery Date</label>
+          <input class="inp" type="date" id="delDate">
+        </div>
+      </div>
+
+      <div class="subhead">Products Received</div>
+
+      <div class="add-row">
+        <select class="inp" id="delProduct"></select>
+        <input class="inp" type="number" id="delQty" min="1" step="1" placeholder="Qty">
+        <input class="inp" type="date" id="delExpiry" title="Expiry date">
+        <button type="button" class="btn-ghost" id="addItemBtn">Add</button>
+      </div>
+
+      <div class="delivery-items" id="deliveryItems"></div>
+    </div>
+
+    <div class="modal-foot">
+      <button class="btn-ghost" data-close>Cancel</button>
+      <button class="btn-primary" id="confirmDeliveryBtn">Confirm Receipt</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     REQUEST STOCK MODAL
+     ============================================================ -->
+<div class="modal-overlay" id="requestModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title">Request Stock</div>
+        <div class="modal-sub">Ask the owner for more stock of a product.</div>
+      </div>
+      <button class="modal-close" data-close aria-label="Close">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <div class="hint-box">
+        Products you have requested before appear at the top of the list, so repeat orders take one tap.
+      </div>
+
+      <div class="field">
+        <label>Request Reference</label>
+        <input class="inp" id="reqRef" readonly>
+      </div>
+
+      <div class="field">
+        <label>Product</label>
+        <select class="inp" id="reqProduct"></select>
+      </div>
+
+      <div class="frow">
+        <div class="field">
+          <label>Requested Quantity</label>
+          <input class="inp" type="number" id="reqQty" min="1" step="1" placeholder="e.g. 20">
+        </div>
+        <div class="field">
+          <label>Urgency</label>
+          <select class="inp" id="reqUrgency">
+            <option>Normal</option>
+            <option>Urgent</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Preferred Delivery Date</label>
+        <input class="inp" type="date" id="reqDate">
+      </div>
+
+      <div class="field">
+        <label>Reason for Request</label>
+        <textarea class="inp" id="reqReason" placeholder="e.g. Almost sold out after the weekend, many advance orders"></textarea>
+      </div>
+    </div>
+
+    <div class="modal-foot">
+      <button class="btn-ghost" data-close>Cancel</button>
+      <button class="btn-primary" id="submitRequestBtn">Submit Stock Request</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toasts"></div>
+<script src="../js/branch-inventory.js"></script>
+</body>
+</html>
