@@ -1,0 +1,17 @@
+.git
+.venv
+.vscode
+venv
+**/__pycache__
+**/*.py[cod]
+**/.env
+**/.env.*
+**/.prisma
+**/node_modules
+**/.pytest_cache
+**/.mypy_cache
+**/.ruff_cache
+test-repos/
+**/tests/
+.github/
+README.md

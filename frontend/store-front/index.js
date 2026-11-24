@@ -847,7 +847,7 @@ favoritesTrigger.addEventListener("click", () => {
   openPanel(favoritesOverlay, favoritesTrigger);
 });
 profileTrigger.addEventListener("click", () => {
-  document.dispatchEvent(new CustomEvent("storefront:show-profile"));
+  document.dispatchEvent(new CustomEvent("storefront:show-login"));
 });
 document.querySelectorAll(".panel-overlay").forEach(panel => {
   panel.addEventListener("click", event => {

@@ -111,6 +111,35 @@
         window.initializeServicePackageFragment(root, detail.packageOffering, detail.products, detail.imageUrl);
       }
     },
+    login: {
+      event: "storefront:show-login",
+      label: "the sign-in page",
+      fragment: { path: "html/login.html", selector: "main#storefrontLogin" },
+      stylesheet: { path: "css/auth-ui.css", id: "storefrontAuthStylesheet" },
+      script: {
+        path: "js/auth.js",
+        id: "storefrontAuthScript",
+        initializer: "initializeLoginFragment"
+      },
+      errorMessage: "The sign-in page could not be loaded. Please try again.",
+      toggleToPrevious: true,
+      backFallbackHash: "#home",
+      homeNavigation: "restore"
+    },
+    register: {
+      event: "storefront:show-register",
+      label: "the registration page",
+      fragment: { path: "html/register.html", selector: "main#storefrontRegister" },
+      stylesheet: { path: "css/auth-ui.css", id: "storefrontAuthStylesheet" },
+      script: {
+        path: "js/auth.js",
+        id: "storefrontAuthScript",
+        initializer: "initializeRegisterFragment"
+      },
+      errorMessage: "The registration page could not be loaded. Please try again.",
+      backFallbackHash: "#home",
+      homeNavigation: "restore"
+    },
     checkout: {
       event: "storefront:show-checkout",
       label: "checkout",
