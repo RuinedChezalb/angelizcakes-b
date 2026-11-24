@@ -16,7 +16,7 @@ from typing import Any, Callable
 from flask import Blueprint, Response, current_app, jsonify, request, session
 from prisma import Json, Prisma
 from werkzeug.security import check_password_hash, generate_password_hash
-from backend.authentication import (
+from authentication.email_service import (
     EmailConfigurationError,
     EmailDeliveryError,
     send_password_reset_code,
