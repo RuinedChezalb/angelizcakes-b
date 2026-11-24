@@ -356,10 +356,10 @@ function checkoutOrder() {
     timestamp: new Date().toISOString(),
     items: JSON.parse(JSON.stringify(cart)),
     subtotal: sub,
-
-
+    discount: 0,
+    discountType: 'none',
     total: total,
-
+    paymentMethod: 'Cash',
     customer: 'Walk-in Customer',
     itemsCount: itemsCount
   };
@@ -402,17 +402,17 @@ function showReceiptModal(txn) {
       <div style="border-bottom:2px dashed var(--pink-300); margin:8px 0"></div>
       ${itemsHtml}
       <div style="border-bottom:2px dashed var(--pink-300); margin:8px 0"></div>
-
-
+      <div class="receipt-row"><span>Subtotal:</span><span>₱${txn.subtotal.toLocaleString(undefined, {minimumFractionDigits:2})}</span></div>
+      ${txn.discount > 0 ? `<div class="receipt-row"><span>Discount (${txn.discountType}):</span><span>-₱${txn.discount.toLocaleString(undefined, {minimumFractionDigits:2})}</span></div>` : ''}
       <div class="receipt-row total-row"><span>TOTAL:</span><span>₱${txn.total.toLocaleString(undefined, {minimumFractionDigits:2})}</span></div>
-
+      <div class="receipt-row" style="margin-top:6px"><span>Payment (${txn.paymentMethod}):</span><span>₱${txn.total.toLocaleString(undefined, {minimumFractionDigits:2})}</span></div>
       <div class="receipt-footer">
         <p>Thank you for choosing Angeliz Cakes!</p>
         <p>Please come again.</p>
       </div>
     </div>
+    <p style="text-align:center;font-size:12px;color:var(--muted);margin-top:12px">Email delivery is not enabled yet.</p>
   `;
-  // Receipt email delivery is not enabled yet.
 
   const footer = `
     <button class="btn" onclick="closeModal()">Close</button>

@@ -9,13 +9,11 @@
       fragment: "html/order-management.html",
       stylesheet: "css/order-management.css",
       script: "js/order-management.js",
-      onShow: "refreshBranchOrders",
     },
     "customer-records": {
       fragment: "html/customer-records.html",
       stylesheet: "css/customer-records.css",
       script: "js/customer-records.js",
-      onShow: "refreshCustomerRecords",
     },
     "branch-inventory": {
       fragment: "html/branch-inventory.html",
@@ -323,9 +321,6 @@
         activeStylesheet = null;
         activeStylesheetPath = "";
       }
-      if (window.AngelizApiData && viewName !== "support-center") {
-        await window.AngelizApiData.preload("branch", viewName);
-      }
       viewMount.replaceChildren(cachedView.root);
       if (view.script && !cachedView.scriptLoaded) {
         cachedView.functions = await loadScript(view.script);
@@ -333,7 +328,7 @@
       }
       restoreViewFunctions(cachedView.functions);
       if (view.onShow && typeof window[view.onShow] === "function") {
-        await window[view.onShow]();
+        window[view.onShow]();
       }
       viewMount.dataset.activeView = viewName;
       setActiveNavigation(viewName);

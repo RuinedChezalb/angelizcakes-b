@@ -34,10 +34,15 @@
   /* ============================================================
      state
      ============================================================ */
+  let inquirySeq = 1;
   let packageFragmentTemplate = null;
   const storefrontAssetPromises = new Map();
   let activeCakeFlow = null;
   let activePresetProduct = null;
+  let nextOrderNumber = Math.max(0, ...$$('#ordTable tbody tr').map(row => {
+    const match = /^ORD-(\d+)$/.exec(row.cells[0].textContent.trim());
+    return match ? Number(match[1]) : 0;
+  })) + 1;
 
   /* ============================================================
      overlays
@@ -74,7 +79,7 @@
   /* ---------- step: choose path ---------- */
   function renderPath(){
     return '' +
-    // Choose a storefront preset to continue through product details and checkout, or use the 7-step wizard for a fully custom cake.
+    '<div class="hint-box">Choose a storefront preset to continue through product details and checkout, or use the customer-facing 7-step wizard for a fully custom cake.</div>' +
     '<div class="path-grid">' +
       '<button type="button" class="path-card" data-path="preset">' +
         '<div class="path-ico"><svg class="ico" viewBox="0 0 24 24"><path d="M4 20h16M5 20v-6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v6"/><path d="M12 12V9.5"/><circle cx="12" cy="7.5" r="1.6"/></svg></div>' +
@@ -313,10 +318,8 @@
       $('#modalBody').replaceChildren(fragment);
       window.initializeCheckoutFragment(fragment, product, imageUrl, {
         onPlaceOrder: order => {
-          const result = window.AngelizDB.orders.placeMenuOrder(order, { source: 'branch' });
-          syncStoredOrders();
-          toast(`Order ${result.orderNumber} created for ${order.customerName || product.name}.`);
-          return result;
+          addCakeOrderRow('Preset Cake', order);
+          toast(`Order created for ${order.customerName || product.name}.`);
         }
       });
     } catch (error) {
@@ -355,10 +358,8 @@
       $('#modalBody').replaceChildren(fragment);
       window.initializeCustomizationWizard(fragment, {
         onPlaceOrder: order => {
-          const result = window.AngelizDB.orders.placeCustomCakeOrder(order, { source: 'branch' });
-          syncStoredOrders();
-          toast(`Order ${result.orderNumber} created for ${order.customerName}.`);
-          return result;
+          addCakeOrderRow('Fully Custom Cake', order);
+          toast(`Order created for ${order.customerName}.`);
         }
       });
     } catch (error) {
@@ -368,38 +369,62 @@
     }
   }
 
-  const BADGE_BY_STATUS = {
-    Pending: 'badge-amber',
-    Processing: 'badge-blue',
-    Ready: 'badge-green',
-    Completed: 'badge-green'
-  };
-  const seededPendingCount = Number($('#kpiPending').textContent) || 0;
-
-  function buildStoredOrderRow(record) {
-    const status = window.AngelizDB.orders.branchStatus(record.productionStatus);
-    const summary = record.summary || {};
+  function addCakeOrderRow(type, order) {
+    const orderNumber = 'ORD-' + String(nextOrderNumber++).padStart(4, '0');
+    const customer = (order.customerName || 'Cake Customer').trim();
+    const product = order.product;
+    const selections = Array.isArray(order.selections)
+      ? order.selections.map(selection => {
+        const sizes = selection.sizes?.map((size, index) => {
+          const measurements = [
+            size.height && `height ${size.height} in`,
+            size.width && `width ${size.width} in`
+          ].filter(Boolean).join(', ');
+          return measurements ? `Tier ${size.tier || index + 1}: ${measurements}` : '';
+        }).filter(Boolean).join('; ');
+        const sizeNote = selection.letBakerDecideSizes ? 'Baker to decide sizes' : sizes;
+        return `${selection.label}: ${selection.value}${sizeNote ? ` (${sizeNote})` : ''}`;
+      }).join('; ')
+      : '';
+    const item = product?.name || order.title || type;
+    const retouches = [
+      order.cakeAge && `Age: ${order.cakeAge}`,
+      order.dedicationName && `Dedication: ${order.dedicationName}`,
+      order.cakeCharacter && `Character: ${order.cakeCharacter}`,
+      order.dedication
+    ].filter(Boolean).join('; ');
+    const specifications = [
+      order.itemSpecifications,
+      order.additionalInformation,
+      order.notes,
+      order.giftMessage && `Gift message: ${order.giftMessage}`,
+      order.referenceImages?.length ? `Reference images: ${order.referenceImages.join(', ')}` : ''
+    ]
+      .filter(Boolean)
+      .join('; ');
+    const itemDetails = [item, selections, retouches].filter(Boolean).join(' · ');
+    const preferredDate = fmtDate(order.deliveryDate || order.dateNeeded || '');
     const row = document.createElement('tr');
-    row.dataset.storedOrder = record.id;
-    row.dataset.type = record.branchType;
-    row.dataset.status = status;
-    row.dataset.item = summary.item || '';
-    row.dataset.date = summary.date || 'To be confirmed';
-    row.dataset.time = summary.time || '';
-    row.dataset.payment = summary.payment || 'Pending';
-    row.dataset.amount = summary.amount || 'To be confirmed';
-    row.dataset.contact = summary.contact || '';
-    row.dataset.email = summary.email || '';
-    row.dataset.fulfillment = summary.fulfillment || 'To be confirmed';
-    row.dataset.address = summary.address || '';
-    row.dataset.recipient = summary.recipient || '';
-    row.dataset.notes = summary.notes || '';
-    row.dataset.search = [
-      record.id, record.customer, summary.item, row.dataset.date, row.dataset.time,
-      record.branchType, status, row.dataset.payment
-    ].join(' ');
+    row.dataset.type = 'Custom';
+    row.dataset.status = 'Pending';
+    row.dataset.item = itemDetails;
+    row.dataset.date = preferredDate || 'To be confirmed';
+    row.dataset.time = order.deliveryTime || order.timeNeeded || '';
+    row.dataset.payment = order.paymentMethod || 'Pending';
+    row.dataset.amount = order.orderTotal || product?.price || 'To be confirmed';
+    row.dataset.contact = order.customerPhone || order.contactNumber || '';
+    row.dataset.email = order.customerEmail || order.email || '';
+    row.dataset.fulfillment = order.fulfillment || 'To be confirmed';
+    row.dataset.address = order.deliveryAddress || order.recipientAddress || '';
+    row.dataset.recipient = [
+      order.recipientName,
+      order.recipientContact,
+      order.recipientAddress
+    ].filter(Boolean).join(' · ');
+    row.dataset.notes = specifications;
+    row.dataset.search = `${orderNumber} ${customer} ${itemDetails} ${row.dataset.date} Custom Pending ${row.dataset.payment}`;
 
-    [record.id, record.customer, record.branchType, row.dataset.amount].forEach((value, index) => {
+    [orderNumber, customer, 'Custom', row.dataset.amount].forEach((value, index) => {
       const cell = document.createElement('td');
       cell.textContent = value;
       if (index === 0) cell.className = 'order-id-cell';
@@ -407,8 +432,8 @@
     });
     const statusCell = document.createElement('td');
     const statusBadge = document.createElement('span');
-    statusBadge.className = 'status-badge ' + BADGE_BY_STATUS[status];
-    statusBadge.textContent = status;
+    statusBadge.className = 'status-badge badge-amber';
+    statusBadge.textContent = 'Pending';
     statusCell.append(statusBadge);
     row.append(statusCell);
     const actionCell = document.createElement('td');
@@ -416,26 +441,14 @@
     viewButton.className = 'order-view-button';
     viewButton.type = 'button';
     viewButton.dataset.viewOrder = '';
-    viewButton.setAttribute('aria-label', `View order ${record.id}`);
+    viewButton.setAttribute('aria-label', `View order ${orderNumber}`);
     viewButton.textContent = 'View';
     actionCell.append(viewButton);
     row.append(actionCell);
-    return row;
-  }
-
-  /* Orders from the storefront and from this branch live in the shared local database. */
-  function syncStoredOrders() {
-    const tbody = $('#ordTable tbody');
-    $$('#ordTable tbody tr[data-stored-order]').forEach(row => row.remove());
-    const records = window.AngelizDB.orders.list()
-      .slice()
-      .sort((left, right) => left.seq - right.seq);
-    records.forEach(record => tbody.prepend(buildStoredOrderRow(record)));
-    const pendingStored = records.filter(
-      record => window.AngelizDB.orders.branchStatus(record.productionStatus) === 'Pending'
-    ).length;
-    $('#kpiPending').textContent = String(seededPendingCount + pendingStored);
+    $('#ordTable tbody').prepend(row);
+    $('#kpiPending').textContent = String(Number($('#kpiPending').textContent) + 1);
     applyFilters();
+    return orderNumber;
   }
 
   /* ============================================================
@@ -561,10 +574,78 @@
   }
 
   function addPackageOrderRow(placement) {
-    const result = window.AngelizDB.orders.placePackageOrder(placement, { source: 'branch' });
-    syncStoredOrders();
-    toast(`${result.orderNumber} created for ${result.record.customer}.`);
-    return result;
+    const orderNumber = 'ORD-' + String(nextOrderNumber++).padStart(4, '0');
+    const id = 'PKG-' + String(inquirySeq++).padStart(4, '0');
+    const order = placement.order;
+    const packageOffering = placement.packageOffering;
+    const itemNames = placement.items.map(item => {
+      const product = window.angelizStorefrontProducts.find(candidate => candidate.id === item.productId);
+      return product ? `${product.name} ×${item.quantity}` : 'Package item';
+    });
+    const packageInclusions = placement.inclusions?.length
+      ? placement.inclusions
+      : packageOffering.inclusions;
+    const includedItems = Array.isArray(packageInclusions)
+      ? packageInclusions.map(item => `${item.quantity} ${item.name}`)
+      : [];
+    const packageDetails = itemNames.length ? itemNames : includedItems;
+    const itemSummary = [packageOffering.title, ...packageDetails].filter(Boolean).join(' · ');
+    const preferredDate = fmtDate(order.deliveryDate || '');
+    const customer = (order.customerName || 'Package Customer').trim();
+    const notes = [
+      order.additionalInformation,
+      order.giftMessage && `Gift message: ${order.giftMessage}`
+    ].filter(Boolean).join('; ');
+    const row = document.createElement('tr');
+    row.dataset.type = 'Package';
+    row.dataset.status = 'Pending';
+    row.dataset.item = itemSummary;
+    row.dataset.date = preferredDate || 'To be confirmed';
+    row.dataset.time = order.deliveryTime || '';
+    row.dataset.payment = order.paymentMethod || 'Pending';
+    row.dataset.amount = packageOffering.price || 'To be confirmed';
+    row.dataset.contact = order.customerPhone || '';
+    row.dataset.email = order.customerEmail || '';
+    row.dataset.fulfillment = order.fulfillment || 'To be confirmed';
+    row.dataset.address = order.deliveryAddress || order.recipientAddress || '';
+    row.dataset.recipient = [
+      order.recipientName,
+      order.recipientContact,
+      order.recipientAddress
+    ].filter(Boolean).join(' · ');
+    row.dataset.notes = notes;
+    row.dataset.search = `${orderNumber} ${customer} ${itemSummary} ${row.dataset.date} ${row.dataset.time} Package Pending ${row.dataset.payment}`;
+
+    const values = [orderNumber, customer, 'Package', row.dataset.amount];
+    values.forEach((value, index) => {
+      const cell = document.createElement('td');
+      cell.textContent = value;
+      if (index === 0) cell.className = 'order-id-cell';
+      row.append(cell);
+    });
+    const statusCell = document.createElement('td');
+    const statusBadge = document.createElement('span');
+    statusBadge.className = 'status-badge badge-amber';
+    statusBadge.textContent = 'Pending';
+    statusCell.append(statusBadge);
+    row.append(statusCell);
+    const actionCell = document.createElement('td');
+    const viewButton = document.createElement('button');
+    viewButton.className = 'order-view-button';
+    viewButton.type = 'button';
+    viewButton.dataset.viewOrder = '';
+    viewButton.setAttribute('aria-label', `View order ${orderNumber}`);
+    viewButton.textContent = 'View';
+    actionCell.append(viewButton);
+    row.append(actionCell);
+    $('#ordTable tbody').prepend(row);
+    $('#kpiPending').textContent = String(Number($('#kpiPending').textContent) + 1);
+    applyFilters();
+    toast(`${id} created as ${orderNumber}.`);
+    return {
+      orderNumber,
+      referenceNumber: `${id}-${placement.placedAt.getTime()}`
+    };
   }
 
   $('#newPackageOrderBtn').addEventListener('click', openPackageModal);
@@ -677,9 +758,4 @@
   /* ============================================================
      init
      ============================================================ */
-  window.refreshBranchOrders = syncStoredOrders;
-  syncStoredOrders();
-  window.AngelizDB.onChange(window.AngelizDB.keys.orders, () => {
-    if ($('#ordTable') && $('#ordTable').isConnected) syncStoredOrders();
-  });
 })();

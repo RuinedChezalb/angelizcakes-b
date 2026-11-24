@@ -29,8 +29,8 @@ function renderTrustedDevices(){
 }
 
 function showDeviceManager(){
-  // Trusted devices are sample entries; device verification and automatic registration are not connected, and changes reset on reload.
   openModal('Manage Devices', `
+    <p class="device-note">Prototype only: these are sample entries. Device verification and automatic registration are not connected; changes reset when this page reloads.</p>
     <div class="device-list" id="trustedDeviceList"></div>
   `, null, 'Close');
   renderTrustedDevices();

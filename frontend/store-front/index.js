@@ -1,11 +1,17 @@
 "use strict";
 
-/* Homepage content is loaded from the database-backed catalog API. */
+/* Homepage content is embedded locally so the storefront works without API data. */
 const storefront = {
-  categories: [],
-  heroSlides: [],
+  categories: [
+    { label: "Cakes", productCategories: ["Cakes"] }
+  ],
+  heroSlides: [
+    { name: "Signature Celebration Cake", image: "cakes.jpg" },
+    { name: "Chocolate Drip Cake", image: "signature-cake.jpg" },
+    { name: "Cupcake Collection", image: "chocolate-cake.jpg" }
+  ],
   products: window.angelizStorefrontProducts,
-  favorites: [],
+  favorites: ["signature-cake", "berry-tart"],
   serviceCategories: [
     { id: "grazing", label: "Grazing Tables" },
     { id: "pastry", label: "Pastry Buffets" },
@@ -13,9 +19,22 @@ const storefront = {
     { id: "bundle", label: "Food Bundles" }
   ],
   services: window.angelizStorefrontServices,
-  gallery: [],
-  feedbacks: [],
-  location: null,
+  gallery: [
+    { name: "Signature Celebration Cake", category: "Cakes", image: "signature-cake.jpg" },
+    { name: "Berry Tart", category: "Pastries", image: "pastry-selection.jpg" },
+    { name: "Chocolate Dessert", category: "Desserts", image: "chocolate-dessert.jpg" },
+    { name: "Artisan Bread", category: "Bakery", image: "artisan-bread.jpg" },
+    { name: "Cafe Favorites", category: "Beverages", image: "coffee.jpg" },
+    { name: "Celebration Catering", category: "Catering", image: "catering.jpg" }
+  ],
+  feedbacks: [
+    { name: "test ting", comment: "testing testing", rating: 3 }
+  ],
+  location: {
+    name: "Cabangan Branch",
+    description: "Main Hub & Production Studio, Cabangan, Legazpi City",
+    image: "location.jpg"
+  },
   about: {
     name: "Angeliz Cakes Legazpi",
     description: "Owned and managed by Mrs. Maria Mae Angela Guiriba, Angeliz Cakes brings sweetness to every milestone in Albay with handcrafted custom cakes, delicate pastries, and delicious savory catering.",
@@ -31,15 +50,6 @@ const storefront = {
   }
 };
 
-/* Owner-managed products can introduce menu categories beyond the static "Cakes" tab. */
-storefront.products
-  .filter(product => product.managed)
-  .forEach(product => {
-    if (!storefront.categories.some(category => category.productCategories.includes(product.category))) {
-      storefront.categories.push({ label: product.category, productCategories: [product.category] });
-    }
-  });
-
 /* Render the page's static menu, services, gallery, and business details. */
 function escapeHTML(value) {
   return String(value).replace(/[&<>"']/g, character => ({
@@ -49,16 +59,6 @@ function escapeHTML(value) {
     '"': "&quot;",
     "'": "&#39;"
   })[character]);
-}
-
-function imageSource(image) {
-  const value = String(image || "");
-  if (/^(data:|https?:)/.test(value)) return value;
-  if (value.startsWith("/portfolio-images/") || value.startsWith("/product-images/")) {
-    return `${window.angelizApi.backendUrl}/api/v1${value}`;
-  }
-  if (value.startsWith("/")) return value;
-  return `assets/${value}`;
 }
 
 function renderHomepage() {
@@ -101,7 +101,7 @@ function renderHomepage() {
       .map(product => `
         <article class="menu-card home-product-card">
           <div class="home-product-image">
-            <img src="${escapeHTML(imageSource(product.image))}" alt="${escapeHTML(product.name)}" loading="lazy">
+            <img src="assets/${escapeHTML(product.image)}" alt="${escapeHTML(product.name)}" loading="lazy">
           </div>
           <div class="home-product-copy">
             <h3 class="card-title">${escapeHTML(product.name)}</h3>
@@ -168,7 +168,7 @@ function renderHomepage() {
     serviceRail.innerHTML = categoryServices.map(service => `
       <article class="home-service-card">
         <div class="home-package-image">
-          <img src="${escapeHTML(imageSource(service.image))}" alt="${escapeHTML(service.title)}" loading="lazy">
+          <img src="assets/${escapeHTML(service.image)}" alt="${escapeHTML(service.title)}" loading="lazy">
         </div>
         <div class="home-package-copy">
           <span class="home-package-label">${escapeHTML(category.label)}</span>
@@ -235,20 +235,18 @@ function renderHomepage() {
   `;
   gallery.innerHTML = `<div class="gallery-track">${galleryPage}${galleryPage}</div>`;
 
-  locationCard.replaceChildren();
-  (storefront.locations || []).forEach(branch => {
-    const card = document.createElement("article");
-    card.className = "branch-card interactive-card";
-    const content = document.createElement("div");
-    content.className = "branch-content";
-    const heading = document.createElement("h3");
-    heading.textContent = branch.name;
-    const description = document.createElement("p");
-    description.textContent = [branch.location, branch.phone].filter(Boolean).join(" ? ");
-    content.append(heading, description);
-    card.append(content);
-    locationCard.append(card);
-  });
+  locationCard.innerHTML = `
+    <article class="branch-card interactive-card">
+      <div class="branch-img-wrap">
+        <img src="assets/${escapeHTML(storefront.location.image)}" alt="${escapeHTML(storefront.location.name)}">
+      </div>
+      <div class="branch-content">
+        <h3>${escapeHTML(storefront.location.name)}</h3>
+        <p>${escapeHTML(storefront.location.description)}</p>
+      </div>
+      <button class="btn btn-pink-hero full-width view-map-btn" type="button">View Map</button>
+    </article>
+  `;
 
   document.getElementById("aboutName").textContent = storefront.about.name;
   document.getElementById("aboutDescription").textContent = storefront.about.description;
@@ -337,24 +335,7 @@ function renderHomepage() {
 }
 
 if (document.getElementById("storefrontHome")) {
-(async function initializeHomepageFromApi() {
-  const status = document.getElementById("testimonialStatus");
-  try {
-    const { catalog } = await window.AngelizApiData.loadStorefront();
-    storefront.categories = (catalog.categories || []).map(category => ({ label: category.name, productCategories: [category.name] }));
-    if (!storefront.categories.length) {
-      storefront.categories = [...new Set(storefront.products.map(product => product.category))].map(label => ({ label, productCategories: [label] }));
-    }
-    storefront.gallery = (catalog.portfolioImages || []).map(image => ({ name: image.title, category: "Portfolio", image: image.imageUrl || "" }));
-    storefront.feedbacks = (catalog.reviews || []).map(review => ({ name: review.name, comment: review.message, rating: Number(review.rating) || 0 }));
-    storefront.locations = (catalog.branches || []).map(branch => ({ name: branch.name, location: branch.location || "", phone: branch.phone || "" }));
-    renderHomepage();
-  } catch (error) {
-    console.error("Could not load storefront GET data.", error);
-    document.querySelectorAll(".catalog-status").forEach(element => { element.textContent = "Catalog data is unavailable. Please try again later."; });
-    if (status) status.textContent = "Customer feedback is unavailable.";
-  }
-})();
+renderHomepage();
 
 const startCustomizingButton = document.getElementById("startCustomizingBtn");
 if (!startCustomizingButton) throw new Error("The customization wizard button is missing.");
@@ -721,7 +702,7 @@ function renderFavorites() {
     if (!product) return "";
     return `
       <article class="favorite-row">
-        <span class="favorite-mark"><img src="${escapeHTML(imageSource(product.image))}" alt=""></span>
+        <span class="favorite-mark"><img src="assets/${escapeHTML(product.image)}" alt=""></span>
         <div class="favorite-info"><strong>${escapeHTML(product.name)}</strong><span>${escapeHTML(product.price)}</span></div>
         <div class="favorite-actions">
           <a class="favorite-view" href="#menu">View</a>
@@ -853,7 +834,7 @@ favoritesTrigger.addEventListener("click", () => {
   openPanel(favoritesOverlay, favoritesTrigger);
 });
 profileTrigger.addEventListener("click", () => {
-  document.dispatchEvent(new CustomEvent("storefront:show-login"));
+  document.dispatchEvent(new CustomEvent("storefront:show-profile"));
 });
 document.querySelectorAll(".panel-overlay").forEach(panel => {
   panel.addEventListener("click", event => {

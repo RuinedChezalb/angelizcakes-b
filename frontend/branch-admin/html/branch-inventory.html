@@ -108,31 +108,6 @@
     </div>
   </div>
 
-  <!-- ================= STOCK REQUESTS ================= -->
-  <div class="panel">
-    <div class="panel-head">
-      <div>
-        <div class="panel-title">Stock Requests</div>
-        <div class="panel-sub">Requests sent to the owner and their current status.</div>
-      </div>
-    </div>
-
-    <div class="table-container">
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>Reference</th>
-            <th>Product</th>
-            <th>Quantity</th>
-            <th>Needed By</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody id="requestBody"></tbody>
-      </table>
-    </div>
-  </div>
-
 </main>
 
 <!-- ============================================================
@@ -149,10 +124,10 @@
     </div>
 
     <div class="modal-body">
-      <!--
+      <div class="hint-box">
         Pick a product from the owner's list, then enter how many you received and its expiry date.
-        Products received before are listed first so logging the usual items is faster.
-      -->
+        Products you have received before are listed first so logging the usual items is faster.
+      </div>
 
       <div class="frow">
         <div class="field">
@@ -198,7 +173,9 @@
     </div>
 
     <div class="modal-body">
-      <!-- Products requested before appear at the top of the list, so repeat orders take one tap. -->
+      <div class="hint-box">
+        Products you have requested before appear at the top of the list, so repeat orders take one tap.
+      </div>
 
       <div class="field">
         <label>Request Reference</label>

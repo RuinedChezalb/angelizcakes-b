@@ -445,7 +445,7 @@ window.initializeServicePackageFragment = function initializeServicePackageFragm
         const fulfillment = orderForm.elements.fulfillment.value === "pickup" ? "Pickup" : "Delivery";
         const orderValues = Object.fromEntries(new FormData(orderForm).entries());
         orderValues.forSomeoneElse = recipientToggle.checked;
-        const orderDetails = {
+        const placement = onOrderPlaced?.({
           packageOffering,
           items: draftItems.map(item => ({ ...item })),
           inclusions: fixedInclusions
@@ -453,19 +453,8 @@ window.initializeServicePackageFragment = function initializeServicePackageFragm
             : [],
           order: orderValues,
           placedAt
-        };
-        let placement;
-        try {
-          placement = onOrderPlaced
-            ? onOrderPlaced(orderDetails)
-            : window.AngelizDB.orders.placePackageOrder(orderDetails, { source: "storefront" });
-        } catch (error) {
-          console.error("Could not save the package order.", error);
-          status.classList.add("is-error");
-          status.textContent = "Your package order could not be saved. Please try again.";
-          return;
-        }
-        receiptOrder.textContent = placement?.orderNumber || "Pending";
+        });
+        receiptOrder.textContent = placement?.orderNumber || "AC-PREVIEW-001";
         receiptReference.textContent = placement?.referenceNumber || `AC-REF-${placedAt.getTime()}`;
         receiptDate.textContent = new Intl.DateTimeFormat("en-PH", {
           dateStyle: "medium",

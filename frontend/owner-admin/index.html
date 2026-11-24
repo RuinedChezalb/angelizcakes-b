@@ -8,16 +8,13 @@
   <link rel="stylesheet" href="index.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body data-required-role="super_admin">
+<body>
   <!--
     DATABASE INTEGRATION INVENTORY
-    Current state: Owner Admin shares a local database (shared/local-db.js, browser localStorage,
-    same origin as the storefront and branch admin). Connected locally: website and branch orders
-    (with production status updates), POS walk-in orders, customers and login attempts, inquiries
-    and replies, the product/preset/package catalog shown on the storefront, branch stock requests,
-    live sales totals, and expiring inventory. Remaining sections use sample data. The fetch() in
-    owner-admin-ajax.js loads HTML fragments only; it is not a database API.
-    Replace the local database helpers with shared server APIs when the database is connected.
+    Current state: Owner Admin data is mostly hard-coded/sample data. The fetch() in
+    owner-admin-ajax.js loads HTML fragments only; it is not a database API. The storefront
+    currently uses localStorage for inquiries, favorites, profile/session, and package drafts.
+    Replace those browser-only records with shared server APIs when the database is connected.
 
     READ FROM THE DATABASE (GET)
     • Header: unread notifications and storefront-message counts.
@@ -164,11 +161,7 @@
     </div>
     <div id="ownerAdminViewMount" aria-live="polite" aria-busy="true"></div>
     <p id="ownerAdminStatus" role="status" aria-live="polite"></p>
-  </div><!--
-  <script src="../shared/api-client.js"></script>
-  <script src="../shared/api-data.js"></script>
-  <script src="../shared/admin-entry.js" defer></script>-->
-  <script src="../shared/local-db.js" defer></script>
+  </div>
   <script src="owner-admin-ajax.js"></script>
 </body>
 </html>

@@ -87,32 +87,27 @@
 
   function loadCatalog() {
     if (catalogCache) return catalogCache;
-    const products = window.AngelizDB?.remote?.list("products") || [];
-    const lots = window.AngelizDB?.remote?.list("inventoryBatches") || [];
-    const stockRows = window.AngelizDB?.remote?.list("branchInventory") || [];
-    const lotsByProduct = new Map();
-    lots.forEach(lot => {
-      const key = String(lot.productId ?? "");
-      if (!lotsByProduct.has(key)) lotsByProduct.set(key, []);
-      lotsByProduct.get(key).push({
-        batch: String(lot.batchCode || lot.id),
-        qty: Number(lot.quantity) || 0,
-        expiry: lot.expiresAt ? String(lot.expiresAt).slice(0, 10) : "9999-12-31"
-      });
-    });
-    catalogCache = products.map(product => {
-      const stock = stockRows.find(row => String(row.productId) === String(product.id));
-      const productLots = lotsByProduct.get(String(product.id)) || [];
-      return {
-        id: String(product.id), sku: String(product.sku || ""), name: product.name,
-        category: product.category || product.subCategory || "Other",
-        reorder: Number(stock?.lowStockThreshold) || 0,
-        batches: productLots,
-        lastDelivery: lots.filter(lot => String(lot.productId) === String(product.id))
-          .map(lot => lot.receivedAt).filter(Boolean).sort().at(-1) || null,
-        quantity: Number(stock?.quantity) || productLots.reduce((sum, lot) => sum + lot.qty, 0)
-      };
-    });
+
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored === null) {
+      const seededCatalog = createSeedCatalog();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(seededCatalog));
+      catalogCache = seededCatalog;
+      return catalogCache;
+    }
+
+    let catalog;
+    try {
+      catalog = JSON.parse(stored);
+    } catch (error) {
+      throw new Error('Saved inventory batches are not valid JSON.');
+    }
+
+    if (!isValidCatalog(catalog)) {
+      throw new Error('Saved inventory batches have an unrecognized format.');
+    }
+
+    catalogCache = catalog;
     return catalogCache;
   }
 

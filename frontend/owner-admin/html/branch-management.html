@@ -147,18 +147,6 @@
 
   <section class="section">
     <div class="card">
-      <div class="card-title">Branch Stock Requests <span class="sub">Sent from branch inventory</span></div>
-      <div class="table-wrap">
-        <table class="table">
-          <thead><tr><th>Reference</th><th>Branch</th><th>Product</th><th>Qty</th><th>Needed By</th><th>Urgency</th><th>Status</th></tr></thead>
-          <tbody id="stockRequestRows"></tbody>
-        </table>
-      </div>
-    </div>
-  </section>
-
-  <section class="section">
-    <div class="card">
       <div class="card-title">Branch User Accounts</div>
       <div class="table-wrap">
         <table class="table">
@@ -278,7 +266,7 @@
   <div class="modal">
     <div class="modal-header"><div class="modal-title">Create Admin Account</div><button class="modal-close" onclick="closeModal('adminModal')">×</button></div>
     <div class="modal-body">
-      <!-- The Main Branch is managed directly; use this form to create a new admin or manager account. -->
+      <div class="note-box">Note: The Main Branch is managed directly. Use this form to create a new admin or manager account.</div>
       
       <div class="form-row">
         <div class="form-group"><label class="form-label">First Name *</label><input class="form-input" id="adminFName" placeholder="First name"></div>

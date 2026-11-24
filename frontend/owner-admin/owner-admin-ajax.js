@@ -4,7 +4,6 @@
       fragment: "html/dashboard.html",
       stylesheet: "css/dashboard.css",
       script: "js/dashboard.js",
-      onShow: "refreshOwnerDashboard",
     },
     "branch-management": {
       fragment: "html/branch-management.html",
@@ -311,9 +310,6 @@
       }
 
       await loadStylesheet(view.stylesheet);
-      if (window.AngelizApiData && viewName !== "support-center") {
-        await window.AngelizApiData.preload("owner", viewName);
-      }
       viewMount.replaceChildren(cachedView.root);
       if (view.script && !cachedView.scriptLoaded) {
         cachedView.functions = await loadScript(view.script);
@@ -321,9 +317,6 @@
       }
       restoreViewFunctions(cachedView.functions);
       viewMount.dataset.activeView = viewName;
-      if (view.onShow && typeof window[view.onShow] === "function") {
-        await window[view.onShow]();
-      }
       setActiveNavigation(viewName);
       window.scrollTo(0, 0);
     } catch (error) {

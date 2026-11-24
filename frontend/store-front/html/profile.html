@@ -48,13 +48,6 @@
             </button>
             <div class="profile-accordion-slot" data-profile-slot="history"></div>
           </div>
-          <div class="profile-nav-item" data-profile-item="messages">
-            <button class="profile-nav-button" type="button" data-profile-tab="messages" aria-controls="profilePanelMessages" aria-expanded="false">
-              <span><i class="fa-solid fa-envelope-open-text" aria-hidden="true"></i>My Messages</span>
-              <span class="profile-nav-end"><span class="profile-nav-count" data-profile-message-count>0</span><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></span>
-            </button>
-            <div class="profile-accordion-slot" data-profile-slot="messages"></div>
-          </div>
           <div class="profile-nav-item" data-profile-item="reviews">
             <button class="profile-nav-button" type="button" data-profile-tab="reviews" aria-controls="profilePanelReviews" aria-expanded="false">
               <span><i class="fa-solid fa-star" aria-hidden="true"></i>My Reviews</span>
@@ -147,7 +140,7 @@
             <h2 id="profileActiveOrdersTitle"><i class="fa-solid fa-calendar-check" aria-hidden="true"></i> Active Orders &amp; Bookings</h2>
           </div>
         </div>
-        <div class="profile-record-list" data-profile-active-orders aria-live="polite"></div>
+        <p class="profile-empty-state">Orders submitted to your customer account will appear here. Requests placed by email may not be linked to your account.</p>
       </section>
 
       <section class="profile-content-card" id="profilePanelHistory" data-profile-panel="history" aria-labelledby="profileHistoryTitle" hidden>
@@ -157,17 +150,7 @@
             <h2 id="profileHistoryTitle"><i class="fa-solid fa-receipt" aria-hidden="true"></i> Order History</h2>
           </div>
         </div>
-        <div class="profile-record-list" data-profile-order-history aria-live="polite"></div>
-      </section>
-
-      <section class="profile-content-card" id="profilePanelMessages" data-profile-panel="messages" aria-labelledby="profileMessagesTitle" hidden>
-        <div class="profile-card-heading">
-          <div>
-            <p class="profile-eyebrow">BAKERY REPLIES</p>
-            <h2 id="profileMessagesTitle"><i class="fa-solid fa-envelope-open-text" aria-hidden="true"></i> My Messages</h2>
-          </div>
-        </div>
-        <div class="profile-record-list" data-profile-messages aria-live="polite"></div>
+        <p class="profile-empty-state">Completed orders linked to your customer account will appear here.</p>
       </section>
 
       <section class="profile-content-card" id="profilePanelReviews" data-profile-panel="reviews" aria-labelledby="profileReviewsTitle" hidden>

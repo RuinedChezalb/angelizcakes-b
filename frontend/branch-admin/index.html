@@ -7,14 +7,12 @@
   <title>Branch Admin · Angeliz Cakes</title>
   <link rel="stylesheet" href="index.css">
 </head>
-<body data-required-role="admin">
+<body>
   <!--
     DATABASE INTEGRATION INVENTORY
-    Current state: branch pages share a local database (shared/local-db.js, browser localStorage,
-    same origin as the storefront and owner admin). Connected locally: storefront and branch orders,
-    customers, inquiries and replies, stock requests, POS transactions, and inventory batches.
-    Sales reports, daily reports, and shift handovers still use sample data. Replace the local
-    database helpers with branch-scoped APIs when the database is connected.
+    Current state: branch pages use sample data; POS transactions and inventory batches are
+    stored in browser localStorage. Replace demo values with branch-scoped APIs when the
+    database is connected.
 
     READ FROM THE DATABASE (GET)
     • Dashboard: branch sales, orders, bookings, feedback, customer activity, and stock alerts.
@@ -152,12 +150,7 @@
     <div id="ownerAdminViewMount" aria-live="polite" aria-busy="true"></div>
     <p id="ownerAdminStatus" role="status" aria-live="polite"></p>
   </div>
-  <!--
-  <script src="../shared/api-client.js"></script>
-  <script src="../shared/api-data.js"></script>
-  <script src="../shared/admin-entry.js" defer></script>
-  <script src="js/branch-inventory-store.js"></script>-->
-  <script src="../shared/local-db.js" defer></script>
+  <script src="js/branch-inventory-store.js"></script>
   <script src="branch-admin-ajax.js"></script>
 </body>
 </html>
