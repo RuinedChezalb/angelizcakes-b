@@ -1,5 +1,6 @@
 "use strict";
 
+/* Shared storefront mock data. Asset paths are relative to the storefront page. */
 window.angelizStorefrontProducts = [
   {
     id: "signature-cake",
@@ -65,3 +66,48 @@ window.angelizStorefrontServices = [
     ]
   }
 ];
+
+window.angelizStorefrontData = {
+  categories: [{ label: "Cakes", productCategories: ["Cakes"] }],
+  heroSlides: [
+    { name: "Signature Celebration Cake", image: "cakes.jpg" },
+    { name: "Chocolate Drip Cake", image: "signature-cake.jpg" },
+    { name: "Cupcake Collection", image: "chocolate-cake.jpg" }
+  ],
+  products: window.angelizStorefrontProducts,
+  favorites: ["signature-cake", "berry-tart"],
+  serviceCategories: [
+    { id: "grazing", label: "Grazing Tables" },
+    { id: "pastry", label: "Pastry Buffets" },
+    { id: "party", label: "Party Packages" },
+    { id: "bundle", label: "Food Bundles" }
+  ],
+  services: window.angelizStorefrontServices,
+  gallery: [
+    { name: "Signature Celebration Cake", category: "Cakes", image: "signature-cake.jpg" },
+    { name: "Berry Tart", category: "Pastries", image: "pastry-selection.jpg" },
+    { name: "Chocolate Dessert", category: "Desserts", image: "chocolate-dessert.jpg" },
+    { name: "Artisan Bread", category: "Bakery", image: "artisan-bread.jpg" },
+    { name: "Cafe Favorites", category: "Beverages", image: "coffee.jpg" },
+    { name: "Celebration Catering", category: "Catering", image: "catering.jpg" }
+  ],
+  feedbacks: [{ name: "test ting", comment: "testing testing", rating: 3 }],
+  location: {
+    name: "Cabangan Branch",
+    description: "Main Hub & Production Studio, Cabangan, Legazpi City",
+    image: "location.jpg"
+  },
+  about: {
+    name: "Angeliz Cakes Legazpi",
+    description: "Owned and managed by Mrs. Maria Mae Angela Guiriba, Angeliz Cakes brings sweetness to every milestone in Albay with handcrafted custom cakes, delicate pastries, and delicious savory catering.",
+    hours: "Mon-Sun: 8am - 8pm",
+    availability: "Dine-in, Take-out & Online Delivery",
+    location: "Legazpi City, Albay, Philippines",
+    image: "bakery-about.jpg"
+  },
+  contact: {
+    phone: "0917-187-8820",
+    email: "mae_guiriba@yahoo.com",
+    address: "Rizal Street, Legazpi City, Albay"
+  }
+};
