@@ -13,7 +13,7 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends libatomic1 \
     && rm -rf /var/lib/apt/lists/*
 
-COPY requirements.txt /app/requirements.txt
+COPY backend/requirements /app/requirements.txt
 RUN python -m venv /opt/venv \
     && pip install --no-cache-dir --requirement /app/requirements.txt
 
