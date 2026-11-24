@@ -1,3 +1,3 @@
-from binding_authentication.binding_authentication import app
+import app
 
 __all__ = ["app"]

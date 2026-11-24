@@ -250,7 +250,7 @@ def serve_admin_assets(path):
 
 @app.route('/')
 def homepage():
-    return redirect('/customer_controls/')
+    return redirect('frontend/store-front/index.html')
 
 
 @app.route('/healthz')
