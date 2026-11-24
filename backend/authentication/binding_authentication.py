@@ -18,7 +18,7 @@ from flask import (
 from authlib.integrations.flask_client import OAuth
 from prisma import Prisma
 from query import api as database_api
-from authentication.payment_Auth import payment_webhook
+from payment_Auth import payment_webhook
 
 load_dotenv(Path(__file__).parents[1] / '.env')
 FRONTEND_FOLDER = Path(__file__).resolve().parents[2] / 'frontend'
