@@ -16,7 +16,7 @@ from typing import Any, Callable
 from flask import Blueprint, Response, current_app, jsonify, request, session
 from prisma import Json, Prisma
 from werkzeug.security import check_password_hash, generate_password_hash
-from binding_authentication.email_service import (
+from backend.authentication import (
     EmailConfigurationError,
     EmailDeliveryError,
     send_password_reset_code,
@@ -3953,14 +3953,6 @@ def record(resource_name: str, record_id: str):
             if set(data) != {"subCategory"}:
                 return _json_error("Branch administrators may only update product subcategories", 403)
             subcategory = data["subCategory"]
-            if subcategory is not None:
-                category = str(product.category or "").strip().lower()
-                menu_category = CUSTOMER_MENU_CATEGORY_ALIASES.get(category, category)
-                if (
-                    not isinstance(subcategory, str)
-                    or subcategory not in CUSTOMER_MENU_SUBCATEGORIES.get(menu_category, set())
-                ):
-                    return _json_error("Choose a subcategory offered by the customer menu", 400)
         if identity["role"] == "admin" and "branchId" in resource["fields"]:
             data["branchId"] = identity["branchId"]
         elif identity["role"] == "super_admin" and branch_id is not None and "branchId" in resource["fields"]:
