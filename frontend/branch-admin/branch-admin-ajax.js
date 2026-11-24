@@ -323,6 +323,9 @@
         activeStylesheet = null;
         activeStylesheetPath = "";
       }
+      if (window.AngelizApiData && viewName !== "support-center") {
+        await window.AngelizApiData.preload("branch", viewName);
+      }
       viewMount.replaceChildren(cachedView.root);
       if (view.script && !cachedView.scriptLoaded) {
         cachedView.functions = await loadScript(view.script);
@@ -330,7 +333,7 @@
       }
       restoreViewFunctions(cachedView.functions);
       if (view.onShow && typeof window[view.onShow] === "function") {
-        window[view.onShow]();
+        await window[view.onShow]();
       }
       viewMount.dataset.activeView = viewName;
       setActiveNavigation(viewName);

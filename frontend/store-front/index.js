@@ -1,17 +1,11 @@
 "use strict";
 
-/* Homepage content is embedded locally so the storefront works without API data. */
+/* Homepage content is loaded from the database-backed catalog API. */
 const storefront = {
-  categories: [
-    { label: "Cakes", productCategories: ["Cakes"] }
-  ],
-  heroSlides: [
-    { name: "Signature Celebration Cake", image: "cakes.jpg" },
-    { name: "Chocolate Drip Cake", image: "signature-cake.jpg" },
-    { name: "Cupcake Collection", image: "chocolate-cake.jpg" }
-  ],
+  categories: [],
+  heroSlides: [],
   products: window.angelizStorefrontProducts,
-  favorites: ["signature-cake", "berry-tart"],
+  favorites: [],
   serviceCategories: [
     { id: "grazing", label: "Grazing Tables" },
     { id: "pastry", label: "Pastry Buffets" },
@@ -19,22 +13,9 @@ const storefront = {
     { id: "bundle", label: "Food Bundles" }
   ],
   services: window.angelizStorefrontServices,
-  gallery: [
-    { name: "Signature Celebration Cake", category: "Cakes", image: "signature-cake.jpg" },
-    { name: "Berry Tart", category: "Pastries", image: "pastry-selection.jpg" },
-    { name: "Chocolate Dessert", category: "Desserts", image: "chocolate-dessert.jpg" },
-    { name: "Artisan Bread", category: "Bakery", image: "artisan-bread.jpg" },
-    { name: "Cafe Favorites", category: "Beverages", image: "coffee.jpg" },
-    { name: "Celebration Catering", category: "Catering", image: "catering.jpg" }
-  ],
-  feedbacks: [
-    { name: "test ting", comment: "testing testing", rating: 3 }
-  ],
-  location: {
-    name: "Cabangan Branch",
-    description: "Main Hub & Production Studio, Cabangan, Legazpi City",
-    image: "location.jpg"
-  },
+  gallery: [],
+  feedbacks: [],
+  location: null,
   about: {
     name: "Angeliz Cakes Legazpi",
     description: "Owned and managed by Mrs. Maria Mae Angela Guiriba, Angeliz Cakes brings sweetness to every milestone in Albay with handcrafted custom cakes, delicate pastries, and delicious savory catering.",
@@ -71,7 +52,13 @@ function escapeHTML(value) {
 }
 
 function imageSource(image) {
-  return /^(data:|https?:)/.test(image) ? image : `assets/${image}`;
+  const value = String(image || "");
+  if (/^(data:|https?:)/.test(value)) return value;
+  if (value.startsWith("/portfolio-images/") || value.startsWith("/product-images/")) {
+    return `${window.angelizApi.backendUrl}/api/v1${value}`;
+  }
+  if (value.startsWith("/")) return value;
+  return `assets/${value}`;
 }
 
 function renderHomepage() {
@@ -248,18 +235,20 @@ function renderHomepage() {
   `;
   gallery.innerHTML = `<div class="gallery-track">${galleryPage}${galleryPage}</div>`;
 
-  locationCard.innerHTML = `
-    <article class="branch-card interactive-card">
-      <div class="branch-img-wrap">
-        <img src="assets/${escapeHTML(storefront.location.image)}" alt="${escapeHTML(storefront.location.name)}">
-      </div>
-      <div class="branch-content">
-        <h3>${escapeHTML(storefront.location.name)}</h3>
-        <p>${escapeHTML(storefront.location.description)}</p>
-      </div>
-      <button class="btn btn-pink-hero full-width view-map-btn" type="button">View Map</button>
-    </article>
-  `;
+  locationCard.replaceChildren();
+  (storefront.locations || []).forEach(branch => {
+    const card = document.createElement("article");
+    card.className = "branch-card interactive-card";
+    const content = document.createElement("div");
+    content.className = "branch-content";
+    const heading = document.createElement("h3");
+    heading.textContent = branch.name;
+    const description = document.createElement("p");
+    description.textContent = [branch.location, branch.phone].filter(Boolean).join(" ? ");
+    content.append(heading, description);
+    card.append(content);
+    locationCard.append(card);
+  });
 
   document.getElementById("aboutName").textContent = storefront.about.name;
   document.getElementById("aboutDescription").textContent = storefront.about.description;
@@ -348,7 +337,24 @@ function renderHomepage() {
 }
 
 if (document.getElementById("storefrontHome")) {
-renderHomepage();
+(async function initializeHomepageFromApi() {
+  const status = document.getElementById("testimonialStatus");
+  try {
+    const { catalog } = await window.AngelizApiData.loadStorefront();
+    storefront.categories = (catalog.categories || []).map(category => ({ label: category.name, productCategories: [category.name] }));
+    if (!storefront.categories.length) {
+      storefront.categories = [...new Set(storefront.products.map(product => product.category))].map(label => ({ label, productCategories: [label] }));
+    }
+    storefront.gallery = (catalog.portfolioImages || []).map(image => ({ name: image.title, category: "Portfolio", image: image.imageUrl || "" }));
+    storefront.feedbacks = (catalog.reviews || []).map(review => ({ name: review.name, comment: review.message, rating: Number(review.rating) || 0 }));
+    storefront.locations = (catalog.branches || []).map(branch => ({ name: branch.name, location: branch.location || "", phone: branch.phone || "" }));
+    renderHomepage();
+  } catch (error) {
+    console.error("Could not load storefront GET data.", error);
+    document.querySelectorAll(".catalog-status").forEach(element => { element.textContent = "Catalog data is unavailable. Please try again later."; });
+    if (status) status.textContent = "Customer feedback is unavailable.";
+  }
+})();
 
 const startCustomizingButton = document.getElementById("startCustomizingBtn");
 if (!startCustomizingButton) throw new Error("The customization wizard button is missing.");

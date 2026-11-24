@@ -7,7 +7,7 @@
   <title>Branch Admin · Angeliz Cakes</title>
   <link rel="stylesheet" href="index.css">
 </head>
-<body>
+<body data-required-role="admin">
   <!--
     DATABASE INTEGRATION INVENTORY
     Current state: branch pages share a local database (shared/local-db.js, browser localStorage,
@@ -152,7 +152,9 @@
     <div id="ownerAdminViewMount" aria-live="polite" aria-busy="true"></div>
     <p id="ownerAdminStatus" role="status" aria-live="polite"></p>
   </div>
-  <script src="../shared/local-db.js"></script>
+  <script src="../shared/api-client.js"></script>
+  <script src="../shared/api-data.js"></script>
+  <script src="../shared/admin-entry.js" defer></script>
   <script src="js/branch-inventory-store.js"></script>
   <script src="branch-admin-ajax.js"></script>
 </body>

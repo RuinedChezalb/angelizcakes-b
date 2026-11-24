@@ -341,9 +341,9 @@ galleryDialogSave.addEventListener('click', () => {
 });
 
 /* Live sales: storefront/branch orders and branch POS transactions add to the sample figures above. */
-const baseSalesData = JSON.parse(JSON.stringify(salesData));
-const baseTotalSales = 128450;
-const baseTotalOrders = 1284;
+const baseSalesData = { weekly: {}, monthly: {}, yearly: {} };
+const baseTotalSales = 0;
+const baseTotalOrders = 0;
 
 function applyConnectedSales() {
   const branchKeys = ['main', 'yashano'];

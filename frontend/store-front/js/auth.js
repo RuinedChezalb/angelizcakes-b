@@ -19,42 +19,53 @@ window.initializeLoginFragment = function initializeLoginFragment(root) {
     });
   });
 
-  // Action alerts for UI demo
   root.querySelectorAll('[data-auth-action="forgot-password"]').forEach(el => {
     el.addEventListener("click", event => {
       event.preventDefault();
-      alert("Password reset: Enter your email and a reset link will be sent.");
+      const email = usernameInput?.value.trim();
+      if (!email) {
+        if (status) status.textContent = "Enter your email first, then choose Forgot Password.";
+        usernameInput?.focus();
+        return;
+      }
+      window.location.href = `../../customer_controls/pages/forgot-password.html?email=${encodeURIComponent(email)}`;
     });
   });
 
   root.querySelectorAll('[data-auth-action="google"]').forEach(el => {
     el.addEventListener("click", event => {
       event.preventDefault();
-      alert("Google Social Login preview.");
+      window.location.assign(new URL("/login/google", window.angelizApi.backendUrl));
     });
   });
 
   if (!form) return;
 
-  form.addEventListener("submit", event => {
+  form.addEventListener("submit", async event => {
     event.preventDefault();
-    const user = usernameInput?.value.trim();
-    const pass = passwordInput?.value;
-
-    if (!user || !pass) {
-      if (status) {
-        status.textContent = "Please enter both email/username and password.";
-        status.style.color = "#7b2d42";
-      }
+    const email = usernameInput?.value.trim();
+    const password = passwordInput?.value;
+    if (!email || !password) {
+      if (status) status.textContent = "Enter your email and password.";
       return;
     }
-
-    if (status) {
-      status.textContent = "Signing in...";
-      status.style.color = "#25633b";
-      setTimeout(() => {
-        status.textContent = `Welcome back, ${user}! (UI/UX Preview)`;
-      }, 400);
+    const submit = form.querySelector('[type="submit"]');
+    if (submit) submit.disabled = true;
+    if (status) status.textContent = "Signing in…";
+    try {
+      const result = await window.angelizApi.login(email, password);
+      const routes = {
+        customer: "/store-front/#home",
+        admin: "/branch-admin/",
+        super_admin: "/owner-admin/"
+      };
+      const destination = routes[result.user?.role];
+      if (!destination) throw new Error("This account cannot access an Angeliz Cakes workspace.");
+      window.location.assign(destination);
+    } catch (error) {
+      if (status) status.textContent = error.message || "Sign-in failed. Check your details and try again.";
+    } finally {
+      if (submit) submit.disabled = false;
     }
   });
 };
@@ -79,64 +90,55 @@ window.initializeRegisterFragment = function initializeRegisterFragment(root) {
   root.querySelectorAll('[data-auth-action="terms"]').forEach(el => {
     el.addEventListener("click", event => {
       event.preventDefault();
-      alert("Terms of Service preview.");
+      window.location.href = "../../customer_controls/pages/terms-of-service.html";
     });
   });
 
   root.querySelectorAll('[data-auth-action="privacy"]').forEach(el => {
     el.addEventListener("click", event => {
       event.preventDefault();
-      alert("Privacy Policy preview.");
+      window.location.href = "../../customer_controls/pages/privacy-policy.html";
     });
   });
 
   root.querySelectorAll('[data-auth-action="google"]').forEach(el => {
     el.addEventListener("click", event => {
       event.preventDefault();
-      alert("Google Social Sign-Up preview.");
+      window.location.assign(new URL("/login/google", window.angelizApi.backendUrl));
     });
   });
 
   if (!form) return;
 
-  form.addEventListener("submit", event => {
+  form.addEventListener("submit", async event => {
     event.preventDefault();
     const name = nameInput?.value.trim();
     const email = usernameInput?.value.trim();
-    const pass = passInput?.value;
-    const confirmPass = confirmPassInput?.value;
+    const password = passInput?.value;
     const terms = termsCheckbox?.checked;
-
-    if (!name || !email || !pass || !confirmPass) {
-      if (status) {
-        status.textContent = "Please fill in all required fields.";
-        status.style.color = "#7b2d42";
-      }
+    if (!name || !email || !password) {
+      if (status) status.textContent = "Complete all required fields.";
       return;
     }
-
-    if (pass !== confirmPass) {
-      if (status) {
-        status.textContent = "Passwords do not match.";
-        status.style.color = "#7b2d42";
-      }
+    if (password !== confirmPassInput?.value) {
+      if (status) status.textContent = "Passwords do not match.";
       return;
     }
-
     if (!terms) {
-      if (status) {
-        status.textContent = "Please agree to the Terms of Service and Privacy Policy.";
-        status.style.color = "#7b2d42";
-      }
+      if (status) status.textContent = "Agree to the Terms of Service and Privacy Policy to continue.";
       return;
     }
-
-    if (status) {
-      status.textContent = "Creating account...";
-      status.style.color = "#25633b";
-      setTimeout(() => {
-        status.textContent = `Account created for ${name}! (UI/UX Preview)`;
-      }, 500);
+    const submit = form.querySelector('[type="submit"]');
+    if (submit) submit.disabled = true;
+    if (status) status.textContent = "Creating your account…";
+    try {
+      await window.angelizApi.register(name, email, password);
+      if (status) status.textContent = "Account created. Sign in to continue.";
+      document.dispatchEvent(new CustomEvent("storefront:show-login"));
+    } catch (error) {
+      if (status) status.textContent = error.message || "Registration failed. Try another email or try again.";
+    } finally {
+      if (submit) submit.disabled = false;
     }
   });
 };

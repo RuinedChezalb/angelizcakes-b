@@ -20,6 +20,17 @@
     inventoryBatches: "angeliz_branch_inventory_batches_v1"
   });
   const CHANGE_EVENT = "angeliz:db-changed";
+  let remoteData = Object.create(null);
+
+  function setRemoteData(data) {
+    if (!data || typeof data !== "object" || Array.isArray(data)) return;
+    remoteData = { ...remoteData, ...data };
+    window.dispatchEvent(new CustomEvent(CHANGE_EVENT, { detail: { key: "remote" } }));
+  }
+
+  function remoteList(name) {
+    return Array.isArray(remoteData[name]) ? remoteData[name] : null;
+  }
   const PICKUP_LOCATION = "Cabangan Branch — Main Hub & Production Studio, Cabangan, Legazpi City";
   const BRANCH_NAME = "Yashano Mall Branch";
   const MAIN_BRANCH_NAME = "Main Branch";
@@ -46,6 +57,14 @@
 
   /* ---------- storage primitives ---------- */
   function read(key, fallback) {
+    const remoteKey = {
+      [keys.orders]: "orders", [keys.customers]: "customers",
+      [keys.products]: "products", [keys.presets]: "presets",
+      [keys.packages]: "packages", [keys.stockRequests]: "stockRequests",
+      [keys.inquiries]: "inquiries", [keys.posTransactions]: "posTransactions",
+      [keys.inventoryBatches]: "inventoryBatches"
+    }[key];
+    if (remoteKey && remoteData[remoteKey] !== undefined) return remoteData[remoteKey];
     try {
       const raw = window.localStorage.getItem(key);
       if (raw === null) return fallback;
@@ -620,6 +639,8 @@
 
   window.AngelizDB = Object.freeze({
     keys,
+    setRemoteData,
+    remote: Object.freeze({ list: remoteList }),
     read,
     write,
     readList,
@@ -659,9 +680,9 @@
       saveProducts: products => write(keys.products, products),
       savePresets: presets => write(keys.presets, presets),
       savePackages: packages => write(keys.packages, packages),
-      readProducts: fallback => read(keys.products, fallback),
-      readPresets: fallback => read(keys.presets, fallback),
-      readPackages: fallback => read(keys.packages, fallback)
+      readProducts: fallback => remoteData.products || read(keys.products, fallback),
+      readPresets: fallback => remoteData.presets || read(keys.presets, fallback),
+      readPackages: fallback => remoteData.packages || read(keys.packages, fallback)
     })
   });
 })();
