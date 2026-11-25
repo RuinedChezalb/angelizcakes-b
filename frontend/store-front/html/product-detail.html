@@ -13,6 +13,7 @@
       <div class="product-view-copy">
         <p class="product-view-category" data-product-category></p>
         <h1 id="productViewName" data-product-name tabindex="-1"></h1>
+        <p class="product-view-description" data-product-summary-description></p>
         <p class="product-view-price" data-product-price></p>
         <div class="product-view-actions">
           <button class="product-view-favorite" type="button" data-product-favorite aria-pressed="false" aria-label="Add product to favorites">
@@ -32,10 +33,6 @@
                 aria-controls="product-panel-ingredients" aria-selected="false" tabindex="-1" data-product-tab="ingredients">
           Ingredients &amp; Allergens
         </button>
-        <button class="product-detail-tab" id="product-tab-classification" type="button" role="tab"
-                aria-controls="product-panel-classification" aria-selected="false" tabindex="-1" data-product-tab="classification">
-          Classification
-        </button>
         <button class="product-detail-tab" id="product-tab-reviews" type="button" role="tab"
                 aria-controls="product-panel-reviews" aria-selected="false" tabindex="-1" data-product-tab="reviews">
           Reviews
@@ -43,21 +40,13 @@
       </div>
       <section class="product-detail-panel is-active" id="product-panel-description" role="tabpanel"
                aria-labelledby="product-tab-description" data-product-panel="description" tabindex="0">
-        <p class="product-detail-description" data-product-description></p>
         <dl class="product-detail-options" data-product-options></dl>
         <p class="product-detail-note" data-product-options-note hidden>Contact the bakery to ask about available options for this item.</p>
       </section>
       <section class="product-detail-panel" id="product-panel-ingredients" role="tabpanel"
                aria-labelledby="product-tab-ingredients" data-product-panel="ingredients" tabindex="0" hidden>
         <div class="product-detail-paragraphs">
-          <p><strong>Ingredients:</strong> <span data-product-ingredients></span></p>
-          <p><strong>Allergens:</strong> <span data-product-allergens></span></p>
-        </div>
-      </section>
-      <section class="product-detail-panel" id="product-panel-classification" role="tabpanel"
-               aria-labelledby="product-tab-classification" data-product-panel="classification" tabindex="0" hidden>
-        <div class="product-detail-classification">
-          <p data-product-classification></p>
+          <p><strong>Ingredients &amp; Allergens:</strong> <span data-product-ingredients></span> <span data-product-allergens></span></p>
         </div>
       </section>
       <section class="product-detail-panel" id="product-panel-reviews" role="tabpanel"

@@ -897,14 +897,34 @@ window.initializeCustomizationWizard = function initializeCustomizationWizard(ro
       renderStep();
     });
     const placeOrderButton = makeButton("Place Order", true);
-    placeOrderButton.addEventListener("click", renderReceipt);
+    placeOrderButton.addEventListener("click", async () => {
+      placeOrderButton.disabled = true;
+      try {
+        await renderReceipt();
+      } catch (error) {
+        console.error("Could not save the custom cake request.", error);
+        placeOrderButton.disabled = false;
+        setFinalStepStatus("The request could not be saved. Please try again.");
+      }
+    });
     actions.append(restartButton, placeOrderButton);
     summary.append(title, preview, list, actions);
     title.tabIndex = -1;
     title.focus({ preventScroll: true });
   }
 
-  function renderReceipt() {
+  function readReferenceImage(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.addEventListener("load", () => resolve({ name: file.name, type: file.type, size: file.size, dataUrl: reader.result }), { once: true });
+      reader.addEventListener("error", () => reject(reader.error || new Error(`Could not read ${file.name}.`)), { once: true });
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function renderReceipt() {
+    const referenceImages = await Promise.all(selectedReferenceImages.map(({ file }) => readReferenceImage(file)));
+    const designName = [finalDetails.dedication || selections[0] || "Custom cake", selections[1]].filter(Boolean).join(" · ").slice(0, 120);
     const cakeSelections = customizationSamples.flatMap((step, index) => {
       if (step.form) return [];
       if (step.tierSizes) {
@@ -922,9 +942,12 @@ window.initializeCustomizationWizard = function initializeCustomizationWizard(ro
       }
       return [{ label: step.field, value: selections[index] || step.sample }];
     });
-    options.onPlaceOrder?.({
+    const placement = options.onPlaceOrder
+      ? await options.onPlaceOrder({
       title: "Fully Custom Cake",
+      designName,
       selections: cakeSelections,
+      referenceImages,
       customerName: finalDetails.customerName,
       email: finalDetails.email,
       contactNumber: finalDetails.contactNumber,
@@ -939,8 +962,9 @@ window.initializeCustomizationWizard = function initializeCustomizationWizard(ro
       deliveryAddress: finalDetails.fulfillment === "delivery" ? finalDetails.deliveryAddress : "",
       paymentMethod: finalDetails.paymentMethod,
       notes: finalDetails.notes,
-      referenceImages: selectedReferenceImages.map(({ file }) => file.name)
-    });
+      referenceImageNames: referenceImages.map(image => image.name)
+    })
+      : null;
 
     summary.replaceChildren();
     toolbar.hidden = true;
@@ -981,8 +1005,8 @@ window.initializeCustomizationWizard = function initializeCustomizationWizard(ro
       details.append(row);
     }
 
-    appendReceiptRow("Order No.", "AC-PREVIEW-001");
-    appendReceiptRow("Reference No.", `AC-REF-${placedAt.getTime()}`);
+    appendReceiptRow("Order No.", placement?.orderNumber || "AC-PREVIEW-001");
+    appendReceiptRow("Reference No.", placement?.referenceNumber || `AC-REF-${placedAt.getTime()}`);
     appendReceiptRow(
       "Date / Time",
       new Intl.DateTimeFormat("en-PH", { dateStyle: "medium", timeStyle: "short" }).format(placedAt)

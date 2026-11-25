@@ -1,4 +1,4 @@
-﻿(function(){
+(function(){
   'use strict';
 
   /* ============================================================
@@ -204,7 +204,7 @@
       await loadStorefrontScript(
         'angelizStorefrontCatalogScript',
         'angelizStorefrontProducts',
-        '../storefront-data.js',
+        '../store-front/js/catalog-data.js',
         'array'
       );
       const products = window.angelizStorefrontProducts;
@@ -402,7 +402,7 @@
     ]
       .filter(Boolean)
       .join('; ');
-    const itemDetails = [item, selections, retouches].filter(Boolean).join(' Â· ');
+    const itemDetails = [item, selections, retouches].filter(Boolean).join(' · ');
     const preferredDate = fmtDate(order.deliveryDate || order.dateNeeded || '');
     const row = document.createElement('tr');
     row.dataset.type = 'Custom';
@@ -420,7 +420,7 @@
       order.recipientName,
       order.recipientContact,
       order.recipientAddress
-    ].filter(Boolean).join(' Â· ');
+    ].filter(Boolean).join(' · ');
     row.dataset.notes = specifications;
     row.dataset.search = `${orderNumber} ${customer} ${itemDetails} ${row.dataset.date} Custom Pending ${row.dataset.payment}`;
 
@@ -489,7 +489,7 @@
           '" alt="' + esc(packageOffering.title) + '"></span>' +
         '<span class="package-choice-name">' + esc(packageOffering.title) + '</span>' +
         '<span class="package-choice-description">' + esc(packageOffering.description) + '</span>' +
-        '<span class="package-choice-footer"><span>' + esc(packageOffering.price) + '</span><span>Select â†’</span></span>' +
+        '<span class="package-choice-footer"><span>' + esc(packageOffering.price) + '</span><span>Select →</span></span>' +
       '</button>'
     )).join('');
   }
@@ -499,7 +499,7 @@
       await loadStorefrontScript(
         'angelizStorefrontCatalogScript',
         'angelizStorefrontProducts',
-        '../storefront-data.js',
+        '../store-front/js/catalog-data.js',
         'array'
       );
       if (!Array.isArray(window.angelizStorefrontServices) || window.angelizStorefrontServices.length === 0) {
@@ -580,7 +580,7 @@
     const packageOffering = placement.packageOffering;
     const itemNames = placement.items.map(item => {
       const product = window.angelizStorefrontProducts.find(candidate => candidate.id === item.productId);
-      return product ? `${product.name} Ã—${item.quantity}` : 'Package item';
+      return product ? `${product.name} ×${item.quantity}` : 'Package item';
     });
     const packageInclusions = placement.inclusions?.length
       ? placement.inclusions
@@ -589,7 +589,7 @@
       ? packageInclusions.map(item => `${item.quantity} ${item.name}`)
       : [];
     const packageDetails = itemNames.length ? itemNames : includedItems;
-    const itemSummary = [packageOffering.title, ...packageDetails].filter(Boolean).join(' Â· ');
+    const itemSummary = [packageOffering.title, ...packageDetails].filter(Boolean).join(' · ');
     const preferredDate = fmtDate(order.deliveryDate || '');
     const customer = (order.customerName || 'Package Customer').trim();
     const notes = [
@@ -612,7 +612,7 @@
       order.recipientName,
       order.recipientContact,
       order.recipientAddress
-    ].filter(Boolean).join(' Â· ');
+    ].filter(Boolean).join(' · ');
     row.dataset.notes = notes;
     row.dataset.search = `${orderNumber} ${customer} ${itemSummary} ${row.dataset.date} ${row.dataset.time} Package Pending ${row.dataset.payment}`;
 
@@ -701,7 +701,7 @@
       const label = document.createElement('dt');
       const value = document.createElement('dd');
       label.textContent = header.textContent;
-      value.textContent = row.cells[index]?.textContent.trim() || 'â€”';
+      value.textContent = row.cells[index]?.textContent.trim() || '—';
       field.append(label, value);
       fields.append(field);
     });
@@ -721,13 +721,13 @@
       const label = document.createElement('dt');
       const value = document.createElement('dd');
       label.textContent = name;
-      value.textContent = text || 'â€”';
+      value.textContent = text || '—';
       field.append(label, value);
       fields.append(field);
     });
     $('#orderDetailsTitle').textContent = `Order ${row.cells[0].textContent.trim()}`;
     $('#orderDetailsSubtitle').textContent =
-      `${row.cells[1].textContent.trim()} Â· ${row.cells[2].textContent.trim()}`;
+      `${row.cells[1].textContent.trim()} · ${row.cells[2].textContent.trim()}`;
     showOverlay('#orderDetailsModal');
     $('#closeOrderDetailsBtn').focus();
   });

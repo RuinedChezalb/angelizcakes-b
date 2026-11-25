@@ -16,45 +16,34 @@
         <h1 id="servicePackageTitle" data-package-title tabindex="-1"></h1>
         <p data-package-description></p>
         <div class="service-package-price"><span>Price</span><strong data-package-price></strong></div>
-        <p class="service-package-price-note">Final package pricing is confirmed by the bakery.</p>
       </div>
     </section>
 
     <section class="service-package-panel" data-package-included-panel aria-labelledby="packageItemsTitle">
       <div class="service-package-panel-heading">
         <div>
-          <p class="home-package-label">YOUR PACKAGE</p>
-          <h2 id="packageItemsTitle">Included Items</h2>
+          <p class="home-package-label">PACKAGE CONTENTS</p>
+          <h2 id="packageItemsTitle">Package Items</h2>
         </div>
         <span class="service-package-count" data-package-count></span>
       </div>
+      <div class="service-package-list-switcher" role="tablist" aria-label="Package item selection">
+        <button type="button" role="tab" data-package-list-tab="selected" aria-selected="true">Selected items</button>
+        <button type="button" role="tab" data-package-list-tab="available" aria-selected="false">Not selected</button>
+      </div>
       <div class="service-package-items" data-package-items></div>
       <div class="service-package-actions">
-        <button class="service-package-secondary" type="button" data-package-customize>Customize</button>
-        <button class="service-package-primary" type="button" data-package-avail>Avail</button>
+        <button class="service-package-primary" type="button" data-package-avail>Avail Package</button>
       </div>
     </section>
 
     <section class="service-package-panel" data-package-customizer hidden aria-labelledby="packageCustomizeTitle">
-      <div class="service-package-panel-heading">
-        <div>
-          <p class="home-package-label">MAKE IT YOURS</p>
-          <h2 id="packageCustomizeTitle">Customize Package</h2>
-        </div>
-        <span class="service-package-count" data-package-count></span>
-      </div>
+      <h2 id="packageCustomizeTitle" class="service-package-visually-hidden">Package items</h2>
       <div class="service-package-edit-items" data-package-edit-items></div>
-      <div class="service-package-actions">
-        <button class="service-package-secondary" type="button" data-package-discard>Discard</button>
-        <button class="service-package-primary" type="button" data-package-save>Save</button>
-      </div>
     </section>
 
     <section class="service-package-panel" data-package-picker hidden aria-labelledby="packagePickerTitle">
-      <div class="service-package-panel-heading">
-        <h2 id="packagePickerTitle">Choose a Replacement</h2>
-        <button class="service-package-back-inline" type="button" data-package-picker-back>Back to Package</button>
-      </div>
+      <div class="service-package-panel-heading"><h2 id="packagePickerTitle">Not selected items</h2></div>
       <div class="service-package-options" data-package-options></div>
     </section>
 

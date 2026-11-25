@@ -18,7 +18,7 @@ document.addEventListener("storefront:favorites-changed", event => {
   });
 });
 
-window.initializeProductDetailFragment = function initializeProductDetailFragment(root, product, imageUrl, settings = {}) {
+window.initializeProductDetailFragment = async function initializeProductDetailFragment(root, product, imageUrl, settings = {}) {
   if (!(root instanceof HTMLElement)) throw new TypeError("The product detail fragment is missing.");
   if (!product || typeof product.id !== "string" || !product.details) {
     throw new TypeError("The selected product is missing static detail data.");
@@ -69,14 +69,11 @@ window.initializeProductDetailFragment = function initializeProductDetailFragmen
   view.querySelector("[data-product-image]").alt = product.name;
   view.querySelector("[data-product-category]").textContent = product.category;
   view.querySelector("[data-product-name]").textContent = product.name;
+  view.querySelector("[data-product-summary-description]").textContent = details.description || product.description || "";
+  view.querySelector("[data-product-summary-description]").hidden = !(details.description || product.description);
   view.querySelector("[data-product-price]").textContent = product.price || "Ask for pricing";
-  const description = view.querySelector("[data-product-description]");
-  description.textContent = details.description;
-  description.hidden = !details.description;
   view.querySelector("[data-product-ingredients]").textContent = details.ingredients;
-  view.querySelector("[data-product-allergens]").textContent = details.allergens;
-  view.querySelector("[data-product-classification]").textContent =
-    [...new Set([product.category, details.classification].filter(Boolean))].join(", ");
+  view.querySelector("[data-product-allergens]").textContent = ` Allergens: ${details.allergens}`;
 
   const options = view.querySelector("[data-product-options]");
   options.replaceChildren();
@@ -93,13 +90,26 @@ window.initializeProductDetailFragment = function initializeProductDetailFragmen
 
   const reviews = view.querySelector("[data-product-reviews]");
   reviews.replaceChildren();
-  if (details.reviews.length === 0) {
+  const [customerReviews, customerOrders] = await Promise.all([
+    window.storefrontApi.get("/api/storefront/reviews/customer"),
+    window.storefrontApi.get("/api/storefront/orders")
+  ]);
+  const completedProductOrderIds = new Set(customerOrders
+    .filter(order => order.productId === product.id && (order.received || ["completed-preview", "cancelled-preview"].includes(order.status)))
+    .map(order => order.id));
+  const productReviews = customerReviews.filter(review => (
+    review.productId === product.id
+    && review.orderId
+    && completedProductOrderIds.has(review.orderId)
+  ));
+  const reviewRecords = [...details.reviews, ...productReviews.map(review => ({ quote: review.comment, author: review.name, rating: review.rating }))];
+  if (reviewRecords.length === 0) {
     const emptyState = document.createElement("p");
     emptyState.className = "product-detail-note";
     emptyState.textContent = "There are no customer reviews yet.";
     reviews.append(emptyState);
   } else {
-    details.reviews.forEach(review => {
+    reviewRecords.forEach(review => {
       const card = document.createElement("article");
       card.className = "product-review-card";
       const quote = document.createElement("p");
@@ -107,6 +117,12 @@ window.initializeProductDetailFragment = function initializeProductDetailFragmen
       const author = document.createElement("strong");
       author.textContent = review.author;
       card.append(quote, author);
+      if (review.rating) {
+        const rating = document.createElement("span");
+        rating.className = "product-review-rating";
+        rating.textContent = `${"★".repeat(review.rating)}${"☆".repeat(5 - review.rating)}`;
+        card.append(rating);
+      }
       reviews.append(card);
     });
   }

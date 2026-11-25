@@ -12,7 +12,7 @@
 <body class="storefront-page">
   <header class="navbar">
     <a class="nav-brand" href="#home" aria-label="Angeliz Cakes home">
-      <img src="assets/brand-logo.jpg" alt="Angeliz Cakes Logo" class="brand-logo-img">
+      <img src="../assets/brand-logo.jpg" alt="Angeliz Cakes Logo" class="brand-logo-img">
       <span class="brand-text">
         <span class="brand-title">ANGELIZ</span>
         <span class="brand-subtitle">CAKES</span>
@@ -58,7 +58,7 @@
     <div class="footer-container">
       <div class="footer-col brand-col">
         <div class="nav-brand white">
-          <img src="assets/brand-logo.jpg" alt="Angeliz Cakes Logo" class="brand-logo-img">
+          <img src="../assets/brand-logo.jpg" alt="Angeliz Cakes Logo" class="brand-logo-img">
           <div class="brand-text">
             <span class="brand-title">ANGELIZ</span>
             <span class="brand-subtitle">CAKES</span>
@@ -87,13 +87,13 @@
       <div class="footer-col">
         <h4 class="footer-heading">WE ACCEPT</h4>
         <div class="payment-badges-grid" aria-label="Available payment methods">
-          <span class="payment-badge"><img src="assets/payment-gcash.svg" alt=""><span>GCash</span></span>
-          <span class="payment-badge"><img src="assets/payment-maya.svg" alt=""><span>Maya</span></span>
-          <span class="payment-badge"><img src="assets/payment-qrph.svg" alt=""><span>QRPh</span></span>
-          <span class="payment-badge"><img src="assets/payment-tonik.png" alt=""><span>Tonik</span></span>
-          <span class="payment-badge"><img src="assets/payment-bpi.svg" alt=""><span>BPI</span></span>
-          <span class="payment-badge"><img src="assets/payment-gotyme.svg" alt=""><span>GoTyme</span></span>
-          <span class="payment-badge"><img src="assets/payment-maribank.png" alt=""><span>MariBank</span></span>
+          <span class="payment-badge"><img src="../assets/payment-gcash.svg" alt=""><span>GCash</span></span>
+          <span class="payment-badge"><img src="../assets/payment-maya.svg" alt=""><span>Maya</span></span>
+          <span class="payment-badge"><img src="../assets/payment-qrph.svg" alt=""><span>QRPh</span></span>
+          <span class="payment-badge"><img src="../assets/payment-tonik.png" alt=""><span>Tonik</span></span>
+          <span class="payment-badge"><img src="../assets/payment-bpi.svg" alt=""><span>BPI</span></span>
+          <span class="payment-badge"><img src="../assets/payment-gotyme.svg" alt=""><span>GoTyme</span></span>
+          <span class="payment-badge"><img src="../assets/payment-maribank.png" alt=""><span>MariBank</span></span>
         </div>
       </div>
     </div>
@@ -120,7 +120,7 @@
 
   <!--
     BACKEND / DATABASE INTEGRATION CHECKLIST
-    The storefront currently uses shared sample data and local preview flows.
+    The storefront currently uses embedded sample data and local preview flows.
 
     READ FROM THE BACKEND:
     - Storefront settings: hero slides and order, navigation/social links, logo, footer contact details,
@@ -161,7 +161,8 @@
     - Receipt screens should display server-issued order/reference numbers and the returned price/status.
     - Replace the current preview-only receipts and local sample data when the API is ready.
   -->
-  <script src="../storefront-data.js"></script>
+  <script src="catalog-data.js"></script>
+  <script src="mock-api.js"></script>
   <script src="storefront-ajax.js"></script>
 </body>
 </html>

@@ -72,6 +72,28 @@
       backFallbackHash: "#customize",
       canOpen(activeView) {
         return activeView === "home";
+      },
+      async initialize(root) {
+        await window.initializeCustomizationWizard(root, {
+          onPlaceOrder: async order => {
+            const design = await window.storefrontApi.post("/api/storefront/saved-designs", {
+              name: order.designName,
+              email: order.email,
+              selections: order.selections,
+              referenceImages: order.referenceImages,
+              dedication: order.dedication,
+              notes: order.notes
+            });
+            const placedOrder = await window.storefrontApi.post("/api/storefront/orders", {
+              ...order,
+              type: "custom-cake",
+              customerEmail: order.email,
+              savedDesignId: design.id,
+              referenceImages: order.referenceImages
+            });
+            return { ...placedOrder, savedDesign: design };
+          }
+        });
       }
     },
     "service-package": {
@@ -108,7 +130,18 @@
         }
       },
       initialize(root, detail) {
-        window.initializeServicePackageFragment(root, detail.packageOffering, detail.products, detail.imageUrl);
+        window.initializeServicePackageFragment(
+          root,
+          detail.packageOffering,
+          detail.products,
+          detail.imageUrl,
+          order => window.storefrontApi.post("/api/storefront/orders", {
+            ...order,
+            type: "package",
+            packageId: detail.packageOffering.id,
+            customerEmail: order.order?.customerEmail
+          })
+        );
       }
     },
     checkout: {
@@ -136,7 +169,14 @@
         }
       },
       initialize(root, detail) {
-        window.initializeCheckoutFragment(root, detail.product, detail.imageUrl);
+        window.initializeCheckoutFragment(root, detail.product, detail.imageUrl, {
+          onPlaceOrder: order => window.storefrontApi.post("/api/storefront/orders", {
+            ...order,
+            type: "product",
+            productId: detail.product.id,
+            customerEmail: order.customerEmail
+          })
+        });
       }
     }
   };
@@ -160,17 +200,6 @@
     }));
   }
 
-  function normalizeAssetPaths(root) {
-    root.querySelectorAll("[src], [href], [poster]").forEach(element => {
-      ["src", "href", "poster"].forEach(attribute => {
-        const value = element.getAttribute(attribute);
-        if (value && value.startsWith("../assets/")) {
-          element.setAttribute(attribute, value.replace(/^\.\.\//, ""));
-        }
-      });
-    });
-  }
-
   async function fetchMain(path, selector) {
     const response = await fetch(path);
     if (!response.ok) throw new Error(`${path} request failed with status ${response.status}.`);
@@ -179,9 +208,7 @@
     const main = page.querySelector(selector);
     if (!main) throw new Error(`${path} is missing ${selector}.`);
 
-    const importedMain = document.importNode(main, true);
-    normalizeAssetPaths(importedMain);
-    return importedMain;
+    return document.importNode(main, true);
   }
 
   function loadStylesheet(asset) {
@@ -279,8 +306,8 @@
       mount.replaceChildren(fragment);
       window.scrollTo({ top: 0, behavior: "instant" });
 
-      if (view.initialize) view.initialize(fragment, detail);
-      else if (view.script) window[view.script.initializer](fragment, detail);
+      if (view.initialize) await view.initialize(fragment, detail);
+      else if (view.script) await window[view.script.initializer](fragment, detail);
       view.onEnter?.(fragment, detail);
       if (recordHistory) viewHistory.push(previousView);
       activeView = name;
@@ -339,7 +366,14 @@
   });
 
   document.addEventListener("click", event => {
-    if (!(event.target instanceof Element) || activeView === "home") return;
+    if (!(event.target instanceof Element)) return;
+    const customizeButton = event.target.closest("#startCustomizingBtn");
+    if (customizeButton) {
+      event.preventDefault();
+      document.dispatchEvent(new CustomEvent("storefront:show-customization-wizard"));
+      return;
+    }
+    if (activeView === "home") return;
     const view = fragmentViews[activeView];
     const backLink = event.target.closest("[data-storefront-back]");
     if (backLink) {
@@ -375,6 +409,53 @@
   }
 
   try {
+    mount.setAttribute("aria-busy", "true");
+    const [settings, categories, products, services, serviceCategories, gallery, feedbacks, location, locations, about, contact, paymentMethods, favorites, customizationOptions] = await Promise.all([
+      "/api/storefront/settings",
+      "/api/storefront/categories",
+      "/api/storefront/products",
+      "/api/storefront/services",
+      "/api/storefront/service-categories",
+      "/api/storefront/gallery",
+      "/api/storefront/reviews",
+      "/api/storefront/location",
+      "/api/storefront/locations",
+      "/api/storefront/about",
+      "/api/storefront/contact",
+      "/api/storefront/payment-methods",
+      "/api/storefront/favorites",
+      "/api/storefront/customization-options"
+    ].map(path => window.storefrontApi.get(path)));
+
+    window.storefrontData = {
+      settings,
+      heroSlides: settings.heroSlides,
+      categories,
+      products,
+      services,
+      serviceCategories,
+      gallery,
+      feedbacks,
+      location,
+      locations,
+      about,
+      contact,
+      paymentMethods,
+      favorites,
+      customizationOptions
+    };
+    if (
+      categories.length !== 5
+      || categories.some(category => products.filter(product => category.productCategories.includes(product.category)).length < 5)
+    ) {
+      throw new Error("Mock storefront data must include at least five products in each of five categories.");
+    }
+    if (services.some(service => ["grazing", "pastry"].includes(service.category) && (
+      service.bookingOnly !== true || service.price || service.paxOptions
+    ))) {
+      throw new Error("Grazing-table and pastry-buffet mock offers must be booking-only with no package price or pax selector.");
+    }
+
     const homepageInteractions = { path: "index.js", id: "storefrontInteractionsScript" };
     const script = document.createElement("script");
     script.id = homepageInteractions.id;

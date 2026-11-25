@@ -83,46 +83,53 @@ window.initializeCheckoutFragment = function initializeCheckoutFragment(root, pr
   const localDate = new Date();
   const timezoneOffset = localDate.getTimezoneOffset() * 60000;
   form.elements.deliveryDate.min = new Date(localDate.getTime() - timezoneOffset).toISOString().slice(0, 10);
-  placeOrderButton.addEventListener("click", () => {
+  placeOrderButton.addEventListener("click", async () => {
+    if (!form.reportValidity()) return;
     const placedAt = new Date();
     const fulfillmentMethod = form.elements.fulfillment.value === "pickup" ? "Pickup" : "Delivery";
-    receiptOrder.textContent = "AC-PREVIEW-001";
-    receiptReference.textContent = `AC-REF-${placedAt.getTime()}`;
-    receiptDate.textContent = new Intl.DateTimeFormat("en-PH", {
-      dateStyle: "medium",
-      timeStyle: "short"
-    }).format(placedAt);
-    receiptMethod.textContent = `${fulfillmentMethod} · ${paymentMethod.value}`;
-    receiptPrice.textContent = orderTotal.textContent.trim();
-    options.onPlaceOrder?.({
-      product,
-      customerName: form.elements.customerName.value.trim(),
-      customerEmail: form.elements.customerEmail.value.trim(),
-      customerPhone: form.elements.customerPhone.value.trim(),
-      cakeAge: form.elements.cakeAge.value.trim(),
-      dedicationName: form.elements.dedicationName.value.trim(),
-      cakeCharacter: form.elements.cakeCharacter.value.trim(),
-      itemSpecifications: form.elements.itemSpecifications.value.trim(),
-      recipientName: form.elements.recipientName.value.trim(),
-      recipientContact: form.elements.recipientContact.value.trim(),
-      recipientAddress: form.elements.recipientAddress.value.trim(),
-      giftMessage: form.elements.giftMessage.value.trim(),
-      deliveryDate: form.elements.deliveryDate.value,
-      deliveryTime: form.elements.deliveryTime.value,
-      fulfillment: form.elements.fulfillment.value,
-      deliveryAddress: deliveryAddress.value.trim(),
-      paymentMethod: paymentMethod.value,
-      orderTotal: orderTotal.textContent.trim(),
-      additionalInformation: form.elements.additionalInformation.value.trim()
-    });
-
-    checkoutToolbar.hidden = true;
-    pageTitle.hidden = true;
-    form.hidden = true;
-    receipt.hidden = false;
-    root.setAttribute("aria-labelledby", "receiptTitle");
-    receiptTitle.focus({ preventScroll: true });
-    receiptTitle.scrollIntoView({ behavior: "instant", block: "center" });
+    placeOrderButton.disabled = true;
+    try {
+      const placement = await options.onPlaceOrder?.({
+        product,
+        customerName: form.elements.customerName.value.trim(),
+        customerEmail: form.elements.customerEmail.value.trim(),
+        customerPhone: form.elements.customerPhone.value.trim(),
+        cakeAge: form.elements.cakeAge.value.trim(),
+        dedicationName: form.elements.dedicationName.value.trim(),
+        cakeCharacter: form.elements.cakeCharacter.value.trim(),
+        itemSpecifications: form.elements.itemSpecifications.value.trim(),
+        recipientName: form.elements.recipientName.value.trim(),
+        recipientContact: form.elements.recipientContact.value.trim(),
+        recipientAddress: form.elements.recipientAddress.value.trim(),
+        giftMessage: form.elements.giftMessage.value.trim(),
+        deliveryDate: form.elements.deliveryDate.value,
+        deliveryTime: form.elements.deliveryTime.value,
+        fulfillment: form.elements.fulfillment.value,
+        deliveryAddress: deliveryAddress.value.trim(),
+        paymentMethod: paymentMethod.value,
+        orderTotal: orderTotal.textContent.trim(),
+        additionalInformation: form.elements.additionalInformation.value.trim()
+      });
+      receiptOrder.textContent = placement?.orderNumber || "AC-PREVIEW-001";
+      receiptReference.textContent = placement?.referenceNumber || `AC-REF-${placedAt.getTime()}`;
+      receiptDate.textContent = new Intl.DateTimeFormat("en-PH", {
+        dateStyle: "medium",
+        timeStyle: "short"
+      }).format(placedAt);
+      receiptMethod.textContent = `${fulfillmentMethod} · ${paymentMethod.value}`;
+      receiptPrice.textContent = orderTotal.textContent.trim();
+      checkoutToolbar.hidden = true;
+      pageTitle.hidden = true;
+      form.hidden = true;
+      receipt.hidden = false;
+      root.setAttribute("aria-labelledby", "receiptTitle");
+      receiptTitle.focus({ preventScroll: true });
+      receiptTitle.scrollIntoView({ behavior: "instant", block: "center" });
+    } catch (error) {
+      console.error("Could not save preview order to the mock database.", error);
+      placeOrderButton.disabled = false;
+      priceNote.textContent = "Order could not be saved. Please try again.";
+    }
   });
   form.addEventListener("submit", event => event.preventDefault());
 

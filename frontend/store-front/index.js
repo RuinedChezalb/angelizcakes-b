@@ -1,6 +1,10 @@
-﻿"use strict";
+"use strict";
 
-const storefront = window.angelizStorefrontData;
+/* Data is supplied by the mock GET API before this script is loaded. */
+const storefront = window.storefrontData;
+if (!storefront || !Array.isArray(storefront.products) || !Array.isArray(storefront.categories)) {
+  throw new Error("Storefront GET data is missing categories or products.");
+}
 
 /* Render the page's static menu, services, gallery, and business details. */
 function escapeHTML(value) {
@@ -11,6 +15,43 @@ function escapeHTML(value) {
     '"': "&quot;",
     "'": "&#39;"
   })[character]);
+}
+
+const imageAsset = image => `../assets/${image}`;
+const featuredSlide = storefront.settings.heroSlides[0];
+const heroCopy = document.querySelector(".ah-textstack .ah-slide");
+if (heroCopy && featuredSlide) {
+  heroCopy.querySelector("h1").innerHTML = `Handcrafted <span class="ah-hl">${escapeHTML(featuredSlide.name)}</span>`;
+}
+const socialLinks = document.querySelector(".ah-social-links");
+if (socialLinks) {
+  socialLinks.innerHTML = storefront.settings.socialLinks.map(link => `
+    <a class="ah-social-link" href="${escapeHTML(link.url)}" target="_blank" rel="noopener noreferrer" aria-label="Follow Angeliz Cakes on ${escapeHTML(link.name)}">
+      <img src="${imageAsset(link.image)}" alt=""><span>${escapeHTML(link.name)}</span>
+    </a>
+  `).join("");
+}
+document.querySelectorAll(".nav-brand .brand-logo-img").forEach(image => {
+  image.src = imageAsset(storefront.settings.logo);
+});
+document.querySelectorAll(".nav-brand .brand-title").forEach(title => {
+  title.textContent = storefront.settings.brandName.toUpperCase();
+});
+document.querySelectorAll(".nav-brand .brand-subtitle").forEach(subtitle => {
+  subtitle.textContent = storefront.settings.brandSubtitle;
+});
+const footerContact = document.querySelectorAll(".footer .contact-list li");
+if (footerContact.length >= 4) {
+  footerContact[0].textContent = storefront.contact.address;
+  footerContact[1].textContent = storefront.settings.hours;
+  footerContact[2].textContent = storefront.contact.phone;
+  footerContact[3].textContent = storefront.contact.email;
+}
+const paymentGrid = document.querySelector(".payment-badges-grid");
+if (paymentGrid) {
+  paymentGrid.innerHTML = storefront.paymentMethods.filter(method => method.enabled).map(method => `
+    <span class="payment-badge"><img src="${imageAsset(method.image)}" alt=""><span>${escapeHTML(method.name)}</span></span>
+  `).join("");
 }
 
 function renderHomepage() {
@@ -49,16 +90,19 @@ function renderHomepage() {
 
     menuProducts.setAttribute("aria-labelledby", `menu-tab-${categoryIndex}`);
     menuProducts.innerHTML = storefront.products
-      .filter(product => category.productCategories.includes(product.category))
+      .filter(product => category.productCategories.includes(product.category) && product.available)
       .map(product => `
         <article class="menu-card home-product-card">
           <div class="home-product-image">
-            <img src="assets/${escapeHTML(product.image)}" alt="${escapeHTML(product.name)}" loading="lazy">
+            <img src="${imageAsset(escapeHTML(product.image))}" alt="${escapeHTML(product.name)}" loading="lazy">
           </div>
           <div class="home-product-copy">
             <h3 class="card-title">${escapeHTML(product.name)}</h3>
-            <p class="card-desc">${escapeHTML(product.price)}</p>
-            <button class="home-product-view" type="button" data-view-product="${escapeHTML(product.id)}">View</button>
+            <p class="card-desc">${escapeHTML(product.description)}</p>
+            <div class="home-card-action-row">
+              <p class="card-desc home-card-price">${escapeHTML(product.price)}</p>
+              <button class="home-product-view" type="button" data-view-product="${escapeHTML(product.id)}">View</button>
+            </div>
           </div>
         </article>
       `).join("") || '<p class="catalog-status" role="status">No menu items are available in this category.</p>';
@@ -120,14 +164,16 @@ function renderHomepage() {
     serviceRail.innerHTML = categoryServices.map(service => `
       <article class="home-service-card">
         <div class="home-package-image">
-          <img src="assets/${escapeHTML(service.image)}" alt="${escapeHTML(service.title)}" loading="lazy">
+          <img src="${imageAsset(escapeHTML(service.image))}" alt="${escapeHTML(service.title)}" loading="lazy">
         </div>
         <div class="home-package-copy">
           <span class="home-package-label">${escapeHTML(category.label)}</span>
           <h3>${escapeHTML(service.title)}</h3>
           <p>${escapeHTML(service.description)}</p>
-          <p class="home-package-price">${escapeHTML(service.price || "To be confirmed")}</p>
-          <button class="home-package-view" type="button" data-view-package="${escapeHTML(service.id)}">View</button>
+          <div class="home-card-action-row">
+            <p class="home-package-price">${escapeHTML(service.bookingOnly ? "Price confirmed after booking" : service.price || "To be confirmed")}</p>
+            <button class="home-package-view" type="button" data-view-package="${escapeHTML(service.id)}">View</button>
+          </div>
         </div>
       </article>
     `).join("") || '<p class="catalog-status service-category-empty" role="status">No packages are available in this category yet.</p>';
@@ -176,7 +222,7 @@ function renderHomepage() {
     <div class="gallery-page">
       ${storefront.gallery.map((item, index) => `
         <div class="gallery-slot interactive-card slot-size-${index + 1}">
-          <img src="assets/${escapeHTML(item.image)}" alt="${escapeHTML(item.name)}" class="gallery-slot-img" loading="lazy">
+          <img src="${imageAsset(escapeHTML(item.image))}" alt="${escapeHTML(item.name)}" class="gallery-slot-img" loading="lazy">
           <div class="gallery-overlay">
             <span class="gallery-cat-label">${escapeHTML(item.name)}</span>
             <small>${escapeHTML(item.category)}</small>
@@ -190,7 +236,7 @@ function renderHomepage() {
   locationCard.innerHTML = `
     <article class="branch-card interactive-card">
       <div class="branch-img-wrap">
-        <img src="assets/${escapeHTML(storefront.location.image)}" alt="${escapeHTML(storefront.location.name)}">
+        <img src="${imageAsset(escapeHTML(storefront.location.image))}" alt="${escapeHTML(storefront.location.name)}">
       </div>
       <div class="branch-content">
         <h3>${escapeHTML(storefront.location.name)}</h3>
@@ -200,14 +246,26 @@ function renderHomepage() {
     </article>
   `;
 
+  const mapButton = locationCard.querySelector(".view-map-btn");
+  if (mapButton && storefront.location.mapUrl) {
+    mapButton.addEventListener("click", () => window.open(storefront.location.mapUrl, "_blank", "noopener,noreferrer"));
+  }
+
   document.getElementById("aboutName").textContent = storefront.about.name;
   document.getElementById("aboutDescription").textContent = storefront.about.description;
   document.getElementById("aboutHours").textContent = storefront.about.hours;
   document.getElementById("aboutAvailability").textContent = storefront.about.availability;
   document.getElementById("aboutLocation").textContent = storefront.about.location;
   const aboutImage = document.getElementById("aboutImage");
-  aboutImage.src = `assets/${storefront.about.image}`;
+  aboutImage.src = imageAsset(storefront.about.image);
   aboutImage.alt = `${storefront.about.name} bakery`;
+  const locationHeading = document.querySelector("#locations .section-title-modern");
+  if (locationHeading) locationHeading.innerHTML = `Visit <span class="cursive-highlight">${escapeHTML(storefront.location.name)}</span>`;
+  const locationSubtitle = document.querySelector("#locations .section-subtext");
+  if (locationSubtitle) locationSubtitle.textContent = storefront.location.description;
+  document.querySelectorAll("#menu .section-header .section-subtext").forEach(text => {
+    text.textContent = `Browse ${storefront.products.length} available treats across ${storefront.categories.length} categories.`;
+  });
 
   document.getElementById("contactCards").innerHTML = `
     <div class="contact-card-item">
@@ -234,41 +292,21 @@ function renderHomepage() {
     const email = String(fields.get("email") || "").trim();
     const subject = String(fields.get("subject") || "Angeliz Cakes inquiry");
     const details = String(fields.get("details") || "").trim();
-    const storageKey = "angelizCakes.storefrontInquiries.v1";
-    let savedToInbox = false;
-    try {
-      const inquiries = JSON.parse(window.localStorage.getItem(storageKey) || "[]");
-      if (!Array.isArray(inquiries)) {
-        throw new TypeError("Storefront inquiry storage must contain an array.");
-      }
-      inquiries.push({
-        id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-        name,
-        email,
-        subject,
-        details,
-        submittedAt: new Date().toISOString()
+    contactStatus.textContent = "Sending your inquiry…";
+    window.storefrontApi.post("/api/storefront/inquiries", { name, email, subject, details })
+      .then(inquiry => {
+        contactStatus.textContent = `Inquiry ${inquiry.id} saved to this browser's mock inbox.`;
+        contactForm.reset();
+      })
+      .catch(error => {
+        console.error("Could not save the storefront inquiry:", error);
+        contactStatus.textContent = "Your inquiry could not be saved. Please try again.";
       });
-      window.localStorage.setItem(storageKey, JSON.stringify(inquiries));
-      savedToInbox = true;
-    } catch (error) {
-      console.error("Could not save the storefront inquiry for the owner inbox:", error);
-    }
-
-    const body = [
-      `Name: ${name}`,
-      `Email: ${email}`,
-      "",
-      details
-    ].join("\n");
-    contactStatus.textContent = savedToInbox
-      ? "Your message is in the owner inbox. Opening your email app as well."
-      : "Your message could not be saved to the owner inbox. Opening your email app instead.";
-    window.location.href = `mailto:${storefront.contact.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   });
 
-  testimonialCards.classList.toggle("is-single-review", storefront.feedbacks.length === 1);
-  testimonialCards.innerHTML = storefront.feedbacks.map(feedback => {
+  function renderFeedbacks(feedbacks) {
+    testimonialCards.classList.toggle("is-single-review", feedbacks.length === 1);
+    testimonialCards.innerHTML = feedbacks.map(feedback => {
     const stars = Array.from({ length: 5 }, (_, index) => (
       `<i class="fa-${index < feedback.rating ? "solid" : "regular"} fa-star" aria-hidden="true"></i>`
     )).join("");
@@ -281,20 +319,21 @@ function renderHomepage() {
         <p class="feedback-comment">${escapeHTML(feedback.comment)}</p>
       </article>
     `;
-  }).join("");
-  testimonialStatus.hidden = storefront.feedbacks.length > 0;
-  testimonialStatus.textContent = storefront.feedbacks.length ? "" : "There are no customer reviews yet.";
+    }).join("");
+    testimonialStatus.hidden = feedbacks.length > 0;
+    testimonialStatus.textContent = feedbacks.length ? "" : "There are no customer reviews yet.";
+  }
+
+  renderFeedbacks(storefront.feedbacks);
+  document.addEventListener("storefront:feedback-submitted", () => {
+    window.storefrontApi.get("/api/storefront/reviews").then(renderFeedbacks).catch(error => {
+      console.error("Could not reload homepage feedback.", error);
+    });
+  });
 }
 
 if (document.getElementById("storefrontHome")) {
 renderHomepage();
-
-const startCustomizingButton = document.getElementById("startCustomizingBtn");
-if (!startCustomizingButton) throw new Error("The customization wizard button is missing.");
-startCustomizingButton.addEventListener("click", event => {
-  event.preventDefault();
-  document.dispatchEvent(new CustomEvent("storefront:show-customization-wizard"));
-});
 
 /* Keep the reference before-and-after comparison draggable and keyboard accessible. */
 const cakeComparison = document.getElementById("baBox");
@@ -406,7 +445,7 @@ const heroItems = storefront.heroSlides.map((slide, index) => {
   item.setAttribute("aria-hidden", "true");
 
   const image = document.createElement("img");
-  image.src = `assets/${slide.image}`;
+  image.src = imageAsset(slide.image);
   image.alt = slide.name;
   image.draggable = false;
   image.loading = "eager";
@@ -623,8 +662,10 @@ function notifyFavoritesChanged() {
   }));
 }
 
-function saveFavorites() {
+async function saveFavorites() {
   try {
+    const saved = await window.storefrontApi.post("/api/storefront/favorites", { productIds: favorites });
+    favorites = saved.productIds;
     localStorage.setItem(favoritesStorageKey, JSON.stringify(favorites));
     favoritesStorageError = "";
   } catch (error) {
@@ -654,10 +695,10 @@ function renderFavorites() {
     if (!product) return "";
     return `
       <article class="favorite-row">
-        <span class="favorite-mark"><img src="assets/${escapeHTML(product.image)}" alt=""></span>
+        <span class="favorite-mark"><img src="${imageAsset(escapeHTML(product.image))}" alt=""></span>
         <div class="favorite-info"><strong>${escapeHTML(product.name)}</strong><span>${escapeHTML(product.price)}</span></div>
         <div class="favorite-actions">
-          <a class="favorite-view" href="#menu">View</a>
+          <a class="favorite-view" href="#menu" data-view-product="${escapeHTML(product.id)}">View</a>
           <button class="favorite-remove" type="button" data-remove-favorite="${escapeHTML(product.id)}">Remove</button>
         </div>
       </article>`;
@@ -689,9 +730,9 @@ function renderSearchResults() {
     row.className = "search-result";
     row.setAttribute("role", "listitem");
     row.innerHTML = `
-      <a class="search-result-details" href="#menu">
+      <a class="search-result-details" href="#menu" data-view-product="${escapeHTML(product.id)}">
         <strong>${escapeHTML(product.name)}</strong>
-        <span>${escapeHTML(product.category)} Â· ${escapeHTML(product.price)}</span>
+        <span>${escapeHTML(product.category)} · ${escapeHTML(product.price)}</span>
       </a>
       <button class="search-favorite" type="button" data-toggle-favorite="${escapeHTML(product.id)}"
         aria-label="${isFavorite ? "Remove" : "Add"} ${escapeHTML(product.name)} ${isFavorite ? "from" : "to"} favorites"
@@ -709,7 +750,10 @@ function toggleFavorite(productId) {
   favorites = favorites.includes(productId)
     ? favorites.filter(id => id !== productId)
     : [...favorites, productId];
-  saveFavorites();
+  saveFavorites().then(() => {
+    renderFavorites();
+    renderSearchResults();
+  });
   renderFavorites();
   renderSearchResults();
   return favorites.includes(productId);
@@ -745,6 +789,19 @@ navSearchToggle.addEventListener("click", () => {
   renderSearchResults();
 });
 headerSearch.addEventListener("input", renderSearchResults);
+[favoritesList, searchResults].forEach(container => {
+  container.addEventListener("click", event => {
+    if (!(event.target instanceof Element)) return;
+    const link = event.target.closest("a[data-view-product]");
+    if (!link) return;
+    event.preventDefault();
+    const product = storefront.products.find(item => item.id === link.dataset.viewProduct);
+    if (!product) throw new RangeError(`Unknown product ID: ${link.dataset.viewProduct}`);
+    document.dispatchEvent(new CustomEvent("storefront:show-product-detail", {
+      detail: { product, imageUrl: new URL(imageAsset(product.image), document.baseURI).href }
+    }));
+  });
+});
 navSearchBox.addEventListener("focusout", event => {
   if (event.relatedTarget && navSearchBox.contains(event.relatedTarget)) return;
   closeHeaderSearch();
@@ -801,7 +858,10 @@ favoritesList.addEventListener("click", event => {
   const removeButton = event.target.closest("[data-remove-favorite]");
   if (!removeButton) return;
   favorites = favorites.filter(id => id !== removeButton.dataset.removeFavorite);
-  saveFavorites();
+  saveFavorites().then(() => {
+    renderFavorites();
+    renderSearchResults();
+  });
   renderFavorites();
   renderSearchResults();
 });

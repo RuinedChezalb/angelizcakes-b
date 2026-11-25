@@ -63,7 +63,7 @@
 
 #storefrontServicePackage .service-package-summary {
   display: grid;
-  grid-template-columns: minmax(280px, 0.85fr) minmax(0, 1.15fr);
+  grid-template-columns: minmax(0, min(360px, 0.85fr)) minmax(0, 1.15fr);
   align-items: center;
   gap: clamp(24px, 4vw, 56px);
   padding-bottom: 32px;
@@ -71,9 +71,15 @@
 }
 
 #storefrontServicePackage .service-package-image {
-  min-height: 320px;
+  display: grid;
+  width: 100%;
+  max-width: 360px;
+  height: 280px;
+  min-height: 0;
+  margin-left: 30%;
   overflow: hidden;
-  border-radius: 18px;
+  place-items: center;
+  border-radius: 14px;
   background: var(--package-soft);
 }
 
@@ -81,8 +87,10 @@
   display: block;
   width: 100%;
   height: 100%;
-  min-height: 320px;
-  object-fit: cover;
+  max-width: 360px;
+  max-height: 280px;
+  min-height: 0;
+  object-fit: contain;
 }
 
 #storefrontServicePackage .home-package-label {
@@ -138,6 +146,102 @@
 #storefrontServicePackage .service-package-copy .service-package-price-note {
   margin: 0;
   font-size: 12px;
+}
+
+#storefrontServicePackage .service-package-pax-picker {
+  display: grid;
+  grid-template-columns: minmax(140px, 0.7fr) minmax(180px, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 18px;
+  padding: 14px 16px;
+  border: 1px solid var(--package-line);
+  border-radius: 12px;
+  background: var(--package-soft);
+}
+
+#storefrontServicePackage .service-package-pax-picker[hidden] {
+  display: none !important;
+}
+
+#storefrontServicePackage .service-package-pax-picker label {
+  color: var(--package-ink);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+#storefrontServicePackage .service-package-pax-picker select {
+  min-height: 40px;
+  padding: 8px 10px;
+  border: 1px solid var(--package-line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--package-ink);
+  font: inherit;
+}
+
+#storefrontServicePackage .service-package-pax-picker strong {
+  color: var(--package-accent);
+  font-size: 16px;
+  text-align: right;
+}
+
+#storefrontServicePackage .service-package-list-switcher {
+  display: flex;
+  gap: 8px;
+  margin: 0 0 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--package-line);
+}
+
+#storefrontServicePackage .service-package-list-switcher button {
+  min-height: 38px;
+  padding: 8px 14px;
+  border: 1px solid var(--package-line);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--package-muted);
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+#storefrontServicePackage .service-package-list-switcher button[aria-selected="true"] {
+  border-color: var(--package-accent);
+  background: var(--package-accent);
+  color: #fff;
+}
+
+#storefrontServicePackage .service-package-selection-toggle {
+  min-width: 110px;
+  min-height: 36px;
+  padding: 7px 10px;
+  border: 1px solid var(--package-accent);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--package-accent);
+  cursor: pointer;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+#storefrontServicePackage .service-package-selection-toggle.is-selected {
+  background: #f9edf0;
+}
+
+#storefrontServicePackage .service-package-selection-toggle:disabled {
+  cursor: default;
+  opacity: 0.65;
+}
+
+#storefrontServicePackage .service-package-fixed-item.is-not-selected {
+  opacity: 0.9;
+}
+
+#storefrontServicePackage .service-package-fixed-item.is-not-selected .service-package-item-copy p {
+  color: var(--package-muted);
 }
 
 #storefrontServicePackage .service-package-panel {
@@ -692,13 +796,34 @@
 
   #storefrontServicePackage .service-package-image,
   #storefrontServicePackage .service-package-image img {
-    min-height: 210px;
-    max-height: 300px;
+    width: min(100%, 320px);
+    max-width: 320px;
+    height: 240px;
+    min-height: 0;
+    max-height: 240px;
+    margin-left: 30%;
   }
 
   #storefrontServicePackage .service-package-panel {
     margin-top: 22px;
     padding: 18px;
+  }
+
+  #storefrontServicePackage .service-package-pax-picker {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  #storefrontServicePackage .service-package-pax-picker strong {
+    text-align: left;
+  }
+
+  #storefrontServicePackage .service-package-list-switcher {
+    overflow-x: auto;
+  }
+
+  #storefrontServicePackage .service-package-selection-toggle {
+    min-width: 92px;
+    font-size: 10px;
   }
 
   #storefrontServicePackage .service-package-item,
