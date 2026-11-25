@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Order Management · Angeliz Cakes</title>
+  <title>Order &amp; Booking Management · Angeliz Cakes</title>
 
 
 
@@ -16,7 +16,7 @@
   <!-- ================= HEAD ================= -->
   <div class="page-head">
     <div>
-      <h1 class="page-title">Order Management</h1>
+      <h1 class="page-title">Order &amp; Booking Management</h1>
       <p class="page-sub">Track incoming orders, follow production progress, and create cake or package orders.</p>
     </div>
 
@@ -76,7 +76,7 @@
 
   <!-- ================= TABLE ================= -->
   <section class="orders-list-card">
-    <h2 class="orders-list-title">Website Orders</h2>
+    <h2 class="orders-list-title">Orders</h2>
     <div class="table-container">
       <table class="data-table" id="ordTable">
         <thead>
@@ -112,6 +112,17 @@
             <td class="order-id-cell">ORD-0421</td><td>Rina Gomez</td><td>Website</td><td>To be confirmed</td><td><span class="status-badge badge-blue">Processing</span></td><td><button class="order-view-button" type="button" data-view-order aria-label="View order ORD-0421">View</button></td>
           </tr>
         </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="orders-list-card" aria-labelledby="bookingListTitle">
+    <h2 class="orders-list-title" id="bookingListTitle">Bookings</h2>
+    <p class="orders-list-caption">Booking requests for package and event offerings appear here separately from orders.</p>
+    <div class="table-container">
+      <table class="data-table" id="bookingTable">
+        <thead><tr><th>Booking #</th><th>Customer</th><th>Package / Event</th><th>Requested For</th><th>Amount</th><th>Payment</th><th>Booking Status</th><th>Action</th></tr></thead>
+        <tbody id="bookingRows"><tr><td colspan="8" class="table-empty">No bookings yet.</td></tr></tbody>
       </table>
     </div>
   </section>

@@ -25,7 +25,16 @@
   </div>
 
   <form class="report-body" id="dailyReportForm">
-    
+    <div class="report-section">
+      <div class="section-head">Report Date</div>
+      <div class="section-body">
+        <div class="form-group">
+          <label for="reportDate">Business date</label>
+          <input type="date" id="reportDate" required>
+        </div>
+      </div>
+    </div>
+
     <!-- 1. Successful Orders -->
     <div class="report-section">
       <div class="section-head">Successful Orders</div>
@@ -33,23 +42,23 @@
         <div class="form-grid">
           <div class="form-group">
             <label>Custom Cakes</label>
-            <input type="number" id="successCake" min="0" value="0">
+            <input type="number" id="successCake" min="0" step="1" value="0" required>
           </div>
           <div class="form-group">
             <label>Grazing Tables</label>
-            <input type="number" id="successGrazing" min="0" value="0">
+            <input type="number" id="successGrazing" min="0" step="1" value="0" required>
           </div>
           <div class="form-group">
             <label>Pastry Buffets</label>
-            <input type="number" id="successBuffet" min="0" value="0">
+            <input type="number" id="successBuffet" min="0" step="1" value="0" required>
           </div>
           <div class="form-group">
             <label>Food Bundles</label>
-            <input type="number" id="successBundles" min="0" value="0">
+            <input type="number" id="successBundles" min="0" step="1" value="0" required>
           </div>
           <div class="form-group full">
             <label>Party Packages</label>
-            <input type="number" id="successPackages" min="0" value="0">
+            <input type="number" id="successPackages" min="0" step="1" value="0" required>
           </div>
         </div>
       </div>
@@ -64,16 +73,21 @@
             <label>Total Sales Collected</label>
             <div class="input-wrap">
               <span class="prefix">₱</span>
-              <input type="number" id="totalSales" min="0" step="0.01" value="0.00">
+              <input type="number" id="totalSales" min="0" step="0.01" value="0.00" required>
             </div>
           </div>
           <div class="form-group">
             <label>Actual Cash Counted</label>
             <div class="input-wrap">
               <span class="prefix">₱</span>
-              <input type="number" id="actualCash" min="0" step="0.01" value="0.00">
+              <input type="number" id="actualCash" min="0" step="0.01" value="0.00" required>
             </div>
           </div>
+        </div>
+        <div class="auto-summary">
+          <div class="auto-row"><span class="auto-label">POS transactions</span><span class="auto-value" id="posTxnCount">0</span></div>
+          <div class="auto-row"><span class="auto-label">POS sales total</span><span class="auto-value" id="posSalesTotal">₱0.00</span></div>
+          <div class="auto-total"><span>Cash variance (cash counted − reported sales)</span><span id="cashVariance">₱0.00</span></div>
         </div>
       </div>
     </div>
@@ -87,7 +101,7 @@
       <div class="section-body">
         <div class="form-grid">
           <div class="form-group full">
-            <label>Supplier: Main Branch</label>
+            <label>Recorded deliveries from inventory</label>
             <div class="auto-summary" id="deliveryLogBox">
               <!-- JS Populated -->
             </div>

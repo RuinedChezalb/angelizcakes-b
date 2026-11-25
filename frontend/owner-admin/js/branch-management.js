@@ -286,69 +286,184 @@ function saveAdmin(){
   alert('Admin account created successfully!');
 }
 
-// Comprehensive Report View Logic
-function openReportView(branch, date) {
-  document.getElementById('reportViewTitle').textContent = `Operation Summary: ${branch} (${date})`;
-  
-  const contentDiv = document.getElementById('reportViewContent');
-  
-  let branchSales = branch.includes('Yashano') ? '₱8,200' : '₱12,450';
-  let branchTxns = branch.includes('Yashano') ? '56' : '84';
-  let branchStaff = branch.includes('Yashano') ? '3' : '5';
-  let branchNotes = branch.includes('Yashano') ? 'Oven 2 maintenance needed' : 'None';
+// Branch reports are shared between the two admin views through same-origin localStorage.
+const BRANCH_REPORT_STORAGE_KEY = 'angeliz_branch_daily_reports_v1';
+let currentReportId = null;
 
-  let deliveriesHTML = '';
-  
-  if (branch.includes('Yashano')) {
-    deliveriesHTML = `
-      <table class="table">
-        <thead><tr><th>Time</th><th>Item / Product</th><th>Qty</th><th>Source</th><th>Fulfillment Log</th></tr></thead>
-        <tbody>
-          <tr><td>09:00 AM</td><td>Strawberry Shortcake (Whole)</td><td>3</td><td>Main Branch</td><td><span class="badge badge-teal">Received & Stored</span></td></tr>
-          <tr><td>09:00 AM</td><td>Chocolate Mousse Slice</td><td>12</td><td>Main Branch</td><td><span class="badge badge-teal">Received & Stored</span></td></tr>
-          <tr><td>02:00 PM</td><td>Sakura Tiramisu</td><td>6</td><td>Main Branch</td><td><span class="badge badge-teal">Received & Stored</span></td></tr>
-        </tbody>
-      </table>`;
-  } else {
-    deliveriesHTML = `
-      <table class="table">
-        <thead><tr><th>Time</th><th>Product Dispatched</th><th>Qty</th><th>Destination</th><th>Dispatch Log</th></tr></thead>
-        <tbody>
-          <tr><td>08:30 AM</td><td>Assorted Pastries Box</td><td>15</td><td>Yashano Booth</td><td><span class="badge badge-teal">Dispatched & Received</span></td></tr>
-          <tr><td>01:00 PM</td><td>Strawberry Shortcake (Whole)</td><td>5</td><td>Yashano Booth</td><td><span class="badge badge-teal">Dispatched & Received</span></td></tr>
-        </tbody>
-      </table>`;
+function readBranchReports() {
+  try {
+    const reports = JSON.parse(localStorage.getItem(BRANCH_REPORT_STORAGE_KEY) || '[]');
+    return Array.isArray(reports) ? reports.filter(report => report && report.id && report.branchName && report.reportDate) : [];
+  } catch (error) {
+    console.error('Could not read submitted branch reports.', error);
+    return [];
+  }
+}
+
+function reportMoney(value) {
+  return `₱${(Number(value) || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
+function reportCell(value) {
+  const cell = document.createElement('td');
+  cell.textContent = value;
+  return cell;
+}
+
+function reportOrderSummary(report) {
+  const labels = [
+    ['Custom cakes', report.successfulOrders?.customCakes],
+    ['Grazing tables', report.successfulOrders?.grazingTables],
+    ['Pastry buffets', report.successfulOrders?.pastryBuffets],
+    ['Food bundles', report.successfulOrders?.foodBundles],
+    ['Party packages', report.successfulOrders?.partyPackages]
+  ].filter(([, quantity]) => Number(quantity) > 0);
+  return labels.length ? labels.map(([label, quantity]) => `${quantity} ${label}`).join(' / ') : 'No completed orders reported';
+}
+
+function renderBranchReports() {
+  const tbody = document.getElementById('branchReportRows');
+  if (!tbody) return;
+  const reports = readBranchReports().sort((a, b) => String(b.submittedAt).localeCompare(String(a.submittedAt)));
+  tbody.replaceChildren();
+  if (!reports.length) {
+    const row = document.createElement('tr');
+    const cell = reportCell('No branch reports have been submitted in this browser.');
+    cell.colSpan = 8;
+    cell.className = 'muted';
+    row.appendChild(cell);
+    tbody.appendChild(row);
+    return;
   }
 
-  contentDiv.innerHTML = `
-    <div class="flex justify-between items-center" style="margin-bottom:16px; padding-bottom:16px; border-bottom:1px solid var(--sakura-100);">
-      <div>
-        <div class="kpi-label">Branch</div>
-        <div class="strong">${branch}</div>
-      </div>
-      <div>
-        <div class="kpi-label">Date</div>
-        <div class="strong">${date}</div>
-      </div>
-      <div>
-        <div class="kpi-label">Reported By</div>
-        <div class="strong">Branch Admin</div>
-      </div>
-    </div>
+  reports.forEach(report => {
+    const row = document.createElement('tr');
+    const deliveryCount = Array.isArray(report.deliveryLog) ? report.deliveryLog.reduce((sum, delivery) => sum + (Array.isArray(delivery.items) && delivery.items.length ? 1 : 0), 0) : 0;
+    row.append(
+      reportCell(report.reportDate),
+      reportCell(report.branchName),
+      reportCell(reportMoney(report.sales?.totalSales)),
+      reportCell(`${Number(report.sales?.posTransactions) || 0} POS transactions`),
+      reportCell(`${deliveryCount} deliveries`),
+      reportCell(reportOrderSummary(report))
+    );
+    const statusCell = document.createElement('td');
+    const statusBadge = document.createElement('span');
+    statusBadge.className = `badge ${report.status === 'Reviewed' ? 'badge-teal' : 'badge-amber'}`;
+    statusBadge.textContent = report.status || 'Submitted';
+    statusCell.appendChild(statusBadge);
+    row.appendChild(statusCell);
+    const actionCell = document.createElement('td');
+    const view = document.createElement('button');
+    view.type = 'button';
+    view.className = 'btn btn-outline btn-sm';
+    view.textContent = 'View';
+    view.addEventListener('click', () => openReportView(report.id));
+    actionCell.appendChild(view);
+    row.appendChild(actionCell);
+    tbody.appendChild(row);
+  });
+}
 
-    <div class="report-block">
-      <div class="report-block-title">1. Daily Operations & Sales</div>
-      <div class="metric-row"><span class="metric-label">Total Sales Recorded</span><span class="metric-value">${branchSales}</span></div>
-      <div class="metric-row"><span class="metric-label">Walk-in & Payment Transactions</span><span class="metric-value">${branchTxns} transactions</span></div>
-      <div class="metric-row"><span class="metric-label">Staff on Duty</span><span class="metric-value">${branchStaff}</span></div>
-      <div class="metric-row"><span class="metric-label">Issues / Notes</span><span class="metric-value" style="color:#B91C1C;">${branchNotes}</span></div>
-    </div>
+function appendReportMetric(container, label, value) {
+  const row = document.createElement('div');
+  row.className = 'metric-row';
+  const labelElement = document.createElement('span');
+  labelElement.className = 'metric-label';
+  labelElement.textContent = label;
+  const valueElement = document.createElement('span');
+  valueElement.className = 'metric-value';
+  valueElement.textContent = value;
+  row.append(labelElement, valueElement);
+  container.appendChild(row);
+}
 
-    <div class="report-block">
-      <div class="report-block-title">2. Delivery Logs (Ready-Made Products)</div>
-      ${deliveriesHTML}
-    </div>
-  `;
-  
+function appendReportBlock(container, title) {
+  const block = document.createElement('section');
+  block.className = 'report-block';
+  const heading = document.createElement('div');
+  heading.className = 'report-block-title';
+  heading.textContent = title;
+  block.appendChild(heading);
+  container.appendChild(block);
+  return block;
+}
+
+function openReportView(reportId) {
+  const report = readBranchReports().find(item => item.id === reportId);
+  if (!report) return;
+  currentReportId = report.id;
+  const date = report.reportDate;
+  document.getElementById('reportViewTitle').textContent = `Branch Report: ${report.branchName} (${date})`;
+  const content = document.getElementById('reportViewContent');
+  content.replaceChildren();
+
+  const metadata = document.createElement('div');
+  metadata.className = 'flex justify-between items-center';
+  metadata.style.cssText = 'margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--sakura-100);flex-wrap:wrap;gap:12px;';
+  [['Branch', report.branchName], ['Business date', date], ['Submitted by', report.branchManager || 'Branch Manager'], ['Status', report.status || 'Submitted']].forEach(([label, value]) => {
+    const item = document.createElement('div');
+    const key = document.createElement('div');
+    key.className = 'kpi-label';
+    key.textContent = label;
+    const text = document.createElement('div');
+    text.className = 'strong';
+    text.textContent = value;
+    item.append(key, text);
+    metadata.appendChild(item);
+  });
+  content.appendChild(metadata);
+
+  const operations = appendReportBlock(content, 'Successful Orders');
+  const orders = report.successfulOrders || {};
+  [['Custom cakes', orders.customCakes], ['Grazing tables', orders.grazingTables], ['Pastry buffets', orders.pastryBuffets], ['Food bundles', orders.foodBundles], ['Party packages', orders.partyPackages]].forEach(([label, quantity]) => appendReportMetric(operations, label, String(Number(quantity) || 0)));
+
+  const sales = report.sales || {};
+  const finance = appendReportBlock(content, 'Sales & Cash Reconciliation');
+  appendReportMetric(finance, 'Total sales reported', reportMoney(sales.totalSales));
+  appendReportMetric(finance, 'Actual cash counted', reportMoney(sales.actualCash));
+  appendReportMetric(finance, 'Cash variance (cash − sales)', reportMoney(sales.cashVariance));
+  appendReportMetric(finance, 'POS transactions', String(Number(sales.posTransactions) || 0));
+  appendReportMetric(finance, 'POS sales total', reportMoney(sales.posSales));
+
+  const deliveryBlock = appendReportBlock(content, 'Deliveries Received');
+  const deliveries = Array.isArray(report.deliveryLog) ? report.deliveryLog : [];
+  if (!deliveries.length) appendReportMetric(deliveryBlock, 'Delivery log', 'No deliveries recorded for this date.');
+  deliveries.forEach(delivery => {
+    const title = `${delivery.reference || 'Delivery'} · ${delivery.source || 'Supplier not specified'}`;
+    appendReportMetric(deliveryBlock, title, delivery.deliveryDate || date);
+    (Array.isArray(delivery.items) ? delivery.items : []).forEach(item => {
+      appendReportMetric(deliveryBlock, item.name || 'Item', `${Number(item.qty) || 0} pcs${item.expiry ? ` · expires ${item.expiry}` : ''}`);
+    });
+  });
+
+  const notes = appendReportBlock(content, 'Notes & Remarks');
+  appendReportMetric(notes, 'Branch notes', report.notes || 'No notes provided.');
+  const submitted = report.submittedAt ? new Date(report.submittedAt) : null;
+  appendReportMetric(notes, 'Submitted at', submitted && !Number.isNaN(submitted.getTime()) ? submitted.toLocaleString('en-PH') : 'Not available');
+  const reviewButton = document.getElementById('markReportReviewedBtn');
+  reviewButton.textContent = report.status === 'Reviewed' ? 'Reviewed' : 'Mark as Reviewed';
+  reviewButton.disabled = report.status === 'Reviewed';
   openModal('reportViewModal');
 }
+
+function markCurrentReportReviewed() {
+  const reports = readBranchReports();
+  const report = reports.find(item => item.id === currentReportId);
+  if (!report) return;
+  report.status = 'Reviewed';
+  report.reviewedAt = new Date().toISOString();
+  try {
+    localStorage.setItem(BRANCH_REPORT_STORAGE_KEY, JSON.stringify(reports));
+    renderBranchReports();
+    openReportView(report.id);
+  } catch (error) {
+    console.error('Could not update report review status.', error);
+    alert('The review status could not be saved in this browser.');
+  }
+}
+
+window.addEventListener('storage', event => {
+  if (event.key === BRANCH_REPORT_STORAGE_KEY) renderBranchReports();
+});
+renderBranchReports();

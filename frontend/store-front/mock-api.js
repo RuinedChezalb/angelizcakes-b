@@ -1,260 +1,103 @@
-"use strict";
-
-/* Browser-backed mock REST API. Replace this adapter with fetch() to a real backend when ready. */
-(function initializeStorefrontMockApi() {
-  const database = window.angelizStorefrontDatabase;
-  if (!database) throw new Error("Storefront mock database has not been loaded.");
-
-  const storageKey = "angeliz_storefront_mock_database_v1";
-  const makeId = prefix => `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-  const clone = value => JSON.parse(JSON.stringify(value));
-
-  function restorePersistentCollections() {
-    try {
-      const saved = JSON.parse(localStorage.getItem(storageKey) || "{}");
-      ["favorites", "profiles", "orders", "inquiries", "reviews", "feedbacks", "savedDesigns", "packageSelections"].forEach(key => {
-        if (Array.isArray(saved[key])) {
-          if (key === "orders") {
-            const savedOrderIds = new Set(saved.orders.map(order => order.id));
-            database.orders = [...saved.orders, ...database.orders.filter(order => !savedOrderIds.has(order.id))];
-          } else {
-            database[key] = saved[key];
-          }
-        }
-      });
-    } catch (error) {
-      console.warn("Mock database storage was invalid; using seed records.", error);
+/* Compatibility bridge: all three frontends use the shared 3-user seeded CRUD database. */
+(() => {
+  'use strict';
+  if (!window.storefrontApi && window.AngelizSharedDatabase) {
+    const db = window.AngelizSharedDatabase;
+    const routes = {
+      '/api/storefront': () => db.database,
+      '/api/storefront/settings': () => db.database.settings,
+      '/api/storefront/categories': () => db.database.categories,
+      '/api/storefront/products': () => db.database.products,
+      '/api/storefront/services': () => db.database.services,
+      '/api/storefront/service-categories': () => db.database.serviceCategories,
+      '/api/storefront/gallery': () => db.database.gallery,
+      '/api/storefront/reviews': () => db.database.feedbacks,
+      '/api/storefront/location': () => db.database.location,
+      '/api/storefront/locations': () => db.database.locations,
+      '/api/storefront/about': () => db.database.about,
+      '/api/storefront/contact': () => db.database.contact,
+      '/api/storefront/payment-methods': () => db.database.paymentMethods,
+      '/api/storefront/favorites': () => db.database.favorites,
+      '/api/storefront/profiles': () => db.database.profiles,
+      '/api/storefront/orders': () => db.database.orders,
+      '/api/storefront/inquiries': () => db.database.inquiries,
+      '/api/storefront/reviews/customer': () => db.database.reviews,
+      '/api/storefront/saved-designs': () => db.database.savedDesigns,
+      '/api/storefront/packages': () => db.database.services,
+      '/api/storefront/package-selections': () => db.database.packageSelections,
+      '/api/storefront/customization-options': () => db.database.customization.options,
+      '/api/storefront/session': () => JSON.parse(localStorage.getItem('angeliz_customer_session') || 'null')
+    };
+    const clone = value => value == null ? value : JSON.parse(JSON.stringify(value));
+    function post(path, payload = {}) {
+      if (path === '/api/storefront/orders') {
+        const bookingOnly = Boolean(payload.bookingOnly);
+        const now = new Date();
+        return db.create('orders', {
+          ...payload,
+          orderNumber: `AC-${String(now.getTime()).slice(-8)}`,
+          referenceNumber: `AC-REF-${now.getTime()}`,
+          recordType: bookingOnly ? 'booking' : 'order', bookingOnly,
+          status: bookingOnly ? 'booking-requested-preview' : 'in-production-preview',
+          productionStatus: bookingOnly ? 'Preparing' : 'In production',
+          bookingStatus: bookingOnly ? 'Preparing' : '',
+          paymentStatus: bookingOnly ? 'unpaid-booking' : (payload.paymentStatus || 'pending-preview'),
+          priceStatus: bookingOnly ? 'pending-bakery-confirmation' : (payload.priceStatus || 'fixed-package-price'),
+          ...(bookingOnly ? { packagePrice:'', total:'Price to be confirmed' } : {}),
+          customerEmail: payload.customerEmail || payload.email || ''
+        });
+      }
+      if (path === '/api/storefront/saved-designs') return db.create('savedDesigns', payload);
+      if (path === '/api/storefront/inquiries') return db.create('inquiries', { ...payload, status:'new-preview' });
+      if (path === '/api/storefront/favorites') {
+        if (!Array.isArray(payload.productIds)) throw new TypeError('Favorites must be an array.');
+        db.database.favorites = [...new Set(payload.productIds.filter(id => db.database.products.some(product => product.id === id)))];
+        localStorage.setItem(db.key, JSON.stringify(db.database));
+        return { productIds:clone(db.database.favorites) };
+      }
+      if (path === '/api/storefront/profiles') {
+        const profile = payload.profile || payload;
+        const existing = db.database.profiles.find(item => item.email?.toLowerCase() === String(profile.email || '').toLowerCase());
+        return existing ? db.update('profiles', existing.id, profile) : db.create('profiles', profile);
+      }
+      if (path === '/api/storefront/package-selections') {
+        const existing = db.database.packageSelections.find(item => item.packageId === payload.packageId);
+        return existing ? db.update('packageSelections', existing.id, payload) : db.create('packageSelections', payload);
+      }
+      if (path === '/api/storefront/orders/confirm-booking') {
+        const order = db.database.orders.find(item => item.id === payload.orderId);
+        if (!order?.bookingOnly) throw new RangeError('Booking order not found.');
+        return db.update('orders', order.id, { confirmedPrice:payload.confirmedPrice, priceStatus:'confirmed-preview', status:'confirmed-preview', productionStatus:'Confirmed', bookingStatus:'Confirmed' });
+      }
+      if (path === '/api/storefront/orders/payment') {
+        const order = db.database.orders.find(item => item.id === payload.orderId);
+        if (!order?.bookingOnly || order.status !== 'confirmed-preview') throw new RangeError('Confirmed booking not found.');
+        return db.update('orders', order.id, { paymentMethod:payload.paymentMethod, paymentStatus:'paid-preview', paidAt:new Date().toISOString() });
+      }
+      throw new Error(`No POST route for ${path}`);
     }
-  }
-
-  function persist() {
-    const snapshot = {};
-    ["favorites", "profiles", "orders", "inquiries", "reviews", "savedDesigns", "packageSelections"].forEach(key => {
-      snapshot[key] = database[key] || [];
+    function put(path, payload) {
+      const match = /^\/api\/storefront\/(orders|products|services|inquiries)\/([^/]+)$/.exec(path);
+      if (!match) throw new Error(`No PUT route for ${path}`);
+      if (match[1] === 'orders') return db.updateOrder(decodeURIComponent(match[2]), payload);
+      return db.update(match[1], decodeURIComponent(match[2]), payload);
+    }
+    function remove(path) {
+      const match = /^\/api\/storefront\/(orders|products|services|inquiries)\/([^/]+)$/.exec(path);
+      if (!match) throw new Error(`No DELETE route for ${path}`);
+      return db.delete(match[1], decodeURIComponent(match[2]));
+    }
+    window.storefrontApi = Object.freeze({
+      async get(path) {
+        if (routes[path]) return clone(routes[path]());
+        const match = /^\/api\/storefront\/(orders|products|services|inquiries)\/([^/]+)$/.exec(path);
+        if (match) return db.get(match[1], decodeURIComponent(match[2]));
+        throw new Error(`No GET route for ${path}`);
+      },
+      async post(path, payload) { return clone(post(path, payload)); },
+      async put(path, payload) { return clone(put(path, payload)); },
+      async patch(path, payload) { return clone(put(path, payload)); },
+      async delete(path) { return remove(path); }
     });
-    try {
-      localStorage.setItem(storageKey, JSON.stringify(snapshot));
-    } catch (error) {
-      console.error("Could not persist mock storefront database changes.", error);
-      throw new Error("Mock database storage is unavailable in this browser.");
-    }
   }
-
-  restorePersistentCollections();
-
-  const getRoutes = new Map([
-    ["/api/storefront", () => database],
-    ["/api/storefront/settings", () => database.settings],
-    ["/api/storefront/categories", () => database.categories],
-    ["/api/storefront/products", () => database.products],
-    ["/api/storefront/services", () => database.services],
-    ["/api/storefront/service-categories", () => database.serviceCategories],
-    ["/api/storefront/gallery", () => database.gallery],
-    ["/api/storefront/reviews", () => database.feedbacks],
-    ["/api/storefront/location", () => database.location],
-    ["/api/storefront/locations", () => database.locations],
-    ["/api/storefront/about", () => database.about],
-    ["/api/storefront/contact", () => database.contact],
-    ["/api/storefront/payment-methods", () => database.paymentMethods],
-    ["/api/storefront/favorites", () => database.favorites],
-    ["/api/storefront/profiles", () => database.profiles],
-    ["/api/storefront/orders", () => database.orders],
-    ["/api/storefront/inquiries", () => database.inquiries],
-    ["/api/storefront/reviews/customer", () => database.reviews],
-    ["/api/storefront/saved-designs", () => database.savedDesigns],
-    ["/api/storefront/packages", () => database.services],
-    ["/api/storefront/package-selections", () => database.packageSelections || []],
-    ["/api/storefront/customization-options", () => database.customization],
-    ["/api/storefront/session", () => JSON.parse(localStorage.getItem("angeliz_customer_session") || "null")]
-  ]);
-
-  function post(path, payload) {
-    if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
-      throw new TypeError("POST data must be a JSON object.");
-    }
-
-    if (path === "/api/storefront/favorites") {
-      if (!Array.isArray(payload.productIds)) throw new TypeError("Favorites must be an array of product IDs.");
-      const productIds = new Set(database.products.map(product => product.id));
-      database.favorites = [...new Set(payload.productIds.filter(id => productIds.has(id)))];
-      persist();
-      return { productIds: clone(database.favorites) };
-    }
-
-    if (path === "/api/storefront/session") {
-      const session = Object.prototype.hasOwnProperty.call(payload, "session") ? payload.session : payload;
-      if (session === null) {
-        localStorage.removeItem("angeliz_customer_session");
-        return { signedOut: true };
-      }
-      if (typeof session.email !== "string" || !session.email.trim()) throw new TypeError("Session email is required.");
-      const savedSession = { mode: "mock", signedInAt: new Date().toISOString(), ...clone(session) };
-      localStorage.setItem("angeliz_customer_session", JSON.stringify(savedSession));
-      return clone(savedSession);
-    }
-
-    if (path === "/api/storefront/profiles") {
-      const profile = payload.profile || payload;
-      if (typeof profile.email !== "string" || !profile.email.trim()) {
-        throw new TypeError("A profile email is required.");
-      }
-      const normalizedEmail = profile.email.trim().toLowerCase();
-      const existingIndex = database.profiles.findIndex(item => item.email.toLowerCase() === normalizedEmail);
-      const savedProfile = {
-        ...(existingIndex >= 0 ? database.profiles[existingIndex] : {}),
-        ...clone(profile),
-        email: normalizedEmail,
-        updatedAt: new Date().toISOString()
-      };
-      if (existingIndex >= 0) database.profiles[existingIndex] = savedProfile;
-      else database.profiles.push(savedProfile);
-      persist();
-      return clone(savedProfile);
-    }
-
-    if (path === "/api/storefront/orders") {
-      if (typeof payload.type !== "string" || !payload.type.trim()) throw new TypeError("Order type is required.");
-      const now = new Date();
-      const bookingOnly = Boolean(payload.bookingOnly);
-      const submitted = clone(payload);
-      if (bookingOnly) {
-        submitted.packagePrice = "";
-        submitted.total = "Price to be confirmed";
-        submitted.paymentStatus = "unpaid-booking";
-        submitted.priceStatus = "pending-bakery-confirmation";
-      }
-      const order = {
-        id: makeId("order"),
-        orderNumber: `AC-${String(now.getTime()).slice(-8)}`,
-        referenceNumber: `AC-REF-${now.getTime()}`,
-        type: submitted.type,
-        status: bookingOnly ? "booking-requested-preview" : "in-production-preview",
-        productionStatus: bookingOnly ? "Booking requested" : "In production",
-        received: false,
-        paymentStatus: bookingOnly ? "unpaid-booking" : "unpaid-preview",
-        priceStatus: submitted.priceStatus || (bookingOnly ? "pending-bakery-confirmation" : "fixed-package-price"),
-        createdAt: now.toISOString(),
-        ...submitted
-      };
-      database.orders.unshift(order);
-      persist();
-      return clone(order);
-    }
-
-    if (path === "/api/storefront/orders/received") {
-      const order = database.orders.find(item => item.id === payload.orderId);
-      if (!order) throw new RangeError("Order not found.");
-      order.received = true;
-      order.status = "completed-preview";
-      order.productionStatus = "Received";
-      order.receivedAt = new Date().toISOString();
-      persist();
-      return clone(order);
-    }
-
-    if (path === "/api/storefront/orders/feedback") {
-      const order = database.orders.find(item => item.id === payload.orderId);
-      const rating = Number(payload.rating);
-      if (!order) throw new RangeError("Order not found.");
-      if (!String(payload.comment || "").trim() || !Number.isInteger(rating) || rating < 1 || rating > 5) {
-        throw new TypeError("A comment and rating from one through five are required.");
-      }
-      const review = {
-        id: makeId("review"),
-        orderId: order.id,
-        productId: payload.productId || order.productId || "custom-cake",
-        productName: payload.productName || order.product?.name || order.title || "",
-        productImage: payload.productImage || "",
-        packageId: payload.packageId || order.packageId || "",
-        name: payload.name || order.customerName || "Customer",
-        email: payload.email || order.customerEmail || "",
-        rating,
-        comment: String(payload.comment).trim(),
-        status: "approved-preview",
-        createdAt: new Date().toISOString()
-      };
-      database.reviews.unshift(review);
-      database.feedbacks.unshift({ id: review.id, name: review.name, comment: review.comment, rating: review.rating, productId: review.productId, orderId: order.id });
-      order.reviewId = review.id;
-      order.received = true;
-      order.status = "completed-preview";
-      order.productionStatus = "Received";
-      order.receivedAt = new Date().toISOString();
-      persist();
-      return { review: clone(review), order: clone(order) };
-    }
-
-    if (path === "/api/storefront/inquiries") {
-      if (!String(payload.name || "").trim() || !String(payload.email || "").trim() || !String(payload.details || "").trim()) {
-        throw new TypeError("Inquiry name, email, and details are required.");
-      }
-      const inquiry = { id: makeId("inquiry"), status: "new-preview", createdAt: new Date().toISOString(), ...clone(payload) };
-      database.inquiries.unshift(inquiry);
-      persist();
-      return clone(inquiry);
-    }
-
-    if (path === "/api/storefront/reviews/customer") {
-      const rating = Number(payload.rating);
-      if (!String(payload.name || "").trim() || !String(payload.comment || "").trim() || !Number.isInteger(rating) || rating < 1 || rating > 5) {
-        throw new TypeError("Review name, comment, and a rating from one to five are required.");
-      }
-      const review = { id: makeId("review"), status: "pending-preview", createdAt: new Date().toISOString(), ...clone(payload), rating };
-      database.reviews.unshift(review);
-      persist();
-      return clone(review);
-    }
-
-    if (path === "/api/storefront/saved-designs") {
-      if (!Array.isArray(payload.selections)) throw new TypeError("Saved cake design selections are required.");
-      if (!Array.isArray(payload.referenceImages)) throw new TypeError("Saved design reference image records are required.");
-      payload.referenceImages.forEach(image => {
-        if (
-          !image
-          || typeof image.name !== "string"
-          || typeof image.dataUrl !== "string"
-          || !/^data:image\/(?:jpeg|png|webp);base64,/.test(image.dataUrl)
-          || image.size > 524288
-        ) throw new TypeError("A saved reference image is invalid or exceeds the image size limit.");
-      });
-      const design = { id: makeId("design"), createdAt: new Date().toISOString(), ...clone(payload) };
-      database.savedDesigns.unshift(design);
-      persist();
-      return clone(design);
-    }
-
-    if (path === "/api/storefront/package-selections") {
-      const packageOffering = database.services.find(item => item.id === payload.packageId);
-      if (!packageOffering) throw new RangeError("The selected package does not exist.");
-      if (Array.isArray(payload.selectedInclusions)) {
-        const allowedNames = new Set((packageOffering.inclusions || []).map(item => item.name));
-        if (payload.selectedInclusions.some(item => !allowedNames.has(item.name))) throw new TypeError("Package selection contains an item outside this package.");
-      }
-      if (payload.paxOption && !packageOffering.paxOptions?.some(option => option.id === payload.paxOption.id)) {
-        throw new TypeError("Selected pax/price option is not available for this package.");
-      }
-      const selection = { id: makeId("selection"), updatedAt: new Date().toISOString(), ...clone(payload) };
-      database.packageSelections ||= [];
-      const existingIndex = database.packageSelections.findIndex(item => item.packageId === payload.packageId);
-      if (existingIndex >= 0) database.packageSelections[existingIndex] = selection;
-      else database.packageSelections.push(selection);
-      persist();
-      return clone(selection);
-    }
-
-    throw new Error(`Mock POST endpoint not found: ${path}`);
-  }
-
-  window.storefrontApi = Object.freeze({
-    async get(path) {
-      const route = getRoutes.get(path);
-      if (!route) throw new Error(`Mock GET endpoint not found: ${path}`);
-      await new Promise(resolve => window.setTimeout(resolve, 20));
-      return clone(route());
-    },
-    async post(path, payload) {
-      await new Promise(resolve => window.setTimeout(resolve, 20));
-      return clone(post(path, payload));
-    }
-  });
 })();

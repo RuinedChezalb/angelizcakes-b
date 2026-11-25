@@ -1063,6 +1063,20 @@
   overflow-wrap: anywhere;
 }
 
+.profile-order-pay {
+  justify-self: end;
+  min-height: 38px;
+  padding: 8px 14px;
+  border: 0;
+  border-radius: 9px;
+  background: #8c4e60;
+  color: #fff;
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 800;
+}
+
 .profile-order-received,
 .profile-order-feedback button {
   min-height: 36px;

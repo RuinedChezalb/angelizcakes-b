@@ -20,7 +20,7 @@
     • Customer Records: branch customer profiles, order counts, and purchase summaries.
     • Branch Inventory: current batches, stock levels, expiry dates, deliveries, and requests.
     • POS Terminal: sellable catalog, customer lookup, batch deductions, and transaction history.
-    • Sales and Financial Reports, Daily Branch Report, and Staff Shift Management currently use sample data.
+    • Sales and Financial Reports and Staff Shift Management currently use sample data; Daily Branch Reports are shared with Owner Admin through same-origin browser localStorage.
     • Communications: storefront inquiries, reply history, and inbox/archive state.
     • Customer Support is a placeholder with static, empty content.
 
@@ -28,7 +28,7 @@
     • Record custom-cake inquiries, completed POS transactions, stock requests, and deliveries.
     • Submit a product update suggestion for owner review.
     • Save one reply to a storefront inquiry and archive it.
-    • Daily reports and shift handovers are frontend-only and are not persisted.
+    • Daily reports and delivery receipts are saved in browser localStorage for Owner Admin review; shift handovers remain frontend-only and are not persisted.
 
     UPDATE (PATCH/PUT)
     • Change an order's fulfillment status, add delivery batches, and deduct POS sales by earliest expiry.
@@ -93,7 +93,7 @@
           <div class="ac-nav-label">Operations</div>
           <a href="#order-management" class="ac-link" data-admin-view="order-management">
             <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h6"/></svg>
-            <span class="ac-label">Order Management</span>
+            <span class="ac-label">Order &amp; Booking Management</span>
           </a>
           <a href="#customer-records" class="ac-link" data-admin-view="customer-records">
             <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13A4 4 0 0 1 16 11"/></svg>
@@ -151,6 +151,7 @@
     <p id="ownerAdminStatus" role="status" aria-live="polite"></p>
   </div>
   <script src="js/branch-inventory-store.js"></script>
+  <script src="../shared/shared-data-seed-3users.js"></script>
   <script src="branch-admin-ajax.js"></script>
 </body>
 </html>

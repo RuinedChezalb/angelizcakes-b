@@ -147,7 +147,16 @@
     { value: "Ready", badgeClass: "badge-teal" },
     { value: "Completed", badgeClass: "badge-teal" }
   ];
+  const sharedOrderStore = window.AngelizOrderBookingStore;
+  if (!sharedOrderStore) throw new Error('The shared order and booking store did not load.');
+  const sharedDatabase = window.AngelizSharedDatabase;
+  if (!sharedDatabase) throw new Error('The shared three-user CRUD database did not load.');
   const rows = document.getElementById("websiteOrderRows");
+  const bookingRows = document.getElementById('ownerBookingRows');
+  const bookingStatusUpdater = document.getElementById('bookingStatusUpdater');
+  const bookingStatusSelect = document.getElementById('bookingStatusSelect');
+  const updateBookingStatusButton = document.getElementById('updateBookingStatus');
+  const bookingStatusFeedback = document.getElementById('bookingStatusFeedback');
   const modal = document.getElementById("websiteOrderModal");
   const modalTitle = document.getElementById("websiteOrderTitle");
   const modalSubtitle = document.getElementById("websiteOrderSubtitle");
@@ -159,19 +168,27 @@
   if (
     !rows || !modal || !modalTitle || !modalSubtitle || !details
     || !productionStatusSelect || !updateProductionStatusButton || !statusFeedback
+    || !bookingRows || !bookingStatusUpdater || !bookingStatusSelect || !updateBookingStatusButton || !bookingStatusFeedback
     || closeButtons.length === 0
   ) {
     throw new TypeError("The website order table or details dialog is missing required elements.");
   }
 
+  const bookingStatuses = [...productionStatuses.map(status => status.value), 'Confirmed', 'Cancelled'];
   productionStatuses.forEach(status => {
     const option = document.createElement("option");
     option.value = status.value;
     option.textContent = status.value;
     productionStatusSelect.append(option);
   });
+  bookingStatuses.forEach(status => {
+    const option = document.createElement('option');
+    option.value = status;
+    option.textContent = status;
+    bookingStatusSelect.append(option);
+  });
 
-  const assetBase = new URL("../../store-front/assets/", document.currentScript.src);
+  const assetBase = new URL("../../assets/", document.currentScript.src);
   let activeTrigger = null;
   let activeOrder = null;
 
@@ -216,9 +233,10 @@
     const card = document.createElement("section");
     card.className = "storefront-order-card storefront-order-product";
     const image = document.createElement("img");
-    image.src = product.image.startsWith("data:")
-      ? product.image
-      : new URL(product.image, assetBase).href;
+    const imageSource = product.image || '';
+    image.src = imageSource.startsWith('data:') || /^https?:/.test(imageSource)
+      ? imageSource
+      : new URL(imageSource.replace(/^\.\.\/assets\//, ''), assetBase).href;
     image.alt = product.name;
     const content = document.createElement("div");
     const category = document.createElement("p");
@@ -259,18 +277,28 @@
   }
 
   function renderCustomCake(order) {
+    const referenceImages = Array.isArray(order.referenceImages) ? order.referenceImages : [order.referenceImage].filter(Boolean);
     const previewCard = document.createElement("section");
     previewCard.className = "storefront-order-card storefront-order-custom-preview";
-    const image = document.createElement("img");
-    image.src = new URL(order.referenceImage.asset, assetBase).href;
-    image.alt = `${order.referenceImage.name} reference image`;
     const previewContent = document.createElement("div");
     const heading = document.createElement("h3");
-    heading.textContent = "Reference Image";
+    heading.textContent = "Reference Images";
     const reference = document.createElement("p");
     reference.textContent = `Use as reference: ${order.previewUsedAsReference ? "Yes" : "No"}`;
     previewContent.append(heading, reference);
-    previewCard.append(image, previewContent);
+    const imageGallery = document.createElement('div');
+    imageGallery.className = 'storefront-order-reference-gallery';
+    referenceImages.forEach((referenceImage, index) => {
+      const source = typeof referenceImage === 'string' ? referenceImage : referenceImage.dataUrl || referenceImage.assetUrl || referenceImage.asset;
+      if (!source) return;
+      const image = document.createElement('img');
+      image.alt = `${(typeof referenceImage === 'object' && referenceImage.name) || 'Cake'} reference image ${index + 1}`;
+      image.src = source.startsWith('data:') || /^https?:/.test(source) ? source : new URL(source.replace(/^\.\.\/assets\//, ''), assetBase).href;
+      image.addEventListener('error', () => image.remove(), { once: true });
+      imageGallery.appendChild(image);
+    });
+    if (!imageGallery.childElementCount) return;
+    previewCard.append(previewContent, imageGallery);
     details.append(
       createOrderCard("Cake Customization", order.selections),
       previewCard,
@@ -312,6 +340,8 @@
   }
 
   function renderOrderDetails(order) {
+    activeSharedRecord = null;
+    bookingStatusUpdater.hidden = true;
     modalTitle.textContent = `Order ${order.id}`;
     modalSubtitle.textContent = `${order.customer} · ${order.type}`;
     productionStatusSelect.value = order.productionStatus;
@@ -330,55 +360,281 @@
     if (activeTrigger && activeTrigger.isConnected) activeTrigger.focus();
     activeTrigger = null;
     activeOrder = null;
+    activeSharedRecord = null;
+    bookingStatusUpdater.hidden = true;
   }
 
-  rows.replaceChildren(...websiteOrders.map(order => {
-    const row = document.createElement("tr");
+  let activeSharedRecord = null;
+
+  function renderSharedBooking(record) {
+    details.replaceChildren();
+    modalTitle.textContent = `Booking ${record.orderNumber}`;
+    modalSubtitle.textContent = `${record.customerName || 'Customer'} · ${record.title}`;
+    bookingStatusUpdater.hidden = false;
+    bookingStatusSelect.value = record.bookingStatus || 'Booking Requested';
+    bookingStatusFeedback.textContent = '';
+    productionStatusSelect.value = productionStatuses.some(status => status.value === record.productionStatus) ? record.productionStatus : 'Preparing';
+    statusFeedback.textContent = '';
+    const fields = [
+      ['Order number', record.orderNumber], ['Reference', record.referenceNumber],
+      ['Branch', record.branchName], ['Customer', record.customerName], ['Email', record.customerEmail], ['Phone', record.customerPhone],
+      ['Package / event', record.title], ['Package ID', record.packageId], ['Guests', record.pax],
+      ['Selected items', JSON.stringify(record.items || [])], ['Included items', JSON.stringify(record.inclusions || [])],
+      ['Unselected items', JSON.stringify(record.unselectedInclusions || [])], ['Booking status', record.bookingStatus],
+      ['Payment status', record.paymentStatus], ['Payment method', record.paymentMethod], ['Price status', record.priceStatus],
+      ['Confirmed price', record.confirmedPrice], ['Total', record.total], ['Requested date', record.deliveryDate],
+      ['Requested time', record.deliveryTime], ['Fulfillment', record.fulfillment], ['Delivery address', record.deliveryAddress],
+      ['Recipient', [record.recipientName, record.recipientContact, record.recipientAddress].filter(Boolean).join(' · ')],
+      ['Additional information', record.additionalInformation], ['Gift message', record.giftMessage], ['Notes', record.notes], ['Created', record.createdAt]
+    ];
+    details.append(createOrderCard('Complete Booking Details', fields.map(([label, value]) => ({ label, value: value || 'Not provided' }))));
+    if (record.packageOffering?.image) {
+      const image = document.createElement('img');
+      image.className = 'shared-order-image';
+      image.alt = record.title || 'Package image';
+      image.src = new URL(record.packageOffering.image, assetBase).href;
+      details.append(image);
+    }
+  }
+
+  function renderSharedOrders() {
+    const records = sharedDatabase.list('orders').filter(record => record.recordType !== 'booking' && !record.bookingOnly);
+    rows.replaceChildren(...records.map(record => {
+      const order = {
+        id: record.orderNumber || record.id,
+        customer: record.customerName || 'Customer',
+        type: record.type || record.title || 'Order',
+        amount: record.total || record.orderTotal || record.amount || 'Price to be confirmed',
+        productionStatus: record.productionStatus || 'Preparing'
+      };
+      const row = document.createElement('tr');
+      row.dataset.websiteOrderId = order.id;
+      row.dataset.sharedOrderId = record.id;
+      [order.id, order.customer, order.type, order.amount].forEach((value, index) => {
+        const cell = document.createElement('td');
+        cell.textContent = value;
+        if (index === 0) cell.className = 'strong';
+        row.append(cell);
+      });
+      const statusCell = document.createElement('td');
+      const badge = document.createElement('span');
+      badge.className = `badge ${productionStatuses.find(item => item.value === order.productionStatus)?.badgeClass || 'badge-blue'}`;
+      badge.dataset.productionStatus = '';
+      badge.textContent = order.productionStatus;
+      statusCell.appendChild(badge);
+      row.appendChild(statusCell);
+      const action = document.createElement('td');
+      const view = document.createElement('button');
+      view.className = 'btn btn-outline btn-sm';
+      view.type = 'button';
+      view.dataset.viewSharedOrder = record.id;
+      view.textContent = 'View';
+      action.appendChild(view);
+      row.appendChild(action);
+      return row;
+    }));
+    if (!records.length) rows.replaceChildren(...websiteOrders.map(order => {
+      const row = document.createElement('tr');
+      row.dataset.websiteOrderId = order.id;
+      [order.id, order.customer, order.type, order.amount].forEach((value, index) => {
+        const cell = document.createElement('td');
+        cell.textContent = value;
+        if (index === 0) cell.className = 'strong';
+        row.appendChild(cell);
+      });
+      const statusCell = document.createElement('td');
+      const badge = document.createElement('span');
+      badge.className = `badge ${getStatusStyle(order.productionStatus)}`;
+      badge.dataset.productionStatus = '';
+      badge.textContent = order.productionStatus;
+      statusCell.appendChild(badge);
+      row.appendChild(statusCell);
+      const actionCell = document.createElement('td');
+      const button = document.createElement('button');
+      button.className = 'btn btn-outline btn-sm';
+      button.type = 'button';
+      button.dataset.viewWebsiteOrder = order.id;
+      button.textContent = 'View';
+      actionCell.appendChild(button);
+      row.appendChild(actionCell);
+      return row;
+    }));
+  }
+
+  function renderSharedOrderDetails(record) {
+    activeSharedRecord = record;
+    activeOrder = record;
+    modalTitle.textContent = `Order ${record.orderNumber}`;
+    modalSubtitle.textContent = `${record.customerName || 'Customer'} · ${record.title || record.type}`;
+    productionStatusSelect.value = productionStatuses.some(status => status.value === record.productionStatus) ? record.productionStatus : 'Preparing';
+    statusFeedback.textContent = '';
+    bookingStatusUpdater.hidden = true;
+    details.replaceChildren(createOrderCard('Complete Order Details', Object.entries(record).filter(([, value]) => value !== undefined && value !== null && value !== '').map(([label, value]) => ({ label, value: typeof value === 'object' ? JSON.stringify(value, null, 2) : value }))));
+  }
+
+  function renderSharedBookings() {
+    const records = sharedDatabase.list('orders').filter(record => record.recordType === 'booking' || record.bookingOnly);
+    bookingRows.replaceChildren();
+    if (!records.length) {
+      const row = document.createElement('tr');
+      const cell = document.createElement('td');
+      cell.colSpan = 9;
+      cell.textContent = 'No branch bookings have been submitted.';
+      row.appendChild(cell);
+      bookingRows.appendChild(row);
+      return;
+    }
+    records.forEach(record => {
+      const row = document.createElement('tr');
+      row.dataset.sharedBookingId = record.id;
+      const values = [record.orderNumber, record.customerName, record.branchName, record.title, record.requestedFor, record.confirmedPrice || record.total, record.paymentStatus];
+      values.forEach(value => {
+        const cell = document.createElement('td');
+        cell.textContent = value || 'Not provided';
+        row.appendChild(cell);
+      });
+      const statusCell = document.createElement('td');
+      const badge = document.createElement('span');
+      badge.className = `badge ${record.bookingStatus === 'Cancelled' ? 'badge-red' : record.bookingStatus === 'Confirmed' ? 'badge-teal' : 'badge-amber'}`;
+      badge.textContent = record.bookingStatus || 'Booking Requested';
+      statusCell.appendChild(badge);
+      row.appendChild(statusCell);
+      const actionCell = document.createElement('td');
+      const button = document.createElement('button');
+      button.className = 'btn btn-outline btn-sm';
+      button.type = 'button';
+      button.textContent = 'View / Update';
+      button.dataset.viewSharedBooking = record.id;
+      actionCell.appendChild(button);
+      row.appendChild(actionCell);
+      bookingRows.appendChild(row);
+    });
+  }
+
+  function renderSharedOrders() {
+    const records = sharedOrderStore.read().filter(record => record.recordType !== 'booking' && !record.bookingOnly);
+    if (!records.length) {
+      rows.replaceChildren(...websiteOrders.map(renderSampleOrderRow));
+      return;
+    }
+    rows.replaceChildren(...records.map(record => {
+      const row = document.createElement('tr');
+      row.dataset.sharedOrderId = record.id;
+      row.dataset.websiteOrderId = record.orderNumber || record.id;
+      const values = [record.orderNumber || record.id, record.customerName || 'Customer', record.branchName || 'Unassigned', record.type || record.title || 'Order', record.total || record.orderTotal || record.amount || 'Price to be confirmed', record.paymentStatus || 'Not provided'];
+      values.forEach((value, index) => {
+        const cell = document.createElement('td');
+        cell.textContent = value;
+        if (index === 0) cell.className = 'strong';
+        row.appendChild(cell);
+      });
+      const statusCell = document.createElement('td');
+      const badge = document.createElement('span');
+      badge.className = `badge ${getStatusStyle(record.productionStatus || 'Preparing')}`;
+      badge.dataset.productionStatus = '';
+      badge.textContent = record.productionStatus || 'Preparing';
+      statusCell.appendChild(badge);
+      row.appendChild(statusCell);
+      const actionCell = document.createElement('td');
+      const button = document.createElement('button');
+      button.className = 'btn btn-outline btn-sm';
+      button.type = 'button';
+      button.dataset.viewSharedOrder = record.id;
+      button.textContent = 'View';
+      actionCell.appendChild(button);
+      row.appendChild(actionCell);
+      return row;
+    }));
+  }
+
+  function renderSampleOrderRow(order) {
+    const row = document.createElement('tr');
     row.dataset.websiteOrderId = order.id;
     [order.id, order.customer, order.type, order.amount].forEach((value, index) => {
-      const cell = document.createElement("td");
+      const cell = document.createElement('td');
       cell.textContent = value;
-      if (index === 0) cell.className = "strong";
-      row.append(cell);
+      if (index === 0) cell.className = 'strong';
+      row.appendChild(cell);
     });
-
-    const statusCell = document.createElement("td");
-    const statusBadge = document.createElement("span");
-    statusBadge.className = `badge ${getStatusStyle(order.productionStatus)}`;
-    statusBadge.textContent = order.productionStatus;
-    statusBadge.dataset.productionStatus = "";
-    statusCell.append(statusBadge);
-    row.append(statusCell);
-
-    const actionCell = document.createElement("td");
-    const viewButton = document.createElement("button");
-    viewButton.className = "btn btn-outline btn-sm";
-    viewButton.type = "button";
-    viewButton.textContent = "View";
-    viewButton.setAttribute("aria-label", `View order ${order.id}`);
-    viewButton.dataset.viewWebsiteOrder = order.id;
-    actionCell.append(viewButton);
-    row.append(actionCell);
+    const statusCell = document.createElement('td');
+    const badge = document.createElement('span');
+    badge.className = `badge ${getStatusStyle(order.productionStatus)}`;
+    badge.dataset.productionStatus = '';
+    badge.textContent = order.productionStatus;
+    statusCell.appendChild(badge);
+    row.appendChild(statusCell);
+    const actionCell = document.createElement('td');
+    const view = document.createElement('button');
+    view.className = 'btn btn-outline btn-sm';
+    view.type = 'button';
+    view.dataset.viewWebsiteOrder = order.id;
+    view.textContent = 'View';
+    actionCell.appendChild(view);
+    row.appendChild(actionCell);
     return row;
-  }));
+  }
+  renderSharedOrders();
 
-  rows.addEventListener("click", event => {
-    if (!(event.target instanceof Element)) return;
-    const trigger = event.target.closest("[data-view-website-order]");
+  rows.addEventListener('click', event => {
+    const sharedButton = event.target.closest('[data-view-shared-order]');
+    if (sharedButton) {
+      activeTrigger = sharedButton;
+      activeOrder = null;
+      activeSharedRecord = sharedOrderStore.read().find(record => record.id === sharedButton.dataset.viewSharedOrder);
+      if (!activeSharedRecord) return;
+      renderSharedOrderDetails(activeSharedRecord);
+      modal.classList.add('show');
+      productionStatusSelect.focus();
+      return;
+    }
+    const trigger = event.target.closest('[data-view-website-order]');
     if (!trigger) return;
     const order = websiteOrders.find(item => item.id === trigger.dataset.viewWebsiteOrder);
-    if (!order) throw new RangeError(`Unknown website order ID: ${trigger.dataset.viewWebsiteOrder}`);
+    if (!order) return;
     activeTrigger = trigger;
     activeOrder = order;
+    activeSharedRecord = null;
     renderOrderDetails(order);
-    modal.classList.add("show");
+    modal.classList.add('show');
     productionStatusSelect.focus();
   });
 
-  updateProductionStatusButton.addEventListener("click", () => {
-    if (!activeOrder) throw new Error("A website order must be open before updating its production status.");
+  bookingRows.addEventListener('click', event => {
+    const button = event.target.closest('[data-view-shared-booking]');
+    if (!button) return;
+    activeTrigger = button;
+    activeOrder = null;
+    activeSharedRecord = sharedOrderStore.read().find(record => record.id === button.dataset.viewSharedBooking);
+    if (!activeSharedRecord) return;
+    renderSharedBooking(activeSharedRecord);
+    modal.classList.add('show');
+    bookingStatusSelect.focus();
+  });
+
+  updateBookingStatusButton.addEventListener('click', () => {
+    if (!activeSharedRecord) return;
+    try {
+      activeSharedRecord = sharedDatabase.updateOrder(activeSharedRecord.id, { bookingStatus: bookingStatusSelect.value, status: bookingStatusSelect.value === 'Cancelled' ? 'cancelled-preview' : bookingStatusSelect.value === 'Confirmed' ? 'confirmed-preview' : `${bookingStatusSelect.value.toLowerCase().replace(/\\s+/g, '-')}-preview` });
+      renderSharedBookings();
+      renderSharedBooking(activeSharedRecord);
+      bookingStatusFeedback.textContent = `Booking status updated to ${bookingStatusSelect.value}.`;
+    } catch (error) {
+      bookingStatusFeedback.textContent = error.message;
+    }
+  });
+
+  updateProductionStatusButton.addEventListener('click', () => {
     const status = productionStatuses.find(item => item.value === productionStatusSelect.value);
-    if (!status) throw new RangeError(`Unknown production status: ${productionStatusSelect.value}`);
+    if (!status) return;
+    if (activeSharedRecord?.recordType === 'order') {
+      sharedOrderStore.updateStatus(activeSharedRecord.id, status.value, 'productionStatus');
+      activeSharedRecord = sharedOrderStore.read().find(record => record.id === activeSharedRecord.id);
+      renderSharedOrders();
+      renderSharedOrderDetails(activeSharedRecord);
+      statusFeedback.textContent = `Production status updated to ${status.value}.`;
+      return;
+    }
+    if (!activeOrder) throw new Error("A website order must be open before updating its production status.");
     const row = [...rows.querySelectorAll("tr")]
       .find(item => item.dataset.websiteOrderId === activeOrder.id);
     const statusBadge = row?.querySelector("[data-production-status]");
@@ -390,6 +646,12 @@
     statusFeedback.textContent = `Production status updated to ${status.value}.`;
   });
 
+  renderSharedOrders();
+  renderSharedBookings();
+  window.addEventListener(sharedDatabase.eventName, () => { renderSharedOrders(); renderSharedBookings(); });
+  window.addEventListener('storage', event => {
+    if (event.key === sharedDatabase.key) { renderSharedOrders(); renderSharedBookings(); }
+  });
   closeButtons.forEach(button => button.addEventListener("click", closeOrderDetails));
   modal.addEventListener("click", event => {
     if (event.target === modal) closeOrderDetails();

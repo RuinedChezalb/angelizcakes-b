@@ -39,10 +39,15 @@
   const storefrontAssetPromises = new Map();
   let activeCakeFlow = null;
   let activePresetProduct = null;
-  let nextOrderNumber = Math.max(0, ...$$('#ordTable tbody tr').map(row => {
+  const sharedOrderStore = window.AngelizOrderBookingStore;
+  if (!sharedOrderStore) throw new Error('The shared order/booking store did not load.');
+  const sharedDatabase = window.AngelizSharedDatabase;
+  if (!sharedDatabase) throw new Error('The shared three-user CRUD database did not load.');
+  let nextOrderNumber = Math.max(0, ...[...document.querySelectorAll('#ordTable tbody tr')].map(row => {
     const match = /^ORD-(\d+)$/.exec(row.cells[0].textContent.trim());
     return match ? Number(match[1]) : 0;
   })) + 1;
+  const bookingRows = $('#bookingRows');
 
   /* ============================================================
      overlays
@@ -398,13 +403,15 @@
       order.additionalInformation,
       order.notes,
       order.giftMessage && `Gift message: ${order.giftMessage}`,
-      order.referenceImages?.length ? `Reference images: ${order.referenceImages.join(', ')}` : ''
+      order.referenceImages?.length ? `Reference images: ${order.referenceImages.map(image => typeof image === 'string' ? image : image.name).filter(Boolean).join(', ')}` : ''
     ]
       .filter(Boolean)
       .join('; ');
     const itemDetails = [item, selections, retouches].filter(Boolean).join(' · ');
     const preferredDate = fmtDate(order.deliveryDate || order.dateNeeded || '');
+    const sharedRecordId = `branch-ORD-${String(nextOrderNumber).padStart(4, '0')}`;
     const row = document.createElement('tr');
+    row.dataset.recordId = sharedRecordId;
     row.dataset.type = 'Custom';
     row.dataset.status = 'Pending';
     row.dataset.item = itemDetails;
@@ -422,6 +429,7 @@
       order.recipientAddress
     ].filter(Boolean).join(' · ');
     row.dataset.notes = specifications;
+    row.dataset.referenceImages = JSON.stringify(order.referenceImages || []);
     row.dataset.search = `${orderNumber} ${customer} ${itemDetails} ${row.dataset.date} Custom Pending ${row.dataset.payment}`;
 
     [orderNumber, customer, 'Custom', row.dataset.amount].forEach((value, index) => {
@@ -445,7 +453,121 @@
     viewButton.textContent = 'View';
     actionCell.append(viewButton);
     row.append(actionCell);
-    $('#ordTable tbody').prepend(row);
+    const sharedOrderStore = window.AngelizOrderBookingStore;
+    if (sharedOrderStore) sharedOrderStore.save({
+      id: sharedRecordId,
+      orderNumber,
+      referenceNumber: order.referenceNumber || sharedRecordId,
+      recordSource: 'branch-admin',
+      recordType: 'order',
+      bookingOnly: false,
+      branchName: 'Yashano Mall Branch',
+      customerName: customer,
+      customerEmail: order.customerEmail || order.email || '',
+      customerPhone: order.customerPhone || order.contactNumber || '',
+      title: item,
+      type,
+      product: product || null,
+      selections: order.selections || [],
+      dedication: order.dedication || '',
+      additionalInformation: order.additionalInformation || '',
+      notes: specifications,
+      giftMessage: order.giftMessage || '',
+      recipientName: order.recipientName || '',
+      recipientContact: order.recipientContact || '',
+      recipientAddress: order.recipientAddress || '',
+      deliveryDate: order.deliveryDate || order.dateNeeded || '',
+      deliveryTime: order.deliveryTime || order.timeNeeded || '',
+      requestedFor: [order.deliveryDate || order.dateNeeded, order.deliveryTime || order.timeNeeded].filter(Boolean).join(' '),
+      fulfillment: order.fulfillment || '',
+      deliveryAddress: order.deliveryAddress || order.recipientAddress || '',
+      paymentMethod: order.paymentMethod || '',
+      paymentStatus: order.paymentStatus || 'pending-preview',
+      total: order.orderTotal || product?.price || 'Price to be confirmed',
+      productionStatus: 'Pending',
+      referenceImages: order.referenceImages || []
+    });
+    if (isBooking) {
+      const bookingRow = document.createElement('tr');
+      bookingRow.dataset.type = 'Package';
+      bookingRow.dataset.status = row.dataset.status;
+      bookingRow.dataset.recordId = id;
+      bookingRow.dataset.item = itemSummary;
+      bookingRow.dataset.date = row.dataset.date;
+      bookingRow.dataset.time = row.dataset.time;
+      bookingRow.dataset.payment = row.dataset.payment;
+      bookingRow.dataset.amount = row.dataset.amount;
+      bookingRow.dataset.contact = row.dataset.contact;
+      bookingRow.dataset.email = row.dataset.email;
+      bookingRow.dataset.fulfillment = row.dataset.fulfillment;
+      bookingRow.dataset.address = row.dataset.address;
+      bookingRow.dataset.recipient = row.dataset.recipient;
+      bookingRow.dataset.notes = row.dataset.notes;
+      bookingRow.dataset.branch = row.dataset.branch;
+      bookingRow.dataset.referenceNumber = row.dataset.referenceNumber;
+      bookingRow.dataset.packageId = row.dataset.packageId;
+      bookingRow.dataset.pax = row.dataset.pax;
+      bookingRow.dataset.paymentStatus = row.dataset.paymentStatus;
+      bookingRow.dataset.search = row.dataset.search;
+      [orderNumber, customer, packageOffering.title, row.dataset.date + ' ' + row.dataset.time, row.dataset.amount, row.dataset.payment].forEach(value => {
+        const cell = document.createElement('td');
+        cell.textContent = value || '—';
+        bookingRow.append(cell);
+      });
+      const bookingStatusCell = document.createElement('td');
+      const bookingBadge = document.createElement('span');
+      bookingBadge.className = 'status-badge badge-amber';
+      bookingBadge.textContent = 'Booking Requested';
+      bookingStatusCell.append(bookingBadge);
+      bookingRow.append(bookingStatusCell);
+      const bookingAction = document.createElement('td');
+      const bookingView = document.createElement('button');
+      bookingView.className = 'order-view-button';
+      bookingView.type = 'button';
+      bookingView.dataset.viewOrder = '';
+      bookingView.textContent = 'View';
+      bookingAction.append(bookingView);
+      bookingRow.append(bookingAction);
+      bookingRows.prepend(bookingRow);
+    } else {
+      $('#ordTable tbody').prepend(row);
+    }
+    const sharedOrderStore = window.AngelizOrderBookingStore;
+    if (sharedOrderStore) {
+      sharedOrderStore.save({
+        id: sharedRecordId,
+        orderNumber,
+        referenceNumber: order.referenceNumber || sharedRecordId,
+        recordSource: 'branch-admin',
+        recordType: 'order',
+        bookingOnly: false,
+        branchName: 'Yashano Mall Branch',
+        customerName: customer,
+        customerEmail: order.customerEmail || order.email || '',
+        customerPhone: order.customerPhone || order.contactNumber || '',
+        title: item,
+        type,
+        product: product || null,
+        selections: order.selections || [],
+        dedication: order.dedication || '',
+        additionalInformation: order.additionalInformation || '',
+        notes: specifications,
+        giftMessage: order.giftMessage || '',
+        recipientName: order.recipientName || '',
+        recipientContact: order.recipientContact || '',
+        recipientAddress: order.recipientAddress || '',
+        deliveryDate: order.deliveryDate || order.dateNeeded || '',
+        deliveryTime: order.deliveryTime || order.timeNeeded || '',
+        requestedFor: [order.deliveryDate || order.dateNeeded, order.deliveryTime || order.timeNeeded].filter(Boolean).join(' '),
+        fulfillment: order.fulfillment || '',
+        deliveryAddress: order.deliveryAddress || order.recipientAddress || '',
+        paymentMethod: order.paymentMethod || '',
+        paymentStatus: order.paymentStatus || 'pending-preview',
+        amount: order.orderTotal || product?.price || 'Price to be confirmed',
+        productionStatus: 'Pending',
+        referenceImages: order.referenceImages || []
+      });
+    }
     $('#kpiPending').textContent = String(Number($('#kpiPending').textContent) + 1);
     applyFilters();
     return orderNumber;
@@ -575,9 +697,12 @@
 
   function addPackageOrderRow(placement) {
     const orderNumber = 'ORD-' + String(nextOrderNumber++).padStart(4, '0');
-    const id = 'PKG-' + String(inquirySeq++).padStart(4, '0');
+    const id = `branch-${orderNumber}`;
     const order = placement.order;
+    const isBooking = Boolean(placement.bookingOnly || placement.packageOffering.bookingOnly);
     const packageOffering = placement.packageOffering;
+    const bookingStore = window.AngelizOrderBookingStore;
+    if (!bookingStore) throw new Error('The shared order and booking store did not load.');
     const itemNames = placement.items.map(item => {
       const product = window.angelizStorefrontProducts.find(candidate => candidate.id === item.productId);
       return product ? `${product.name} ×${item.quantity}` : 'Package item';
@@ -596,9 +721,50 @@
       order.additionalInformation,
       order.giftMessage && `Gift message: ${order.giftMessage}`
     ].filter(Boolean).join('; ');
+    const record = {
+      id,
+      orderNumber,
+      referenceNumber: `${id}-${placement.placedAt.getTime()}`, 
+      recordType: isBooking ? 'booking' : 'order',
+      bookingOnly: isBooking,
+      branchName: 'Yashano Mall Branch',
+      customerName: customer,
+      customerEmail: order.customerEmail || '',
+      customerPhone: order.customerPhone || '',
+      type: 'Package',
+      title: packageOffering.title,
+      packageId: packageOffering.id,
+      packageOffering: { ...packageOffering },
+      items: placement.items,
+      inclusions: placement.inclusions,
+      unselectedInclusions: placement.unselectedInclusions,
+      pax: placement.pax || packageOffering.pax || '',
+      fulfillment: order.fulfillment || '',
+      deliveryAddress: order.deliveryAddress || order.recipientAddress || '',
+      recipientName: order.recipientName || '',
+      recipientContact: order.recipientContact || '',
+      recipientAddress: order.recipientAddress || '',
+      deliveryDate: order.deliveryDate || '',
+      deliveryTime: order.deliveryTime || '',
+      requestedFor: [order.deliveryDate, order.deliveryTime].filter(Boolean).join(' '),
+      paymentStatus: placement.paymentStatus || order.paymentStatus || (isBooking ? 'unpaid-booking' : 'pending-preview'),
+      paymentMethod: order.paymentMethod || '',
+      total: placement.total || packageOffering.price || 'Price to be confirmed',
+      confirmedPrice: order.confirmedPrice || '',
+      priceStatus: placement.priceStatus || '',
+      productionStatus: isBooking ? 'Booking Requested' : 'Pending',
+      bookingStatus: isBooking ? 'Booking Requested' : undefined,
+      additionalInformation: order.additionalInformation || '',
+      giftMessage: order.giftMessage || '',
+      notes,
+      createdAt: placement.placedAt.toISOString()
+    };
     const row = document.createElement('tr');
     row.dataset.type = 'Package';
-    row.dataset.status = 'Pending';
+    row.dataset.status = isBooking ? 'Booking Requested' : 'Pending';
+    row.dataset.booking = String(isBooking);
+    row.dataset.recordId = id;
+    row.dataset.customer = customer;
     row.dataset.item = itemSummary;
     row.dataset.date = preferredDate || 'To be confirmed';
     row.dataset.time = order.deliveryTime || '';
@@ -614,6 +780,12 @@
       order.recipientAddress
     ].filter(Boolean).join(' · ');
     row.dataset.notes = notes;
+    row.dataset.branch = 'Yashano Mall Branch';
+    row.dataset.referenceNumber = `${id}-${placement.placedAt.getTime()}`;
+    row.dataset.packageId = packageOffering.id;
+    row.dataset.pax = placement.pax || packageOffering.pax || '';
+    row.dataset.bookingStatus = isBooking ? 'Booking Requested' : '';
+    row.dataset.paymentStatus = placement.paymentStatus || order.paymentStatus || (isBooking ? 'unpaid-booking' : 'pending-preview');
     row.dataset.search = `${orderNumber} ${customer} ${itemSummary} ${row.dataset.date} ${row.dataset.time} Package Pending ${row.dataset.payment}`;
 
     const values = [orderNumber, customer, 'Package', row.dataset.amount];
@@ -638,8 +810,88 @@
     viewButton.textContent = 'View';
     actionCell.append(viewButton);
     row.append(actionCell);
-    $('#ordTable tbody').prepend(row);
-    $('#kpiPending').textContent = String(Number($('#kpiPending').textContent) + 1);
+    if (isBooking) {
+      const bookingRow = document.createElement('tr');
+      bookingRow.dataset.type = row.dataset.type;
+      bookingRow.dataset.status = row.dataset.bookingStatus;
+      bookingRow.dataset.item = row.dataset.item;
+      bookingRow.dataset.date = row.dataset.date;
+      bookingRow.dataset.time = row.dataset.time;
+      bookingRow.dataset.payment = row.dataset.payment;
+      bookingRow.dataset.amount = row.dataset.amount;
+      bookingRow.dataset.contact = row.dataset.contact;
+      bookingRow.dataset.email = row.dataset.email;
+      bookingRow.dataset.fulfillment = row.dataset.fulfillment;
+      bookingRow.dataset.address = row.dataset.address;
+      bookingRow.dataset.recipient = row.dataset.recipient;
+      bookingRow.dataset.notes = row.dataset.notes;
+      bookingRow.dataset.search = row.dataset.search;
+      bookingRow.dataset.booking = 'true';
+      bookingRow.dataset.recordId = id;
+      [orderNumber, customer, packageOffering.title, [row.dataset.date, row.dataset.time].filter(Boolean).join(' '), row.dataset.amount, row.dataset.payment].forEach(value => {
+        const cell = document.createElement('td');
+        cell.textContent = value || '—';
+        bookingRow.append(cell);
+      });
+      const bookingStatusCell = document.createElement('td');
+      const bookingStatusBadge = document.createElement('span');
+      bookingStatusBadge.className = 'status-badge badge-amber';
+      bookingStatusBadge.textContent = 'Booking Requested';
+      bookingStatusCell.append(bookingStatusBadge);
+      bookingRow.append(bookingStatusCell);
+      const bookingAction = document.createElement('td');
+      const bookingView = document.createElement('button');
+      bookingView.className = 'order-view-button';
+      bookingView.type = 'button';
+      bookingView.dataset.viewOrder = '';
+      bookingView.textContent = 'View';
+      bookingAction.append(bookingView);
+      bookingRow.append(bookingAction);
+      bookingRows.prepend(bookingRow);
+    } else {
+      $('#ordTable tbody').prepend(row);
+      $('#kpiPending').textContent = String(Number($('#kpiPending').textContent) + 1);
+    }
+    bookingStore.save({
+      id,
+      orderNumber,
+      referenceNumber: row.dataset.referenceNumber,
+      recordType: isBooking ? 'booking' : 'order',
+      bookingOnly: isBooking,
+      branchName: row.dataset.branch,
+      customerName: customer,
+      customerEmail: order.customerEmail || '',
+      customerPhone: order.customerPhone || '',
+      title: packageOffering.title,
+      type: 'Package',
+      recordSource: 'branch-admin',
+      packageId: packageOffering.id,
+      packageOffering: { ...packageOffering, selectedItems: placement.items, selectedInclusions: placement.inclusions, unselectedInclusions: placement.unselectedInclusions },
+      items: placement.items,
+      inclusions: placement.inclusions,
+      unselectedInclusions: placement.unselectedInclusions,
+      pax: row.dataset.pax,
+      fulfillment: order.fulfillment,
+      deliveryAddress: order.deliveryAddress || order.recipientAddress || '',
+      recipientName: order.recipientName || '',
+      recipientContact: order.recipientContact || '',
+      recipientAddress: order.recipientAddress || '',
+      deliveryDate: order.deliveryDate || '',
+      deliveryTime: order.deliveryTime || '',
+      requestedFor: [order.deliveryDate, order.deliveryTime].filter(Boolean).join(' '),
+      paymentStatus: row.dataset.paymentStatus,
+      paymentMethod: order.paymentMethod || '',
+      total: placement.total || packageOffering.price || 'Price to be confirmed',
+      confirmedPrice: order.confirmedPrice || '',
+      priceStatus: placement.priceStatus || '',
+      productionStatus: isBooking ? 'Booking Requested' : 'Pending',
+      bookingStatus: isBooking ? 'Booking Requested' : '',
+      additionalInformation: order.additionalInformation || '',
+      giftMessage: order.giftMessage || '',
+      notes,
+      createdAt: placement.placedAt.toISOString()
+    });
+    sharedOrderStore.save(record);
     applyFilters();
     toast(`${id} created as ${orderNumber}.`);
     return {
@@ -686,14 +938,16 @@
   }
 
   $$('#ordTable tbody tr').forEach(addOrderViewAction);
-  $('#ordTable tbody').addEventListener('click', event => {
+  const openOrderDetails = event => {
     if (!(event.target instanceof Element)) return;
     const viewButton = event.target.closest('[data-view-order]');
     if (!viewButton) return;
     const row = viewButton.closest('tr');
     if (!row) return;
 
-    const labels = $$('#ordTable thead th').slice(0, -1);
+    const isBooking = row.dataset.booking === 'true';
+    const activeTable = isBooking ? $('#bookingTable') : $('#ordTable');
+    const labels = $$('#' + activeTable.id + ' thead th').slice(0, -1);
     const fields = $('#orderDetailsFields');
     fields.replaceChildren();
     labels.forEach((header, index) => {
@@ -725,12 +979,35 @@
       field.append(label, value);
       fields.append(field);
     });
-    $('#orderDetailsTitle').textContent = `Order ${row.cells[0].textContent.trim()}`;
-    $('#orderDetailsSubtitle').textContent =
-      `${row.cells[1].textContent.trim()} · ${row.cells[2].textContent.trim()}`;
+    let referenceImages = [];
+    try { referenceImages = JSON.parse(row.dataset.referenceImages || '[]'); } catch (error) { referenceImages = []; }
+    if (referenceImages.length) {
+      const photoField = document.createElement('div');
+      photoField.className = 'order-detail-photo-field';
+      const photoLabel = document.createElement('span');
+      photoLabel.textContent = 'Reference photos';
+      photoField.appendChild(photoLabel);
+      referenceImages.forEach((reference, index) => {
+        const source = typeof reference === 'string' ? reference : reference.dataUrl || reference.assetUrl || reference.asset;
+        if (!source) return;
+        const photo = document.createElement('img');
+        photo.className = 'order-detail-image';
+        photo.alt = (typeof reference === 'object' && reference.name) || `Reference photo ${index + 1}`;
+        photo.src = source.startsWith('data:') || /^https?:/.test(source)
+          ? source
+          : new URL(source.startsWith('../assets/') ? source : `../assets/${source}`, window.location.href).href;
+        photo.addEventListener('error', () => photo.remove(), { once: true });
+        photoField.appendChild(photo);
+      });
+      fields.appendChild(photoField);
+    }
+    $('#orderDetailsTitle').textContent = `${isBooking ? 'Booking' : 'Order'} ${row.cells[0].textContent.trim()}`;
+    $('#orderDetailsSubtitle').textContent = `${row.cells[1].textContent.trim()} · ${row.cells[2].textContent.trim()}`;
     showOverlay('#orderDetailsModal');
     $('#closeOrderDetailsBtn').focus();
-  });
+  };
+  $('#ordTable tbody').addEventListener('click', openOrderDetails);
+  bookingRows.addEventListener('click', openOrderDetails);
   $('#closeOrderDetailsBtn').addEventListener('click', () => hideOverlay('#orderDetailsModal'));
 
   function applyFilters(){
@@ -739,7 +1016,7 @@
     const tp = t.value;
     let shown = 0;
 
-    $$('#ordTable tbody tr').forEach(tr => {
+    $$('#ordTable tbody tr, #bookingRows tr').forEach(tr => {
       const ok =
         (!term || (tr.dataset.search || tr.textContent).toLowerCase().indexOf(term) !== -1) &&
         (!st || tr.dataset.status === st) &&

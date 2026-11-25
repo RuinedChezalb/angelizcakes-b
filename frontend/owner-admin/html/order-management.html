@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Order Management · Angeliz Cakes</title>
+<title>Order &amp; Booking Management · Angeliz Cakes</title>
 <link rel="stylesheet" href="../css/order-management.css">
 </head>
 <body>
 <main class="page">
   <header class="page-header">
     <div>
-      <h1 class="page-title">Order Management</h1>
+      <h1 class="page-title">Order &amp; Booking Management</h1>
       <p class="page-subtitle">Monitor all orders, walk-in transactions, and customized cakes across branches.</p>
     </div>
   </header>
@@ -43,6 +43,30 @@
         <table class="table">
           <thead><tr><th>Order #</th><th>Customer</th><th>Type</th><th>Amount</th><th>Production Status</th><th>Action</th></tr></thead>
           <tbody id="websiteOrderRows"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="card">
+      <div class="card-title">Bookings <span class="sub">Branch package and event booking requests</span></div>
+      <div class="table-wrap">
+        <table class="table">
+          <thead><tr><th>Booking #</th><th>Customer</th><th>Branch</th><th>Package / Event</th><th>Requested For</th><th>Amount</th><th>Payment</th><th>Booking Status</th><th>Action</th></tr></thead>
+          <tbody id="ownerBookingRows"><tr><td colspan="9">No booking records have been submitted.</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="card">
+      <div class="card-title">Bookings <span class="sub">Branch package and event requests</span></div>
+      <div class="table-wrap">
+        <table class="table">
+          <thead><tr><th>Booking #</th><th>Customer</th><th>Branch</th><th>Package / Event</th><th>Requested For</th><th>Amount</th><th>Payment</th><th>Booking Status</th><th>Action</th></tr></thead>
+          <tbody id="ownerBookingRows"><tr><td colspan="9">No branch bookings yet.</td></tr></tbody>
         </table>
       </div>
     </div>
@@ -82,6 +106,22 @@
           <button class="btn btn-status-update btn-sm" id="updateWebsiteOrderStatus" type="button">Update</button>
         </div>
         <p class="production-status-feedback" id="websiteOrderStatusFeedback" role="status" aria-live="polite"></p>
+        <div class="booking-status-updater" id="bookingStatusUpdater" hidden>
+          <label for="bookingStatusSelect">Booking status</label>
+          <div class="production-status-controls">
+            <select id="bookingStatusSelect"></select>
+            <button class="btn btn-status-update btn-sm" id="updateBookingStatus" type="button">Update</button>
+          </div>
+          <p class="production-status-feedback" id="bookingStatusFeedback" role="status" aria-live="polite"></p>
+        </div>
+        <div class="booking-status-updater" id="bookingStatusUpdater" hidden>
+          <label for="bookingStatusSelect">Booking status</label>
+          <div class="production-status-controls">
+            <select id="bookingStatusSelect"></select>
+            <button class="btn btn-status-update btn-sm" id="updateBookingStatus" type="button">Update</button>
+          </div>
+          <p class="production-status-feedback" id="bookingStatusFeedback" role="status" aria-live="polite"></p>
+        </div>
       </div>
     </div>
     <div class="modal-body">
@@ -93,6 +133,7 @@
   </section>
 </div>
 
+<script src="../../shared/order-booking-store.js"></script>
 <script src="../js/order-management.js"></script>
 </body>
 </html>

@@ -31,6 +31,7 @@
       fragment: "html/daily-branch-report.html",
       stylesheet: "css/daily-branch-report.css",
       script: "js/daily-branch-report.js",
+      onShow: "refreshDailyBranchReport",
     },
     "staff-shift-management": {
       fragment: "html/staff-shift-management.html",

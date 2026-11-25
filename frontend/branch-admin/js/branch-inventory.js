@@ -365,6 +365,15 @@
     }
 
     const deliveryDate = $('#delDate').value || isoDate(0);
+    const deliveryRecord = {
+      id: $('#delRef').value,
+      reference: $('#delRef').value,
+      source: 'Main Branch',
+      destination: 'Yashano Mall Branch',
+      deliveryDate,
+      receivedAt: new Date().toISOString(),
+      items: deliveryItems.map(item => ({ productId: item.productId, name: item.name, qty: item.qty, expiry: item.expiry }))
+    };
     const updatedCatalog = JSON.parse(JSON.stringify(catalog));
     let totalUnits = 0;
 
@@ -382,8 +391,18 @@
 
     try {
       inventoryStore.saveCatalog(updatedCatalog);
+      const deliveryStorageKey = 'angeliz_branch_deliveries_v1';
+      let savedDeliveries = [];
+      try {
+        const storedDeliveries = JSON.parse(localStorage.getItem(deliveryStorageKey) || '[]');
+        savedDeliveries = Array.isArray(storedDeliveries) ? storedDeliveries : [];
+      } catch (storageError) {
+        throw new Error('Saved delivery history is invalid JSON. Inventory was updated, but the delivery report could not be recorded.');
+      }
+      savedDeliveries.unshift(deliveryRecord);
+      localStorage.setItem(deliveryStorageKey, JSON.stringify(savedDeliveries));
     } catch (error) {
-      toast('Delivery could not be saved: ' + error.message, 'warn');
+      toast('Delivery was not fully recorded: ' + error.message, 'warn');
       return;
     }
 

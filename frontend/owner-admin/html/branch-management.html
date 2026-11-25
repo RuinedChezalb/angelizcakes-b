@@ -105,40 +105,15 @@
               <th>Date</th>
               <th>Branch</th>
               <th>Total Sales</th>
-              <th>Walk-in & Payment Transactions</th>
+              <th>POS Transactions</th>
               <th>Deliveries</th>
-              <th>Special Orders</th>
+              <th>Successful Orders</th>
+              <th>Status</th>
               <th>Action</th>
             </tr>
           </thead>
-          <tbody>
-            <tr>
-              <td>2026-11-21</td>
-              <td class="strong">Main Branch</td>
-              <td>₱12,450</td>
-              <td>84</td>
-              <td>2 Deliveries</td>
-              <td>3 Custom / 1 Grazing</td>
-              <td><button class="btn btn-outline btn-sm" onclick="openReportView('Main Branch', '2026-11-21')">View</button></td>
-            </tr>
-            <tr>
-              <td>2026-11-21</td>
-              <td class="strong">Yashano Mall Branch</td>
-              <td>₱8,200</td>
-              <td>56</td>
-              <td>1 Delivery</td>
-              <td>2 Custom</td>
-              <td><button class="btn btn-outline btn-sm" onclick="openReportView('Yashano Mall Branch', '2026-11-21')">View</button></td>
-            </tr>
-            <tr>
-              <td>2026-11-20</td>
-              <td class="strong">Main Branch</td>
-              <td>₱15,300</td>
-              <td>102</td>
-              <td>1 Delivery</td>
-              <td>5 Custom / 2 Pastry Buffet</td>
-              <td><button class="btn btn-outline btn-sm" onclick="openReportView('Main Branch', '2026-11-20')">View</button></td>
-            </tr>
+          <tbody id="branchReportRows">
+            <tr><td colspan="8" class="muted">No branch reports have been submitted in this browser.</td></tr>
           </tbody>
         </table>
       </div>
@@ -305,7 +280,7 @@
     </div>
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeModal('reportViewModal')">Close</button>
-      <button class="btn btn-teal" onclick="alert('Report marked as reviewed and archived.')">Mark as Reviewed</button>
+      <button class="btn btn-teal" id="markReportReviewedBtn" type="button" onclick="markCurrentReportReviewed()">Mark as Reviewed</button>
     </div>
   </div>
 </div>

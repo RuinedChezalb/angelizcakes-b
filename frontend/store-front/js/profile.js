@@ -200,10 +200,48 @@ function renderProfileOrders(panel, orders, actions = {}) {
     details.append(toggle, detailList);
     card.append(summary, details);
 
-    const canMarkReceived = Boolean(actions.onReceived) && String(order.productionStatus || order.status || "")
-      .trim()
-      .toLowerCase()
-      .replace(/-preview$/, "") === "ready";
+    const canPayBooking = Boolean(actions.onPayBooking)
+      && order.bookingOnly
+      && order.status === "confirmed-preview"
+      && order.priceStatus === "confirmed-preview"
+      && Boolean(order.confirmedPrice)
+      && order.paymentStatus !== "paid-preview";
+    if (canPayBooking) {
+      const paymentDialog = document.createElement("dialog");
+      paymentDialog.className = "profile-order-dialog profile-booking-payment-dialog";
+      const paymentForm = document.createElement("form");
+      paymentForm.className = "profile-order-feedback";
+      paymentForm.innerHTML = `<div class="profile-order-dialog-header"><h3>Pay booking · ${escapeHTML(order.confirmedPrice)}</h3><button type="button" data-close-payment>Cancel</button></div><label>Payment method <select name="paymentMethod" required><option value="">Choose a method</option><option>GCash</option><option>Maya</option><option>QRPh</option><option>Tonik</option><option>BPI</option><option>GoTyme</option><option>MariBank</option></select></label><button type="submit">Pay now</button><p role="status" aria-live="polite"></p>`;
+      paymentForm.querySelector("[data-close-payment]").addEventListener("click", () => paymentDialog.close());
+      paymentForm.addEventListener("submit", event => {
+        event.preventDefault();
+        if (!paymentForm.reportValidity()) return;
+        const submit = paymentForm.querySelector('button[type="submit"]');
+        const message = paymentForm.querySelector('[role="status"]');
+        submit.disabled = true;
+        actions.onPayBooking(order, new FormData(paymentForm).get("paymentMethod"))
+          .then(async paidOrder => {
+            Object.assign(order, paidOrder);
+            paymentDialog.close();
+            await actions.onRefresh?.();
+          })
+          .catch(error => {
+            console.error("Could not pay the booking.", error);
+            message.textContent = error.message || "Payment could not be completed. Please try again.";
+            submit.disabled = false;
+          });
+      });
+      paymentDialog.append(paymentForm);
+      const paymentButton = document.createElement("button");
+      paymentButton.type = "button";
+      paymentButton.className = "profile-order-pay";
+      paymentButton.textContent = `Pay now · ${order.confirmedPrice}`;
+      paymentButton.addEventListener("click", () => paymentDialog.showModal());
+      card.append(paymentButton, paymentDialog);
+    }
+
+    const canMarkReceived = Boolean(actions.onReceived)
+      && String(order.productionStatus || "").trim().toLowerCase() === "ready";
     if (!canMarkReceived) {
       list.append(card);
       return;
@@ -541,6 +579,10 @@ window.initializeProfileFragment = async function initializeProfileFragment(root
     };
     const orderActions = {
       showStatus: true,
+      onPayBooking: (order, paymentMethod) => window.storefrontApi.post("/api/storefront/orders/payment", {
+        orderId: order.id,
+        paymentMethod
+      }),
       onReceived: order => window.storefrontApi.post("/api/storefront/orders/received", { orderId: order.id }),
       onReview: (order, feedback) => window.storefrontApi.post("/api/storefront/orders/feedback", {
         orderId: order.id,
